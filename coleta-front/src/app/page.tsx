@@ -1,11 +1,12 @@
 import Button from '../components/ui/Button';
 import Image from 'next/image';
-import logo from '../public/assets/apenas_circulo.png';
+import Link from 'next/link';
+import logo from '../../public/assets/apenas_circulo.png';
 
 export default function Home() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-creme-flor">
-      <div className="flex flex-col bg-linear-to-br from-[#245829] to-[#3D7E3F] p-11 gap-6 rounded-xl shadow-lg w-130">
+      <div className="flex flex-col bg-linear-to-br from-[#245829] to-[#3D7E3F] p-11 gap-6 rounded-xl shadow-lg w-130 h-130">
         <div className="flex flex-col items-center justify-center gap-2">
           <Image
             src={logo}
@@ -16,7 +17,7 @@ export default function Home() {
           <h1 className="text-3xl text-creme-flor">Entrar no Glupta</h1>
         </div>
         <div className="w-full flex flex-col gap-4">
-          <div>
+          <div className="flex flex-col gap-2">
             <p className="text-creme-flor font-semibold">Email ou usuário</p>
             <div className="bg-creme-flor p-2 rounded-md">
               <input
@@ -26,10 +27,12 @@ export default function Home() {
               />
             </div>
           </div>
-          <div>
+          <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
               <p className="text-creme-flor font-semibold">Senha</p>
-              <p className="text-creme-flor/70 text-sm">Esqueceu sua senha?</p>
+              <Link href="/recuperar-acesso" className="text-creme-flor/70 text-sm hover:underline">
+                Esqueceu sua senha?
+              </Link>
             </div>
             <div className="bg-creme-flor p-2 rounded-md">
               <input
@@ -45,7 +48,10 @@ export default function Home() {
           />
         </div>
         <p className="text-creme-flor text-lg text-center">
-          Não possui uma conta? <span className="text-coral-flor font-semibold">Cadastre-se</span>
+          Não possui uma conta?{' '}
+          <Link href="/cadastro" className="text-coral-flor font-semibold hover:underline">
+            Cadastre-se
+          </Link>
         </p>
       </div>
     </div>
