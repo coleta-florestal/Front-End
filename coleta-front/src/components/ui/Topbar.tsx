@@ -2,7 +2,7 @@ import { ArrowLeft } from "../core/Icons";
 
 export default function Topbar() {
     return (
-        <div className="flex h-20.5 2-full items-center gap-4 bg-[#FBF9F2] py-6 px-4 border-b-1 border-[#D8D1C4]">
+        <div className="flex h-20.5 2-full items-center gap-4 bg-[#FBF9F2] py-6 px-4 border-b border-[#D8D1C4]">
             <div className="flex items-center justify-center text-verde-mata border-2 border-[#D8D1C4] rounded-lg p-2">
                 <ArrowLeft />
             </div>
