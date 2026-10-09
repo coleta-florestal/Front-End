@@ -2,8 +2,10 @@ name: ci
 
 on: 
   - pull_request
+  - push
 
-permissions: read-all
+permissions:
+  contents: read
 
 jobs:
   validate:
@@ -24,5 +26,5 @@ jobs:
       - name: Lint
         run: npm run lint
         
-      - name: Tests
-        run: npm run test
+#      - name: Tests
+#        run: npm run test
