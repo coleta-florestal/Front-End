@@ -1,4 +1,4 @@
-import Button from '../../components/ui/Button';
+import Button from '../../components/core/Button';
 import Image from 'next/image';
 import logo from '../../../public/assets/apenas_circulo.png';
 
