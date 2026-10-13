@@ -36,6 +36,8 @@ This entity hierarchy allow that the main entity have many as minor entity.
 
 A library of reusable primitives (`Button`, `Card`, `Icons`, etc.) used by all pages. Prefer adding to this folder over duplicating patterns inline.
 
+If you need another style of button, for example, prefer to add a new variant into already created Button component instead to creater another component
+
 **Styling**
 
 Two approaches are used together intentionally:
