@@ -114,7 +114,7 @@ export function TreeForm({ onAddTree, initialQualidade = "NORMAL" }: TreeFormPro
         <h2 className="text-xl font-semibold text-verde-mata">Cadastrar Nova Árvore</h2>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
         <Input
           label="Nº *"
           name="numero"

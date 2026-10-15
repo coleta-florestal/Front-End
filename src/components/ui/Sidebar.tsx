@@ -1,7 +1,11 @@
-import Image from 'next/image';
-import logo from '../../../public/assets/apenas_circulo.png';
-import { House, Farm, Admin, Dashboard } from '../core/Icons';
-import { ReactNode } from 'react';
+"use client";
+
+import Image from "next/image";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+import logo from "../../../public/assets/apenas_circulo.png";
+import { House, Farm, Admin, Dashboard } from "../core/Icons";
+import { ReactNode } from "react";
 
 type NavLink = {
   label: string;
@@ -15,30 +19,32 @@ export function NavDivider() {
 
 const navLinks: NavLink[] = [
   {
-    label: 'Início',
-    href: '/',
-    icon: <House />,
+    label: "Início",
+    href: "/",
+    icon: <House size={22} />,
   },
   {
-    label: 'Fazenda',
-    href: '/fazenda',
-    icon: <Farm />,
+    label: "Fazenda",
+    href: "/fazenda",
+    icon: <Farm size={22} />,
   },
   {
-    label: 'Dashboard',
-    href: '/dashboard',
-    icon: <Dashboard />,
+    label: "Dashboard",
+    href: "/dashboard",
+    icon: <Dashboard size={22} />,
   },
   {
-    label: 'Admin',
-    href: '/painel-admin',
-    icon: <Admin />,
+    label: "Admin",
+    href: "/painel-admin",
+    icon: <Admin size={22} />,
   },
 ];
 
 export default function Sidebar() {
+  const pathname = usePathname();
+
   return (
-    <aside className="w-80 min-h-screen bg-verde-mata px-4 py-8">
+    <aside className="hidden lg:flex lg:w-80 min-h-screen bg-verde-mata px-4 py-8 flex-col">
       <div className="flex gap-4 items-center mb-6">
         <Image
           src={logo}
@@ -54,17 +60,28 @@ export default function Sidebar() {
 
       <NavDivider />
 
-      <nav className="mt-6 space-y-2">
-        {navLinks.map((link) => (
-          <a
-            key={link.href}
-            href={link.href}
-            className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-creme-flor hover:bg-creme-flor/10 hover:border-l-coral-flor hover:border-l-6 transition-colors"
-          >
-            {link.icon}
-            <span className="font-semibold text-lg">{link.label}</span>
-          </a>
-        ))}
+      <nav className="mt-6 space-y-2 flex-1">
+        {navLinks.map((link) => {
+          const active = pathname.startsWith(link.href);
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm text-creme-flor transition-colors ${
+                active
+                  ? "bg-creme-flor/10 border-l-coral-flor border-l-6"
+                  : "hover:bg-creme-flor/10 hover:border-l-coral-flor hover:border-l-6"
+              }`}
+            >
+              <div className={`${active ? "text-coral-flor" : "text-creme-flor"}`}>
+                {link.icon}
+              </div>
+              <span className={`font-semibold text-lg ${active ? "text-coral-flor" : "text-creme-flor"}`}>
+                {link.label}
+              </span>
+            </Link>
+          );
+        })}
       </nav>
     </aside>
   );

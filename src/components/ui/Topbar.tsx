@@ -8,7 +8,7 @@ interface TopbarProps {
 
 export default function Topbar({ title, description, onBack }: TopbarProps) {
     return (
-        <div className="flex h-20.5 w-full items-center gap-4 bg-[#FBF9F2] py-6 px-4 border-b border-[#D8D1C4]">
+        <div className="flex h-24 w-full items-center gap-4 bg-[#FBF9F2] py-6 px-4 border-b border-[#D8D1C4]">
             <button
               onClick={onBack}
               className="flex items-center justify-center text-verde-mata border-2 border-[#D8D1C4] rounded-lg p-2 hover:bg-verde-mata/5 transition-colors"
