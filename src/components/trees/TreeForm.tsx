@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent, ChangeEvent } from "react";
+import { useState, FormEvent } from "react";
 import { Input } from "../core/Input";
 import { Select } from "../core/Select";
 import { Textarea } from "../core/Textarea";
@@ -30,80 +30,78 @@ const QUALIDADE_OPTIONS = [
 ];
 
 export function TreeForm({ onAddTree, initialQualidade = "NORMAL" }: TreeFormProps) {
-  const [formData, setFormData] = useState<Omit<TreeData, "id">>({
-    numero: "",
-    dap: "",
-    altura: "",
-    observacoes: "",
-    qualidade: initialQualidade,
-  });
+  const [numero, setNumero] = useState("");
+  const [dap, setDap] = useState("");
+  const [altura, setAltura] = useState("");
+  const [observacoes, setObservacoes] = useState("");
+  const [qualidade, setQualidade] = useState(initialQualidade);
 
-  const [errors, setErrors] = useState<Partial<Record<keyof Omit<TreeData, "id">, string>>>({});
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const validateField = (name: keyof Omit<TreeData, "id">, value: string): string | undefined => {
-    switch (name) {
-      case "numero":
-        if (!value.trim()) return "Número da árvore é obrigatório";
-        if (!/^\d+$/.test(value.trim())) return "Número deve conter apenas dígitos";
-        break;
-      case "dap":
-        if (!value.trim()) return "DAP é obrigatório";
-        const dapValue = parseFloat(value.replace(",", "."));
-        if (isNaN(dapValue) || dapValue <= 0) return "DAP deve ser um número positivo";
-        break;
-      case "altura":
-        if (!value.trim()) return "Altura é obrigatória";
-        const alturaValue = parseFloat(value.replace(",", "."));
-        if (isNaN(alturaValue) || alturaValue <= 0) return "Altura deve ser um número positivo";
-        break;
+  const validateNumero = (value: string) => {
+    if (!value.trim()) {
+      setError("Número da árvore é obrigatório");
+      return;
     }
-    return undefined;
+    if (!/^\d+$/.test(value.trim())) {
+      setError("Número deve conter apenas dígitos");
+      return;
+    }
+    setError(null);
+    return "";
   };
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-
-    const error = validateField(name as keyof Omit<TreeData, "id">, value);
-    setErrors((prev) => ({ ...prev, [name]: error }));
+  const validateDap = (value: string) => {
+    if (!value.trim()) {
+      setError("DAP é obrigatório");
+      return;
+    }
+    const dapValue = parseFloat(value.replace(",", "."));
+    if (isNaN(dapValue) || dapValue <= 0) {
+      setError("DAP deve ser um número positivo");
+      return;
+    }
+    setError(null);
+    return "";
   };
 
-  const handleBlur = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    const error = validateField(name as keyof Omit<TreeData, "id">, value);
-    setErrors((prev) => ({ ...prev, [name]: error }));
+  const validateAltura = (value: string) => {
+    if (!value.trim()) {
+      setError("Altura é obrigatória");
+      return;
+    }
+    const alturaValue = parseFloat(value.replace(",", "."));
+    if (isNaN(alturaValue) || alturaValue <= 0) {
+      setError("Altura deve ser um número positivo");
+      return;
+    }
+    setError(null);
+    return "";
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    setError(null);
 
-    const newErrors: Partial<Record<keyof Omit<TreeData, "id">, string>> = {};
-    let hasErrors = false;
-
-    (["numero", "dap", "altura"] as const).forEach((field) => {
-      const error = validateField(field, formData[field]);
-      if (error) {
-        newErrors[field] = error;
-        hasErrors = true;
-      }
-    });
-
-    setErrors(newErrors);
-
-    if (!hasErrors) {
-      onAddTree(formData);
-      setFormData((prev) => ({
-        ...prev,
-        numero: "",
-        dap: "",
-        altura: "",
-        observacoes: "",
-      }));
-      setErrors({});
+    if (!validateNumero(numero) || !validateDap(dap) || !validateAltura(altura)) {
+      return;
     }
+
+    setLoading(true);
+
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    onAddTree({ numero, dap, altura, observacoes, qualidade });
+    setNumero("");
+    setDap("");
+    setAltura("");
+    setObservacoes("");
+    setLoading(false);
   };
 
-  const isFormValid = formData.numero.trim() && formData.dap.trim() && formData.altura.trim();
+  const isFormValid = numero.trim() && dap.trim() && altura.trim();
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-xl p-6 shadow-md border border-verde-mata/10">
@@ -119,12 +117,11 @@ export function TreeForm({ onAddTree, initialQualidade = "NORMAL" }: TreeFormPro
           label="Nº *"
           name="numero"
           type="text"
-          value={formData.numero}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          error={errors.numero}
+          value={numero}
+          onChange={(e) => setNumero(e.target.value)}
           placeholder="Ex: 1"
           autoComplete="off"
+          disabled={loading}
         />
 
         <Input
@@ -132,12 +129,11 @@ export function TreeForm({ onAddTree, initialQualidade = "NORMAL" }: TreeFormPro
           name="dap"
           type="number"
           step="0.1"
-          value={formData.dap}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          error={errors.dap}
+          value={dap}
+          onChange={(e) => setDap(e.target.value)}
           placeholder="Ex: 25.5"
           autoComplete="off"
+          disabled={loading}
         />
 
         <Input
@@ -145,12 +141,11 @@ export function TreeForm({ onAddTree, initialQualidade = "NORMAL" }: TreeFormPro
           name="altura"
           type="number"
           step="0.1"
-          value={formData.altura}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          error={errors.altura}
+          value={altura}
+          onChange={(e) => setAltura(e.target.value)}
           placeholder="Ex: 15.2"
           autoComplete="off"
+          disabled={loading}
         />
       </div>
 
@@ -158,27 +153,58 @@ export function TreeForm({ onAddTree, initialQualidade = "NORMAL" }: TreeFormPro
         <Select
           label="Qualidade/Fuste/Sanidade"
           name="qualidade"
-          value={formData.qualidade}
-          onChange={handleChange}
+          value={qualidade}
+          onChange={(e) => setQualidade(e.target.value)}
           options={QUALIDADE_OPTIONS}
           helperText="Padrão: Normal"
+          disabled={loading}
         />
 
         <Textarea
           label="Observações"
           name="observacoes"
-          value={formData.observacoes}
-          onChange={handleChange}
+          value={observacoes}
+          onChange={(e) => setObservacoes(e.target.value)}
           placeholder="Observações adicionais sobre a árvore..."
           rows={2}
+          disabled={loading}
         />
       </div>
 
+      {error ? (
+        <p className="text-sm text-coral-flor flex items-center gap-1 mb-4">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <circle cx="7" cy="7" r="6.5" stroke="currentColor" strokeWidth="1" />
+            <path
+              d="M7 4v4M7 10v1"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+          </svg>
+          {error}
+        </p>
+      ) : (
+        <p className="text-sm text-coral-flor flex items-center gap-1 mb-4">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <circle cx="7" cy="7" r="6.5" stroke="currentColor" strokeWidth="1" />
+            <path
+              d="M4.5 7l2 2 4-4"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          Árvore adicionada com sucesso!
+        </p>
+      )}
+
       <div className="flex justify-end">
         <Button
-          label="Adicionar ao Lote"
+          label={loading ? "Adicionando..." : "Adicionar ao Lote"}
           type="submit"
-          disabled={!isFormValid}
+          disabled={!isFormValid || loading}
           className="bg-coral-flor text-creme-flor hover:bg-coral-flor/90 w-full sm:w-auto min-w-45"
         />
       </div>
