@@ -30,7 +30,7 @@ const navLinks: NavLink[] = [
     icon: <Dashboard />,
   },
   {
-    label: 'Painel',
+    label: 'Admin',
     href: '/painel-admin',
     icon: <Admin />,
   },
