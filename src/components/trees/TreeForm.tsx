@@ -179,7 +179,7 @@ export function TreeForm({ onAddTree, initialQualidade = "NORMAL" }: TreeFormPro
           label="Adicionar ao Lote"
           type="submit"
           disabled={!isFormValid}
-          className="bg-coral-flor text-creme-flor hover:bg-coral-flor/90 w-full sm:w-auto min-w-[180px]"
+          className="bg-coral-flor text-creme-flor hover:bg-coral-flor/90 w-full sm:w-auto min-w-45"
         />
       </div>
     </form>
