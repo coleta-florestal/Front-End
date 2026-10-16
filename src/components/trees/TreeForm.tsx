@@ -23,10 +23,14 @@ export interface TreeFormProps {
 
 const QUALIDADE_OPTIONS = [
   { value: "NORMAL", label: "Normal" },
-  { value: "BOM", label: "Bom" },
-  { value: "REGULAR", label: "Regular" },
-  { value: "RUIM", label: "Ruim" },
-  { value: "MORTO", label: "Morto" },
+  { value: "BIFURCADA_ACIMA_1.3M", label: "Bifurcada acima de 1,3m" },
+  { value: "BIFURCADA_ABAIXO_1.3M", label: "Bifurcada abaixo de 1,3m" },
+  { value: "INCLINADA", label: "Inclinada" },
+  { value: "MORTA", label: "Morta" },
+  { value: "FALHA", label: "Falha" },
+  { value: "PROBLEMAS_FITOSSANITARIOS", label: "Problemas fitossanitários" },
+  { value: "QUEBRADA", label: "Quebrada" },
+  { value: "OUTRO", label: "Outro" },
 ];
 
 export function TreeForm({ onAddTree, initialQualidade = "NORMAL" }: TreeFormProps) {
