@@ -1,46 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Topbar from "@/components/ui/Topbar";
 import { TreeForm, TreeList, TreeData } from "@/components/trees";
+import { EditTreeModal } from "@/components/modal/EditTreeModal";
 import Button from "@/components/core/Button";
-import { useParams, useRouter } from "next/navigation";
-
-// Development fallback IDs for testing without registered entities
-const DEV_FAZENDA_ID = "fazenda-demo";
-const DEV_TALHAO_ID = "talhao-demo";
-const DEV_PARCELA_ID = "parcela-demo";
-
-function getInitialTrees(fazendaId: string, talhaoId: string, parcelaId: string): TreeData[] {
-  if (typeof window === "undefined") return [];
-  const storageKey = `trees_${fazendaId}_${talhaoId}_${parcelaId}`;
-  const savedTrees = localStorage.getItem(storageKey);
-  if (savedTrees) {
-    try {
-      return JSON.parse(savedTrees);
-    } catch {
-      return [];
-    }
-  }
-  return [];
-}
+import { useRouter } from "next/navigation";
 
 export default function CadastrarArvorePage() {
-  const params = useParams();
   const router = useRouter();
 
-  // Use params from URL or fallback to demo IDs for development
-  const fazendaId = (params.fazenda as string) || DEV_FAZENDA_ID;
-  const talhaoId = (params.talhao as string) || DEV_TALHAO_ID;
-  const parcelaId = (params.parcela as string) || DEV_PARCELA_ID;
-
-  const [trees, setTrees] = useState<TreeData[]>(() => getInitialTrees(fazendaId, talhaoId, parcelaId));
+  const [trees, setTrees] = useState<TreeData[]>([]);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const storageKey = `trees_${fazendaId}_${talhaoId}_${parcelaId}`;
-    localStorage.setItem(storageKey, JSON.stringify(trees));
-  }, [trees, fazendaId, talhaoId, parcelaId]);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   const handleAddTree = (treeData: Omit<TreeData, "id">) => {
     const newTree: TreeData = {
@@ -56,8 +28,19 @@ export default function CadastrarArvorePage() {
     }
   };
 
+  const handleSaveEdit = (updatedTree: TreeData) => {
+    setTrees((prev) =>
+      prev.map((t) => (t.id === updatedTree.id ? updatedTree : t))
+    );
+    setTreeToEdit(null);
+    setEditModalOpen(false);
+  };
+
+  const [treeToEdit, setTreeToEdit] = useState<TreeData | null>(null);
+
   const handleEditTree = (tree: TreeData) => {
-    setTrees((prev) => prev.filter((t) => t.id !== tree.id));
+    setTreeToEdit(tree);
+    setEditModalOpen(true);
   };
 
   const handleSaveAll = async () => {
@@ -68,7 +51,6 @@ export default function CadastrarArvorePage() {
 
     setLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
       alert(`${trees.length} árvore(s) salva(s) com sucesso!`);
       router.back();
     } catch {
@@ -103,6 +85,22 @@ export default function CadastrarArvorePage() {
               onRemoveTree={handleRemoveTree}
               onEditTree={handleEditTree}
             />
+
+            {treeToEdit && (
+              <EditTreeModal
+                isOpen={editModalOpen}
+                tree={treeToEdit}
+                fazenda="Fazenda Demo"
+                parcela="Parcela Demo"
+                numeroArvore={treeToEdit.numero}
+                indiceAtual={
+                  trees.findIndex((t) => t.id === treeToEdit.id) + 1
+                }
+                totalArvores={trees.length}
+                onSave={handleSaveEdit}
+                onClose={() => setEditModalOpen(false)}
+              />
+            )}
 
             <div className="flex flex-col sm:flex-row gap-4 justify-end">
               <Button
