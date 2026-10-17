@@ -94,15 +94,17 @@ export function TreeForm({ onAddTree, initialQualidade = "NORMAL" }: TreeFormPro
 
     setLoading(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    onAddTree({ numero, dap, altura, observacoes, qualidade });
-    setNumero("");
-    setDap("");
-    setAltura("");
-    setObservacoes("");
-    setLoading(false);
+    try {
+      onAddTree({ numero, dap, altura, observacoes, qualidade });
+      setNumero("");
+      setDap("");
+      setAltura("");
+      setObservacoes("");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível salvar a árvore");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const isFormValid = numero.trim() && dap.trim() && altura.trim();
@@ -175,7 +177,7 @@ export function TreeForm({ onAddTree, initialQualidade = "NORMAL" }: TreeFormPro
         />
       </div>
 
-      {error ? (
+      {error && (
         <p className="text-sm text-coral-flor flex items-center gap-1 mb-4">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
             <circle cx="7" cy="7" r="6.5" stroke="currentColor" strokeWidth="1" />
@@ -188,23 +190,9 @@ export function TreeForm({ onAddTree, initialQualidade = "NORMAL" }: TreeFormPro
           </svg>
           {error}
         </p>
-      ) : (
-        <p className="text-sm text-coral-flor flex items-center gap-1 mb-4">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <circle cx="7" cy="7" r="6.5" stroke="currentColor" strokeWidth="1" />
-            <path
-              d="M4.5 7l2 2 4-4"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          Árvore adicionada com sucesso!
-        </p>
       )}
 
-      <div className="flex justify-end">
+      <div className="flex flex-col sm:flex-row justify-end gap-2 px-6 py-4 border-t border-[#e7e2d8]">
         <Button
           label={loading ? "Adicionando..." : "Adicionar ao Lote"}
           type="submit"
