@@ -346,3 +346,26 @@ export function Edit({ size = 18, color, className, ...props }: IconProps) {
     </svg>
   );
 }
+
+export function Close({ size = 18, color, className, ...props }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 18 18"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      {...props}
+    >
+      <path
+        d="M14.343 3.657a1 1 0 010 1.414L10.414 9l3.929 3.929a1 1 0 01-1.414 1.414L9 10.414l-3.929 3.929a1 1 0 01-1.414-1.414L7.586 9l-3.929-3.929a1 1 0 111.414-1.414L9 7.586l3.929-3.929a1 1 0 011.414 0z"
+        stroke={color ?? 'black'}
+        strokeWidth="1.33333"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+    </svg>
+  );
+}
