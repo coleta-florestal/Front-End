@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import { usePathname } from "next/navigation";
-import Link from "next/link";
-import logo from "../../../public/assets/apenas_circulo.png";
-import { House, Farm, Admin, Dashboard } from "../core/Icons";
-import { ReactNode } from "react";
+import Image from 'next/image';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
+import logo from '../../../public/assets/apenas_circulo.png';
+import { House, Farm, Admin, Dashboard } from '../core/Icons';
+import { ReactNode } from 'react';
 
 type NavLink = {
   label: string;
@@ -19,23 +19,23 @@ export function NavDivider() {
 
 const navLinks: NavLink[] = [
   {
-    label: "Início",
-    href: "/",
+    label: 'Início',
+    href: '/',
     icon: <House size={22} />,
   },
   {
-    label: "Fazenda",
-    href: "/fazenda",
+    label: 'Fazenda',
+    href: '/fazenda',
     icon: <Farm size={22} />,
   },
   {
-    label: "Dashboard",
-    href: "/dashboard",
+    label: 'Dashboard',
+    href: '/dashboard',
     icon: <Dashboard size={22} />,
   },
   {
-    label: "Admin",
-    href: "/painel-admin",
+    label: 'Admin',
+    href: '/painel-admin',
     icon: <Admin size={22} />,
   },
 ];
@@ -69,14 +69,14 @@ export default function Sidebar() {
               href={link.href}
               className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm text-creme-flor transition-colors ${
                 active
-                  ? "bg-creme-flor/10 border-l-coral-flor border-l-6"
-                  : "hover:bg-creme-flor/10 hover:border-l-coral-flor hover:border-l-6"
+                  ? 'bg-creme-flor/10 border-l-coral-flor border-l-6'
+                  : 'hover:bg-creme-flor/10 hover:border-l-coral-flor hover:border-l-6'
               }`}
             >
-              <div className={`${active ? "text-coral-flor" : "text-creme-flor"}`}>
-                {link.icon}
-              </div>
-              <span className={`font-semibold text-lg ${active ? "text-coral-flor" : "text-creme-flor"}`}>
+              <div className={`${active ? 'text-coral-flor' : 'text-creme-flor'}`}>{link.icon}</div>
+              <span
+                className={`font-semibold text-lg ${active ? 'text-coral-flor' : 'text-creme-flor'}`}
+              >
                 {link.label}
               </span>
             </Link>

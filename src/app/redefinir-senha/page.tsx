@@ -64,7 +64,7 @@ export default function Home() {
     setLoading(false);
     setPassword('');
     setConfirmPassword('');
-  };
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-creme-flor px-4 py-6 sm:py-8">

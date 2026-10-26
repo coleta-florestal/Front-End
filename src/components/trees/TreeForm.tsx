@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useState, FormEvent } from "react";
-import { Input } from "../core/Input";
-import { Select } from "../core/Select";
-import { Textarea } from "../core/Textarea";
-import Button from "../core/Button";
-import { Tree } from "../core/Icons";
+import { useState, FormEvent } from 'react';
+import { Input } from '../core/Input';
+import { Select } from '../core/Select';
+import { Textarea } from '../core/Textarea';
+import Button from '../core/Button';
+import { Tree } from '../core/Icons';
 
 export interface TreeData {
   id: string;
@@ -17,27 +17,27 @@ export interface TreeData {
 }
 
 export interface TreeFormProps {
-  onAddTree: (tree: Omit<TreeData, "id">) => void;
+  onAddTree: (tree: Omit<TreeData, 'id'>) => void;
   initialQualidade?: string;
 }
 
 const QUALIDADE_OPTIONS = [
-  { value: "NORMAL", label: "Normal" },
-  { value: "BIFURCADA_ACIMA_1.3M", label: "Bifurcada acima de 1,3m" },
-  { value: "BIFURCADA_ABAIXO_1.3M", label: "Bifurcada abaixo de 1,3m" },
-  { value: "INCLINADA", label: "Inclinada" },
-  { value: "MORTA", label: "Morta" },
-  { value: "FALHA", label: "Falha" },
-  { value: "PROBLEMAS_FITOSSANITARIOS", label: "Problemas fitossanitários" },
-  { value: "QUEBRADA", label: "Quebrada" },
-  { value: "OUTRO", label: "Outro" },
+  { value: 'NORMAL', label: 'Normal' },
+  { value: 'BIFURCADA_ACIMA_1.3M', label: 'Bifurcada acima de 1,3m' },
+  { value: 'BIFURCADA_ABAIXO_1.3M', label: 'Bifurcada abaixo de 1,3m' },
+  { value: 'INCLINADA', label: 'Inclinada' },
+  { value: 'MORTA', label: 'Morta' },
+  { value: 'FALHA', label: 'Falha' },
+  { value: 'PROBLEMAS_FITOSSANITARIOS', label: 'Problemas fitossanitários' },
+  { value: 'QUEBRADA', label: 'Quebrada' },
+  { value: 'OUTRO', label: 'Outro' },
 ];
 
-export function TreeForm({ onAddTree, initialQualidade = "NORMAL" }: TreeFormProps) {
-  const [numero, setNumero] = useState("");
-  const [dap, setDap] = useState("");
-  const [altura, setAltura] = useState("");
-  const [observacoes, setObservacoes] = useState("");
+export function TreeForm({ onAddTree, initialQualidade = 'NORMAL' }: TreeFormProps) {
+  const [numero, setNumero] = useState('');
+  const [dap, setDap] = useState('');
+  const [altura, setAltura] = useState('');
+  const [observacoes, setObservacoes] = useState('');
   const [qualidade, setQualidade] = useState(initialQualidade);
 
   const [error, setError] = useState<string | null>(null);
@@ -45,43 +45,43 @@ export function TreeForm({ onAddTree, initialQualidade = "NORMAL" }: TreeFormPro
 
   const validateNumero = (value: string) => {
     if (!value.trim()) {
-      setError("Número da árvore é obrigatório");
+      setError('Número da árvore é obrigatório');
       return;
     }
     if (!/^\d+$/.test(value.trim())) {
-      setError("Número deve conter apenas dígitos");
+      setError('Número deve conter apenas dígitos');
       return;
     }
     setError(null);
-    return "";
+    return '';
   };
 
   const validateDap = (value: string) => {
     if (!value.trim()) {
-      setError("DAP é obrigatório");
+      setError('DAP é obrigatório');
       return;
     }
-    const dapValue = parseFloat(value.replace(",", "."));
+    const dapValue = parseFloat(value.replace(',', '.'));
     if (isNaN(dapValue) || dapValue <= 0) {
-      setError("DAP deve ser um número positivo");
+      setError('DAP deve ser um número positivo');
       return;
     }
     setError(null);
-    return "";
+    return '';
   };
 
   const validateAltura = (value: string) => {
     if (!value.trim()) {
-      setError("Altura é obrigatória");
+      setError('Altura é obrigatória');
       return;
     }
-    const alturaValue = parseFloat(value.replace(",", "."));
+    const alturaValue = parseFloat(value.replace(',', '.'));
     if (isNaN(alturaValue) || alturaValue <= 0) {
-      setError("Altura deve ser um número positivo");
+      setError('Altura deve ser um número positivo');
       return;
     }
     setError(null);
-    return "";
+    return '';
   };
 
   async function handleSubmit(e: FormEvent) {
@@ -96,21 +96,24 @@ export function TreeForm({ onAddTree, initialQualidade = "NORMAL" }: TreeFormPro
 
     try {
       onAddTree({ numero, dap, altura, observacoes, qualidade });
-      setNumero("");
-      setDap("");
-      setAltura("");
-      setObservacoes("");
+      setNumero('');
+      setDap('');
+      setAltura('');
+      setObservacoes('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Não foi possível salvar a árvore");
+      setError(err instanceof Error ? err.message : 'Não foi possível salvar a árvore');
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   const isFormValid = numero.trim() && dap.trim() && altura.trim();
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-xl p-6 shadow-md border border-verde-mata/10">
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white rounded-xl p-6 shadow-md border border-verde-mata/10"
+    >
       <div className="flex items-center gap-3 mb-6">
         <div className="p-2 bg-verde-mata/10 rounded-lg">
           <Tree className="w-6 h-6" />
@@ -181,12 +184,7 @@ export function TreeForm({ onAddTree, initialQualidade = "NORMAL" }: TreeFormPro
         <p className="text-sm text-coral-flor flex items-center gap-1 mb-4">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
             <circle cx="7" cy="7" r="6.5" stroke="currentColor" strokeWidth="1" />
-            <path
-              d="M7 4v4M7 10v1"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            />
+            <path d="M7 4v4M7 10v1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
           </svg>
           {error}
         </p>
@@ -194,7 +192,7 @@ export function TreeForm({ onAddTree, initialQualidade = "NORMAL" }: TreeFormPro
 
       <div className="flex flex-col sm:flex-row justify-end gap-2 px-6 py-4 border-t border-[#e7e2d8]">
         <Button
-          label={loading ? "Adicionando..." : "Adicionar ao Lote"}
+          label={loading ? 'Adicionando...' : 'Adicionar ao Lote'}
           type="submit"
           disabled={!isFormValid || loading}
           className="bg-coral-flor text-creme-flor hover:bg-coral-flor/90 w-full sm:w-auto min-w-45"

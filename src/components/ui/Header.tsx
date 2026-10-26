@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import { usePathname } from "next/navigation";
-import Link from "next/link";
-import logo from "../../../public/assets/apenas_circulo.png";
-import { House, Farm, Dashboard, Admin } from "../core/Icons";
-import { ReactNode } from "react";
+import Image from 'next/image';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
+import logo from '../../../public/assets/apenas_circulo.png';
+import { House, Farm, Dashboard, Admin } from '../core/Icons';
+import { ReactNode } from 'react';
 
 type NavLink = {
   label: string;
@@ -15,23 +15,23 @@ type NavLink = {
 
 const navLinks: NavLink[] = [
   {
-    label: "Início",
-    href: "/",
+    label: 'Início',
+    href: '/',
     icon: <House size={24} />,
   },
   {
-    label: "Fazenda",
-    href: "/fazenda",
+    label: 'Fazenda',
+    href: '/fazenda',
     icon: <Farm size={24} />,
   },
   {
-    label: "Dashboard",
-    href: "/dashboard",
+    label: 'Dashboard',
+    href: '/dashboard',
     icon: <Dashboard size={24} />,
   },
   {
-    label: "Admin",
-    href: "/painel-admin",
+    label: 'Admin',
+    href: '/painel-admin',
     icon: <Admin size={24} />,
   },
 ];
@@ -64,16 +64,16 @@ export default function Header() {
               key={link.href}
               href={link.href}
               className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors ${
-                active
-                  ? "text-coral-flor"
-                  : "text-creme-flor/70"
+                active ? 'text-coral-flor' : 'text-creme-flor/70'
               }`}
               aria-label={link.label}
             >
-              <div className={`${active ? "text-coral-flor" : "text-creme-flor/70"}`}>
+              <div className={`${active ? 'text-coral-flor' : 'text-creme-flor/70'}`}>
                 {link.icon}
               </div>
-              <span className={`text-xs font-semibold ${active ? "text-coral-flor" : "text-creme-flor/70"}`}>
+              <span
+                className={`text-xs font-semibold ${active ? 'text-coral-flor' : 'text-creme-flor/70'}`}
+              >
                 {link.label}
               </span>
             </Link>

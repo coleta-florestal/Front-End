@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import Topbar from "@/components/ui/Topbar";
-import { TreeForm, TreeList, TreeData } from "@/components/trees";
-import { EditTreeModal } from "@/components/modal/EditTreeModal";
-import Button from "@/components/core/Button";
-import { useRouter } from "next/navigation";
+import { useState } from 'react';
+import Topbar from '@/components/ui/Topbar';
+import { TreeForm, TreeList, TreeData } from '@/components/trees';
+import { EditTreeModal } from '@/components/modal/EditTreeModal';
+import Button from '@/components/core/Button';
+import { useRouter } from 'next/navigation';
 
 export default function CadastrarArvorePage() {
   const router = useRouter();
@@ -14,7 +14,7 @@ export default function CadastrarArvorePage() {
   const [loading, setLoading] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
 
-  const handleAddTree = (treeData: Omit<TreeData, "id">) => {
+  const handleAddTree = (treeData: Omit<TreeData, 'id'>) => {
     const newTree: TreeData = {
       ...treeData,
       id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -23,15 +23,13 @@ export default function CadastrarArvorePage() {
   };
 
   const handleRemoveTree = (id: string) => {
-    if (window.confirm("Tem certeza que deseja remover esta árvore do lote?")) {
+    if (window.confirm('Tem certeza que deseja remover esta árvore do lote?')) {
       setTrees((prev) => prev.filter((tree) => tree.id !== id));
     }
   };
 
   const handleSaveEdit = (updatedTree: TreeData) => {
-    setTrees((prev) =>
-      prev.map((t) => (t.id === updatedTree.id ? updatedTree : t))
-    );
+    setTrees((prev) => prev.map((t) => (t.id === updatedTree.id ? updatedTree : t)));
     setTreeToEdit(null);
     setEditModalOpen(false);
   };
@@ -45,7 +43,7 @@ export default function CadastrarArvorePage() {
 
   const handleSaveAll = async () => {
     if (trees.length === 0) {
-      alert("Adicione pelo menos uma árvore antes de salvar.");
+      alert('Adicione pelo menos uma árvore antes de salvar.');
       return;
     }
 
@@ -54,14 +52,14 @@ export default function CadastrarArvorePage() {
       alert(`${trees.length} árvore(s) salva(s) com sucesso!`);
       router.back();
     } catch {
-      alert("Erro ao salvar. Tente novamente.");
+      alert('Erro ao salvar. Tente novamente.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleBack = () => {
-    if (trees.length > 0 && !window.confirm("Há árvores não salvas. Deseja voltar mesmo assim?")) {
+    if (trees.length > 0 && !window.confirm('Há árvores não salvas. Deseja voltar mesmo assim?')) {
       return;
     }
     router.back();
@@ -80,11 +78,7 @@ export default function CadastrarArvorePage() {
           <div className="space-y-6">
             <TreeForm onAddTree={handleAddTree} />
 
-            <TreeList
-              trees={trees}
-              onRemoveTree={handleRemoveTree}
-              onEditTree={handleEditTree}
-            />
+            <TreeList trees={trees} onRemoveTree={handleRemoveTree} onEditTree={handleEditTree} />
 
             {treeToEdit && (
               <EditTreeModal
@@ -93,9 +87,7 @@ export default function CadastrarArvorePage() {
                 fazenda="Fazenda Demo"
                 parcela="Parcela Demo"
                 numeroArvore={treeToEdit.numero}
-                indiceAtual={
-                  trees.findIndex((t) => t.id === treeToEdit.id) + 1
-                }
+                indiceAtual={trees.findIndex((t) => t.id === treeToEdit.id) + 1}
                 totalArvores={trees.length}
                 onSave={handleSaveEdit}
                 onClose={() => setEditModalOpen(false)}

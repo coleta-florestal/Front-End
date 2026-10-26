@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { forwardRef, SelectHTMLAttributes } from "react";
+import { forwardRef, SelectHTMLAttributes } from 'react';
 
 type SelectOption = {
   value: string;
@@ -12,19 +12,16 @@ type SelectProps = SelectHTMLAttributes<HTMLSelectElement> & {
   options: SelectOption[];
   error?: string;
   helperText?: string;
-  className?: string
+  className?: string;
 };
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
   ({ label, options, error, helperText, className, id, ...props }, ref) => {
-    const selectId = id || label.toLowerCase().replace(/\s+/g, "-");
+    const selectId = id || label.toLowerCase().replace(/\s+/g, '-');
 
     return (
       <div className="flex flex-col gap-1.5 w-full">
-        <label
-          htmlFor={selectId}
-          className="text-sm font-semibold text-verde-mata"
-        >
+        <label htmlFor={selectId} className="text-sm font-semibold text-verde-mata">
           {label}
         </label>
         <div className="relative">
@@ -32,7 +29,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             ref={ref}
             id={selectId}
             className={` border-2 border-[#D7D0C2] rounded-md px-3 py-2.5 w-full text-verde-mata focus:outline-none appearance-none transition-colors
-            } ${className || ""}`}
+            } ${className || ''}`}
             {...props}
           >
             {options.map((option) => (
@@ -43,7 +40,13 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           </select>
           <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-verde-mata/60">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              <path
+                d="M4 6l4 4 4-4"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </div>
         </div>
@@ -56,12 +59,10 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             {error}
           </p>
         )}
-        {helperText && !error && (
-          <p className="text-tiny text-verde-mata/60">{helperText}</p>
-        )}
+        {helperText && !error && <p className="text-tiny text-verde-mata/60">{helperText}</p>}
       </div>
     );
-  }
+  },
 );
 
-Select.displayName = "Select";
+Select.displayName = 'Select';

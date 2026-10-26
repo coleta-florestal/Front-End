@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { TreeData } from "./TreeForm";
-import { Trash, Tree, Edit } from "../core/Icons";
+import { TreeData } from './TreeForm';
+import { Trash, Tree, Edit } from '../core/Icons';
 
 export interface TreeListProps {
   trees: TreeData[];
@@ -15,7 +15,9 @@ export function TreeList({ trees, onRemoveTree, onEditTree }: TreeListProps) {
       <div className="bg-white rounded-xl p-10 text-center border border-verde-mata/10 border-dashed">
         <Tree className="w-16 h-16 text-verde-mata/30 mx-auto mb-4" />
         <p className="text-verde-mata/60 text-lg">Nenhuma árvore adicionada ao lote</p>
-        <p className="text-verde-mata/40 text-sm mt-1">Preencha o formulário acima e clique em &ldquo;Adicionar ao Lote&rdquo;</p>
+        <p className="text-verde-mata/40 text-sm mt-1">
+          Preencha o formulário acima e clique em &ldquo;Adicionar ao Lote&rdquo;
+        </p>
       </div>
     );
   }
@@ -25,7 +27,7 @@ export function TreeList({ trees, onRemoveTree, onEditTree }: TreeListProps) {
       <div className="px-6 py-4 border-b border-verde-mata/10 bg-verde-mata/5">
         <h2 className="text-lg font-semibold text-verde-mata flex items-center gap-2">
           <Tree className="w-5 h-5" />
-          Revisão do Lote ({trees.length} árvore{trees.length !== 1 ? "s" : ""})
+          Revisão do Lote ({trees.length} árvore{trees.length !== 1 ? 's' : ''})
         </h2>
       </div>
 
@@ -50,22 +52,25 @@ export function TreeList({ trees, onRemoveTree, onEditTree }: TreeListProps) {
                 <td className="px-4 py-3">
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      tree.qualidade === "NORMAL"
-                        ? "bg-verde-eucalipto/20 text-verde-mata"
-                        : tree.qualidade === "BOM"
-                        ? "bg-green-100 text-green-700"
-                        : tree.qualidade === "REGULAR"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : tree.qualidade === "RUIM"
-                        ? "bg-orange-100 text-orange-700"
-                        : "bg-red-100 text-red-700"
+                      tree.qualidade === 'NORMAL'
+                        ? 'bg-verde-eucalipto/20 text-verde-mata'
+                        : tree.qualidade === 'BOM'
+                          ? 'bg-green-100 text-green-700'
+                          : tree.qualidade === 'REGULAR'
+                            ? 'bg-yellow-100 text-yellow-700'
+                            : tree.qualidade === 'RUIM'
+                              ? 'bg-orange-100 text-orange-700'
+                              : 'bg-red-100 text-red-700'
                     }`}
                   >
                     {tree.qualidade}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-verde-mata/70 text-sm max-w-xs truncate" title={tree.observacoes}>
-                  {tree.observacoes || "—"}
+                <td
+                  className="px-4 py-3 text-verde-mata/70 text-sm max-w-xs truncate"
+                  title={tree.observacoes}
+                >
+                  {tree.observacoes || '—'}
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-center gap-2">
@@ -97,7 +102,8 @@ export function TreeList({ trees, onRemoveTree, onEditTree }: TreeListProps) {
 
       <div className="px-6 py-4 border-t border-verde-mata/10 bg-verde-mata/5 flex items-center justify-between">
         <p className="text-sm text-verde-mata/70">
-          Total: <span className="font-semibold">{trees.length}</span> árvore{trees.length !== 1 ? "s" : ""}
+          Total: <span className="font-semibold">{trees.length}</span> árvore
+          {trees.length !== 1 ? 's' : ''}
         </p>
         <div className="flex items-center gap-2 text-sm text-verde-mata/60">
           <span>Média DAP:</span>

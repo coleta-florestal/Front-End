@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { TreeData } from "../trees/TreeForm";
-import { Input } from "../core/Input";
-import Button from "../core/Button";
-import { Close } from "../core/Icons";
+import { useEffect, useState } from 'react';
+import { TreeData } from '../trees/TreeForm';
+import { Input } from '../core/Input';
+import Button from '../core/Button';
+import { Close } from '../core/Icons';
 
 export interface EditTreeModalProps {
   isOpen: boolean;
@@ -19,13 +19,13 @@ export interface EditTreeModalProps {
 }
 
 const QUALIDADE_CHECKBOX_OPTIONS = [
-  { value: "BIFURCADA_ACIMA_1.3M", label: "Bifurcada acima de 1,3m" },
-  { value: "BIFURCADA_ABAIXO_1.3M", label: "Bifurcada abaixo de 1,3m" },
-  { value: "MORTA", label: "Morta" },
-  { value: "FALHA", label: "Falha" },
-  { value: "PROBLEMAS_FITOSSANITARIOS", label: "Problemas fitossanitários" },
-  { value: "QUEBRADA", label: "Quebrada" },
-  { value: "OUTRO", label: "Outro" },
+  { value: 'BIFURCADA_ACIMA_1.3M', label: 'Bifurcada acima de 1,3m' },
+  { value: 'BIFURCADA_ABAIXO_1.3M', label: 'Bifurcada abaixo de 1,3m' },
+  { value: 'MORTA', label: 'Morta' },
+  { value: 'FALHA', label: 'Falha' },
+  { value: 'PROBLEMAS_FITOSSANITARIOS', label: 'Problemas fitossanitários' },
+  { value: 'QUEBRADA', label: 'Quebrada' },
+  { value: 'OUTRO', label: 'Outro' },
 ];
 
 export function EditTreeModal({
@@ -39,12 +39,15 @@ export function EditTreeModal({
   onSave,
   onClose,
 }: EditTreeModalProps) {
-  const [dap, setDap] = useState(tree?.dap ?? "");
-  const [altura, setAltura] = useState(tree?.altura ?? "");
+  const [dap, setDap] = useState(tree?.dap ?? '');
+  const [altura, setAltura] = useState(tree?.altura ?? '');
   const [observacoesSelecionadas, setObservacoesSelecionadas] = useState<string[]>(
     tree?.observacoes
-      ? tree.observacoes.split(",").map((s) => s.trim()).filter(Boolean)
-      : []
+      ? tree.observacoes
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : [],
   );
 
   const [error, setError] = useState<string | null>(null);
@@ -53,22 +56,25 @@ export function EditTreeModal({
   useEffect(() => {
     if (!isOpen) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setDap(tree?.dap ?? "");
-    setAltura(tree?.altura ?? "");
+    setDap(tree?.dap ?? '');
+    setAltura(tree?.altura ?? '');
     setObservacoesSelecionadas(
       tree?.observacoes
-        ? tree.observacoes.split(",").map((s) => s.trim()).filter(Boolean)
-        : []
+        ? tree.observacoes
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : [],
     );
   }, [isOpen, tree?.dap, tree?.altura, tree?.observacoes]);
 
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === 'Escape') onClose();
     };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
@@ -76,10 +82,10 @@ export function EditTreeModal({
   const isValid =
     dap.trim().length > 0 &&
     altura.trim().length > 0 &&
-    !isNaN(parseFloat(dap.replace(",", "."))) &&
-    parseFloat(dap.replace(",", ".")) > 0 &&
-    !isNaN(parseFloat(altura.replace(",", "."))) &&
-    parseFloat(altura.replace(",", ".")) > 0;
+    !isNaN(parseFloat(dap.replace(',', '.'))) &&
+    parseFloat(dap.replace(',', '.')) > 0 &&
+    !isNaN(parseFloat(altura.replace(',', '.'))) &&
+    parseFloat(altura.replace(',', '.')) > 0;
 
   const handleCheckboxChange = (value: string, checked: boolean) => {
     setError(null);
@@ -100,8 +106,8 @@ export function EditTreeModal({
     try {
       const observacoesFinal =
         observacoesSelecionadas.length > 0
-          ? observacoesSelecionadas.join(", ")
-          : tree?.observacoes ?? "";
+          ? observacoesSelecionadas.join(', ')
+          : (tree?.observacoes ?? '');
 
       onSave({
         id: tree!.id,
@@ -109,15 +115,12 @@ export function EditTreeModal({
         dap,
         altura,
         observacoes: observacoesFinal,
-        qualidade:
-          observacoesSelecionadas.length > 0
-            ? observacoesSelecionadas[0]
-            : "NORMAL",
+        qualidade: observacoesSelecionadas.length > 0 ? observacoesSelecionadas[0] : 'NORMAL',
       });
 
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Não foi possível salvar as alterações");
+      setError(err instanceof Error ? err.message : 'Não foi possível salvar as alterações');
     } finally {
       setLoading(false);
     }
@@ -182,18 +185,14 @@ export function EditTreeModal({
           </div>
 
           <div>
-            <label className="text-sm font-semibold text-[#3d3d3d] mb-3 block">
-              Observações
-            </label>
+            <label className="text-sm font-semibold text-[#3d3d3d] mb-3 block">Observações</label>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {QUALIDADE_CHECKBOX_OPTIONS.map((opt) => (
                 <label key={opt.value} className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={isCheckboxChecked(opt.value)}
-                    onChange={(event) =>
-                      handleCheckboxChange(opt.value, event.target.checked)
-                    }
+                    onChange={(event) => handleCheckboxChange(opt.value, event.target.checked)}
                     className="w-4 h-4 rounded border-2 border-[#b9b4a8] text-verde-mata focus:ring-0 checked:bg-verde-mata checked:border-verde-mata disabled:opacity-50"
                     disabled={loading}
                   />
@@ -210,7 +209,7 @@ export function EditTreeModal({
           <span className="text-sm text-[#5c5c5c] self-start sm:self-center">
             {indiceAtual !== undefined && totalArvores !== undefined
               ? `${indiceAtual} de ${totalArvores} árvores`
-              : ""}
+              : ''}
           </span>
           <Button
             label="Cancelar"
@@ -219,7 +218,7 @@ export function EditTreeModal({
             className="border border-[#b9b4a8] text-[#3d3d3d] bg-white hover:bg-[#f0ede5]"
           />
           <Button
-            label={loading ? "Salvando..." : "Salvar"}
+            label={loading ? 'Salvando...' : 'Salvar'}
             onClick={handleSave}
             disabled={!isValid || loading}
             className="bg-verde-mata text-creme-flor hover:bg-[#245225]"
