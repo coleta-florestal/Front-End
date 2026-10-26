@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import Topbar from '@/components/ui/Topbar';
-import { TreeForm, TreeList, TreeData } from '@/components/trees';
+import { TreeForm, type TreeData } from '@/components/trees/TreeForm';
+import { TreeList } from '@/components/trees/TreeList';
 import { EditTreeModal } from '@/components/modal/EditTreeModal';
 import Button from '@/components/core/Button';
 import { useRouter } from 'next/navigation';
