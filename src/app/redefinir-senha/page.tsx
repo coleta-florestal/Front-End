@@ -6,69 +6,74 @@ import { Input } from '@/components/core/Input';
 import Image from 'next/image';
 import logo from '../../../public/assets/apenas_circulo.png';
 
-export default function Home() {
+export default function RedefinirSenha() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
   const [error, setError] = useState<string | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const validatePassword = (value: string) => {
-    if (!value) {
+  const validate = (): boolean => {
+    if (!password) {
       setError('Senha é obrigatória');
-      return;
+      return false;
     }
-    if (value.length < 8) {
+    if (password.length < 8) {
       setError('Senha deve ter pelo menos 8 caracteres');
-      return;
+      return false;
     }
-    if (!/[A-Z]/.test(value)) {
-      setError('Senha deve conter pelo menos uma maiúscula');
-      return;
+    if (!/[A-Z]/.test(password)) {
+      setError('Senha deve conter pelo menos uma letra maiúscula');
+      return false;
     }
-    if (!/[a-z]/.test(value)) {
-      setError('Senha deve conter pelo menos uma minúscula');
-      return;
+    if (!/[a-z]/.test(password)) {
+      setError('Senha deve conter pelo menos uma letra minúscula');
+      return false;
     }
-    if (!/[0-9]/.test(value)) {
+    if (!/[0-9]/.test(password)) {
       setError('Senha deve conter pelo menos um número');
-      return;
+      return false;
     }
-    setError(null);
-    return '';
-  };
-
-  const validateConfirmPassword = (value: string) => {
-    if (!value) {
+    if (!confirmPassword) {
       setError('Confirmação de senha é obrigatória');
-      return;
+      return false;
     }
-    if (value !== password) {
+    if (confirmPassword !== password) {
       setError('As senhas não coincidem');
-      return;
+      return false;
     }
+
     setError(null);
-    return '';
+    return true;
   };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
+    setIsSuccess(false);
 
-    if (!validatePassword || !validateConfirmPassword) return;
+    if (!validate()) return;
 
     setLoading(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      // Simulação da chamada da API
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    setLoading(false);
-    setPassword('');
-    setConfirmPassword('');
+      setIsSuccess(true);
+      setPassword('');
+      setConfirmPassword('');
+      setError(null);
+    } catch {
+      setError('Erro ao redefinir a senha. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-creme-flor px-4 py-6 sm:py-8">
-      <div className="flex h-full w-full max-w-130 flex-col gap-5 rounded-xl bg-linear-to-br from-[#245829] to-[#3D7E3F] p-6 shadow-lg lg:h-130 lg:w-130 lg:gap-6 lg:p-11">
+      <div className="mx-auto flex w-full max-w-md flex-col gap-5 rounded-xl bg-verde-mata p-8 shadow-lg">
         <div className="flex flex-col items-center justify-center gap-2">
           <Image
             src={logo}
@@ -78,57 +83,71 @@ export default function Home() {
           />
           <h1 className="text-2xl text-creme-flor lg:text-3xl">Redefinir Senha</h1>
         </div>
-        <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
+
+        <form onSubmit={handleSubmit} className="flex w-full flex-col gap-4">
           <Input
+            variant="inverted"
             label="Nova senha"
             type="password"
             placeholder="Digite sua nova senha"
             autoComplete="new-password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              if (error) setError(null);
+            }}
             helperText="Mínimo 8 caracteres, com maiúscula, minúscula e número"
             disabled={loading}
           />
+
           <Input
+            variant="inverted"
             label="Confirme sua senha"
             type="password"
             placeholder="Digite sua senha novamente"
             autoComplete="new-password"
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={(e) => {
+              setConfirmPassword(e.target.value);
+              if (error) setError(null);
+            }}
             disabled={loading}
           />
-          {error ? (
-            <p className="text-sm text-coral-flor flex items-center gap-1">
+
+          {error && (
+            <p className="flex items-center gap-1 text-sm text-coral-flor">
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <circle cx="7" cy="7" r="6.5" stroke="currentColor" stroke-width="1" />
+                <circle cx="7" cy="7" r="6.5" stroke="currentColor" strokeWidth="1" />
                 <path
                   d="M7 4v4M7 10v1"
                   stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
                 />
               </svg>
-              Erro ao redefinir. Tente novamente.
+              {error}
             </p>
-          ) : (
-            <p className="text-sm text-coral-flor flex items-center gap-1">
+          )}
+
+          {isSuccess && (
+            <p className="flex items-center gap-1 text-sm text-creme-flor">
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <circle cx="7" cy="7" r="6.5" stroke="currentColor" stroke-width="1" />
+                <circle cx="7" cy="7" r="6.5" stroke="currentColor" strokeWidth="1" />
                 <path
                   d="M4.5 7l2 2 4-4"
                   stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
               </svg>
               Senha redefinida com sucesso!
             </p>
           )}
+
           <Button
             label={loading ? 'Redefinindo...' : 'Redefinir senha'}
-            className="mt-4 h-12 w-full text-lg self-center bg-[#F17C38] text-creme-flor hover:bg-[#F17C38]/90 lg:mt-8 lg:w-52.75"
+            className="mt-4 h-12 w-full self-center bg-[#F17C38] text-lg text-creme-flor hover:bg-[#F17C38]/90 md:w-auto"
             disabled={loading}
           />
         </form>
