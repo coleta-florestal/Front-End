@@ -30,11 +30,11 @@ export function ParcelCard({
 
   return (
     <div className="bg-white rounded-3xl border border-[#D7D0C2] p-6">
-      <div className="flex items-start gap-4 mb-4">
+      <div className="flex items-center gap-4 mb-4">
         <div className="shrink-0 p-2 bg-creme-flor rounded-xl">
           <MapPin className="w-6 h-6 text-verde-mata" />
         </div>
-        <h2 className="text-verde-mata font-semibold text-lg leading-tight">
+        <h2 className="text-verde-mata font-semibold text-lg lg:text-2xl leading-tight font-newsreader">
           Parcela {numero} — Área: {area}
         </h2>
       </div>

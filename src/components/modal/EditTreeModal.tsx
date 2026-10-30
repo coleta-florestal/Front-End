@@ -168,7 +168,7 @@ export function EditTreeModal({
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-[#e7e2d8] px-6 py-4">
-          <h2 className="text-xl font-bold text-verde-mata">Editar Árvore</h2>
+          <h2 className="text-xl font-bold text-verde-mata font-newsreader">Editar Árvore</h2>
           <button
             type="button"
             onClick={onClose}
@@ -181,15 +181,15 @@ export function EditTreeModal({
 
         <div className="flex flex-col gap-6 px-6 py-4">
           <div className="flex items-center gap-1">
-            <span className="inline-flex items-center gap-1 rounded-md bg-[#e7e2d8] px-2 py-1 text-sm text-[#5c5c5c]">
+            <span className="inline-flex items-center gap-1 rounded-md bg-[#e7e2d8] px-2 py-1 text-xs lg:text-sm text-[#5c5c5c]">
               {fazenda}
             </span>
             <span className="mx-0.5 text-xs text-[#5c5c5c]">›</span>
-            <span className="inline-flex items-center gap-1 rounded-md bg-[#e7e2d8] px-2 py-1 text-sm text-[#5c5c5c]">
+            <span className="inline-flex items-center gap-1 rounded-md bg-[#e7e2d8] px-2 py-1 text-xs lg:text-sm text-[#5c5c5c]">
               {parcela}
             </span>
             <span className="mx-0.5 text-xs text-[#5c5c5c]">›</span>
-            <span className="inline-flex items-center gap-1 rounded-md bg-verde-mata px-2 py-1 text-sm text-creme-flor">
+            <span className="inline-flex items-center gap-1 rounded-md bg-verde-mata px-2 py-1 text-xs lg:text-sm text-creme-flor">
               {numeroArvore}
             </span>
           </div>
@@ -255,24 +255,26 @@ export function EditTreeModal({
           )}
         </div>
 
-        <div className="flex flex-col justify-end gap-2 border-t border-[#e7e2d8] px-6 py-4 sm:flex-row">
+        <div className="flex flex-col justify-between gap-2 border-t border-[#e7e2d8] px-6 py-4 sm:flex-row">
           <span className="self-start text-sm text-[#5c5c5c] sm:self-center">
             {indiceAtual !== undefined && totalArvores !== undefined
               ? `${indiceAtual} de ${totalArvores} árvores`
               : ''}
           </span>
-          <Button
-            label="Cancelar"
-            onClick={onClose}
-            disabled={loading}
-            className="border border-[#b9b4a8] bg-white text-[#3d3d3d] hover:bg-[#f0ede5]"
-          />
-          <Button
-            label={loading ? 'Salvando...' : 'Salvar'}
-            onClick={handleSave}
-            disabled={!isFormValid || loading}
-            className="bg-verde-mata text-creme-flor hover:bg-[#245225]"
-          />
+          <div className="flex gap-4">
+            <Button
+              label="Cancelar"
+              onClick={onClose}
+              disabled={loading}
+              className="border border-[#b9b4a8] bg-white text-[#3d3d3d] hover:bg-[#f0ede5]"
+            />
+            <Button
+              label={loading ? 'Salvando...' : 'Salvar'}
+              onClick={handleSave}
+              disabled={!isFormValid || loading}
+              className="bg-verde-mata text-creme-flor hover:bg-[#245225]"
+            />
+          </div>
         </div>
       </div>
     </div>
