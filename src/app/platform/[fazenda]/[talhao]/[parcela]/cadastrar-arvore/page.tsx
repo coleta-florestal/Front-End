@@ -5,6 +5,8 @@ import Topbar from '@/components/ui/Topbar';
 import { TreeForm, type TreeData } from '@/components/trees/TreeForm';
 import { TreeList } from '@/components/trees/TreeList';
 import { EditTreeModal } from '@/components/modal/EditTreeModal';
+import { DeleteTreeModal } from '@/components/modal/DeleteTreeModal';
+import { ViewTreeModal } from '@/components/modal/ViewTreeModal';
 import Button from '@/components/core/Button';
 import { useRouter } from 'next/navigation';
 
@@ -14,6 +16,10 @@ export default function CadastrarArvorePage() {
   const [trees, setTrees] = useState<TreeData[]>([]);
   const [loading, setLoading] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [treeToDelete, setTreeToDelete] = useState<TreeData | null>(null);
+  const [treeToView, setTreeToView] = useState<TreeData | null>(null);
 
   const handleAddTree = (treeData: Omit<TreeData, 'id'>) => {
     const newTree: TreeData = {
@@ -23,10 +29,18 @@ export default function CadastrarArvorePage() {
     setTrees((prev) => [...prev, newTree]);
   };
 
-  const handleRemoveTree = (id: string) => {
-    if (window.confirm('Tem certeza que deseja remover esta árvore do lote?')) {
-      setTrees((prev) => prev.filter((tree) => tree.id !== id));
-    }
+  const handleRemoveTree = (tree: TreeData) => {
+    setTrees((prev) => prev.filter((t) => t.id !== tree.id));
+  };
+
+  const handleOpenDelete = (tree: TreeData) => {
+    setTreeToDelete(tree);
+    setDeleteModalOpen(true);
+  };
+
+  const handleOpenView = (tree: TreeData) => {
+    setTreeToView(tree);
+    setViewModalOpen(true);
   };
 
   const handleSaveEdit = (updatedTree: TreeData) => {
@@ -79,7 +93,35 @@ export default function CadastrarArvorePage() {
           <div className="space-y-6">
             <TreeForm onAddTree={handleAddTree} />
 
-            <TreeList trees={trees} onRemoveTree={handleRemoveTree} onEditTree={handleEditTree} />
+            <TreeList
+              trees={trees}
+              onRemoveTree={handleOpenDelete}
+              onEditTree={handleEditTree}
+              onViewTree={handleOpenView}
+            />
+
+            {treeToView && (
+              <ViewTreeModal
+                isOpen={viewModalOpen}
+                tree={treeToView}
+                fazenda="Fazenda Demo"
+                talhao="Talhão Demo"
+                parcela="Parcela Demo"
+                onClose={() => setViewModalOpen(false)}
+                onEdit={handleEditTree}
+                onDelete={handleOpenDelete}
+              />
+            )}
+
+            {treeToDelete && (
+              <DeleteTreeModal
+                isOpen={deleteModalOpen}
+                tree={treeToDelete}
+                parcela="Parcela Demo"
+                onConfirm={handleRemoveTree}
+                onClose={() => setDeleteModalOpen(false)}
+              />
+            )}
 
             {treeToEdit && (
               <EditTreeModal

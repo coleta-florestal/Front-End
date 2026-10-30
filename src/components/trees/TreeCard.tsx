@@ -5,11 +5,12 @@ import { Cloud, Trash } from '../core/Icons';
 
 export interface TreeCardProps {
   tree: TreeData;
-  onRemove?: (id: string) => void;
+  onRemove?: (tree: TreeData) => void;
   onEdit?: (id: string) => void;
+  onView?: (tree: TreeData) => void;
 }
 
-export function TreeCard({ tree, onRemove, onEdit }: TreeCardProps) {
+export function TreeCard({ tree, onRemove, onEdit, onView }: TreeCardProps) {
   const formatNumber = (value: string) =>
     parseFloat(value.replace(',', '.')).toLocaleString('pt-BR', {
       minimumFractionDigits: 1,
@@ -17,7 +18,10 @@ export function TreeCard({ tree, onRemove, onEdit }: TreeCardProps) {
     });
 
   return (
-    <div className="bg-creme-flor rounded-2xl border border-[#D7D0C2] p-6">
+    <div
+      className="bg-creme-flor rounded-2xl border border-[#D7D0C2] p-6 cursor-pointer hover:bg-[#faf7f0] transition-colors"
+      onClick={() => onView?.(tree)}
+    >
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <span className="bg-verde-mata text-creme-flor px-3 py-1 rounded-lg font-mono text-sm font-semibold">
@@ -36,7 +40,10 @@ export function TreeCard({ tree, onRemove, onEdit }: TreeCardProps) {
         <div className="flex items-center gap-2">
           {onEdit && (
             <button
-              onClick={() => onEdit(tree.id)}
+              onClick={(event) => {
+                event.stopPropagation();
+                onEdit(tree.id);
+              }}
               className="p-1.5 text-marrom-casca/60 hover:text-marrom-casca hover:bg-creme-flor/80 rounded-lg transition-colors"
               title="Editar árvore"
               aria-label="Editar árvore"
@@ -46,8 +53,12 @@ export function TreeCard({ tree, onRemove, onEdit }: TreeCardProps) {
           )}
           {onRemove && (
             <button
-              onClick={() => onRemove(tree.id)}
-              className="p-1.5 border border-[#D7D0C2] text-marrom-casca/60 hover:text-marrom-casca hover:bg-creme-flor/80 rounded-lg transition-colors"
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                onRemove(tree);
+              }}
+              className="p-1.5 border border-[#D7D0C2] text-marrom-casca/60 hover:text-marrom-casca hover:bg-creme-flor/80 rounded-lg transition-colors cursor-pointer "
               title="Remover árvore"
               aria-label="Remover árvore"
             >
