@@ -302,6 +302,68 @@ export function ArrowLeft({ size = 17, color, className, ...props }: IconProps) 
   );
 }
 
+export function Cloud({ size = 18, color, className, ...props }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 18 18"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      {...props}
+    >
+      <path
+        d="M13.5 4.5C13.5 3.12 12.38 2 11 2C9.62 2 8.5 3.12 8.5 4.5C8.5 5.88 9.62 7 11 7C12.38 7 13.5 5.88 13.5 4.5ZM16 7C16 8.38 14.88 9.5 13.5 9.5C12.12 9.5 11 8.38 11 7C11 5.62 12.12 4.5 13.5 4.5C14.88 4.5 16 5.62 16 7Z"
+        stroke={color ?? 'black'}
+        strokeWidth="1.33333"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+      <path
+        d="M4 8C4 6.62 5.12 5.5 6.5 5.5C7.88 5.5 9 6.62 9 8C9 9.38 7.88 10.5 6.5 10.5C5.12 10.5 4 9.38 4 8Z"
+        stroke={color ?? 'black'}
+        strokeWidth="1.33333"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+    </svg>
+  );
+}
+
+export function MapPin({ size = 18, color, className, ...props }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 18 18"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      {...props}
+    >
+      <path
+        d="M9 2C7.35 2 6 3.35 6 5C6 6.65 9 11 9 11S12 6.65 12 5C12 3.35 10.65 2 9 2Z"
+        stroke={color ?? '#2C5F2D'}
+        strokeWidth="1.33333"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+      <path
+        d="M9 5C9 5 9 8 9 8M9 8C9 8 9 11 9 11"
+        stroke={color ?? '#2C5F2D'}
+        strokeWidth="1.33333"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+    </svg>
+  );
+}
+
 export function Trash({ size = 18, color, className, ...props }: IconProps) {
   return (
     <svg

@@ -5,11 +5,24 @@ import { Trash, Tree, Edit } from '../core/Icons';
 
 export interface TreeListProps {
   trees: TreeData[];
-  onRemoveTree: (id: string) => void;
+  onRemoveTree: (tree: TreeData) => void;
   onEditTree?: (tree: TreeData) => void;
+  onViewTree?: (tree: TreeData) => void;
 }
 
-export function TreeList({ trees, onRemoveTree, onEditTree }: TreeListProps) {
+const QUALIDADE_LABELS: Record<string, string> = {
+  NORMAL: 'Normal',
+  'BIFURCADA_ACIMA_1.3M': 'Bifurcada acima de 1,3m',
+  'BIFURCADA_ABAIXO_1.3M': 'Bifurcada abaixo de 1,3m',
+  INCLINADA: 'Inclinada',
+  MORTA: 'Morta',
+  FALHA: 'Falha',
+  PROBLEMAS_FITOSSANITARIOS: 'Problemas fitossanitários',
+  QUEBRADA: 'Quebrada',
+  OUTRO: 'Outro',
+};
+
+export function TreeList({ trees, onRemoveTree, onEditTree, onViewTree }: TreeListProps) {
   if (trees.length === 0) {
     return (
       <div className="bg-white rounded-xl p-10 text-center border border-verde-mata/10 border-dashed">
@@ -45,25 +58,17 @@ export function TreeList({ trees, onRemoveTree, onEditTree }: TreeListProps) {
           </thead>
           <tbody className="divide-y divide-verde-mata/10">
             {trees.map((tree) => (
-              <tr key={tree.id} className="hover:bg-verde-mata/5 transition-colors">
+              <tr
+                key={tree.id}
+                className="cursor-pointer hover:bg-verde-mata/5 transition-colors"
+                onClick={() => onViewTree?.(tree)}
+              >
                 <td className="px-4 py-3 font-mono text-verde-mata">{tree.numero}</td>
                 <td className="px-4 py-3 text-verde-mata">{parseFloat(tree.dap).toFixed(1)}</td>
                 <td className="px-4 py-3 text-verde-mata">{parseFloat(tree.altura).toFixed(1)}</td>
                 <td className="px-4 py-3">
-                  <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      tree.qualidade === 'NORMAL'
-                        ? 'bg-verde-eucalipto/20 text-verde-mata'
-                        : tree.qualidade === 'BOM'
-                          ? 'bg-green-100 text-green-700'
-                          : tree.qualidade === 'REGULAR'
-                            ? 'bg-yellow-100 text-yellow-700'
-                            : tree.qualidade === 'RUIM'
-                              ? 'bg-orange-100 text-orange-700'
-                              : 'bg-red-100 text-red-700'
-                    }`}
-                  >
-                    {tree.qualidade}
+                  <span className="inline-flex items-center gap-1 rounded-md bg-verde-eucalipto/20 px-2 py-0.5 text-xs font-medium text-verde-mata">
+                    {QUALIDADE_LABELS[tree?.qualidade ?? ''] ?? tree?.qualidade}
                   </span>
                 </td>
                 <td
@@ -76,7 +81,10 @@ export function TreeList({ trees, onRemoveTree, onEditTree }: TreeListProps) {
                   <div className="flex items-center justify-center gap-2">
                     {onEditTree && (
                       <button
-                        onClick={() => onEditTree(tree)}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          onEditTree(tree);
+                        }}
                         className="p-1.5 text-verde-mata/60 hover:text-verde-mata hover:bg-verde-mata/10 rounded-lg transition-colors"
                         title="Editar"
                         aria-label="Editar árvore"
@@ -85,7 +93,11 @@ export function TreeList({ trees, onRemoveTree, onEditTree }: TreeListProps) {
                       </button>
                     )}
                     <button
-                      onClick={() => onRemoveTree(tree.id)}
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onRemoveTree(tree);
+                      }}
                       className="p-1.5 text-coral-flor/60 hover:text-coral-flor hover:bg-coral-flor/10 rounded-lg transition-colors"
                       title="Remover"
                       aria-label="Remover árvore"

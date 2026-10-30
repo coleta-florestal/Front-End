@@ -17,7 +17,7 @@ export default function Topbar({ title, description, onBack }: TopbarProps) {
         <ArrowLeft />
       </button>
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold text-verde-mata">{title}</h1>
+        <h1 className="text-2xl font-semibold text-verde-mata font-newsreader">{title}</h1>
         <p className="text-sm font-medium text-[#6D786E]">{description}</p>
       </div>
     </div>
