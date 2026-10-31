@@ -14,6 +14,7 @@ export interface TreeData {
   altura: string;
   observacoes: string;
   qualidade: string;
+  sincronizada?: boolean;
 }
 
 export interface TreeFormProps {
@@ -21,7 +22,7 @@ export interface TreeFormProps {
   initialQualidade?: string;
 }
 
-const QUALIDADE_OPTIONS = [
+export const QUALIDADE_OPTIONS = [
   { value: 'NORMAL', label: 'Normal' },
   { value: 'BIFURCADA_ACIMA_1.3M', label: 'Bifurcada acima de 1,3m' },
   { value: 'BIFURCADA_ABAIXO_1.3M', label: 'Bifurcada abaixo de 1,3m' },
