@@ -9,11 +9,22 @@ import { DeleteTreeModal } from '@/components/modal/DeleteTreeModal';
 import { ViewTreeModal } from '@/components/modal/ViewTreeModal';
 import { EditTreeModal } from '@/components/modal/EditTreeModal';
 import { CompleteParcelModal } from '@/components/modal/CompleteParcelModal';
-import Button from '@/components/core/Button';
 
 interface ParcelaPageProps {
   params: Promise<{ fazenda: string; talhao: string; parcela: string }>;
 }
+
+// Dados de exemplo até a integração com a API
+const PARCELA = {
+  fazenda: 'Fazenda Santa Maria',
+  talhao: 'Talhão 01',
+  numero: 'P02',
+  area: '400 m²',
+  formato: 'Retangular',
+  dimensoes: '20 × 20 m',
+  especie: 'Eucalyptus grandis',
+  meta: 15,
+};
 
 const TREES: TreeData[] = [
   {
@@ -23,6 +34,7 @@ const TREES: TreeData[] = [
     altura: '17,0',
     observacoes: 'Bifurcação a 3 m',
     qualidade: 'NORMAL',
+    sincronizada: false,
   },
   {
     id: '2',
@@ -70,6 +82,7 @@ export default function ParcelaPage({ params }: ParcelaPageProps) {
   const [completeModalOpen, setCompleteModalOpen] = useState(false);
 
   const resolvedParams = use(params);
+  const faltamParaMeta = PARCELA.meta - trees.length;
 
   const handleAddTree = () => {
     router.push(
@@ -97,7 +110,7 @@ export default function ParcelaPage({ params }: ParcelaPageProps) {
   };
 
   const handleSaveTree = (data: TreeData) => {
-    setTrees((prev) => prev.map((t) => (t.id === data.id ? data : t)));
+    setTrees((prev) => prev.map((t) => (t.id === data.id ? { ...data, sincronizada: false } : t)));
     setEditModalOpen(false);
     setTreeToEdit(null);
   };
@@ -112,59 +125,86 @@ export default function ParcelaPage({ params }: ParcelaPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-creme-flor flex">
+    <div className="min-h-screen bg-[#ECE8DE] flex">
       <main className="flex-1 min-w-0">
         <Topbar
           title="Árvores"
-          description="Nível 4 - medição das árvores da parcela"
+          description="Nível 4 · medição das árvores da parcela"
           onBack={() => router.back()}
+          breadcrumb={['Fazendas', PARCELA.fazenda, PARCELA.talhao, `Parcela ${PARCELA.numero}`]}
+          statusText="Sincronizado hoje, 09:42"
         />
 
-        <div className="p-6 lg:p-8 max-w-7xl mx-auto">
+        <div className="p-4 lg:p-6 max-w-7xl mx-auto">
           <ParcelCard
-            numero="P02"
-            area="400 m²"
+            numero={PARCELA.numero}
+            area={PARCELA.area}
+            formato={PARCELA.formato}
             statusLabel="EM ABERTO"
-            dimensoes="20 × 20 m"
-            talhao="Talhão 01"
+            naoSincronizada={trees.some((tree) => tree.sincronizada === false)}
+            dimensoes={PARCELA.dimensoes}
+            talhao={PARCELA.talhao}
+            especie={PARCELA.especie}
             arvoresMedidas={trees.length}
-            metaReferencia={15}
+            metaReferencia={PARCELA.meta}
             descricaoRodape="Cadastro em lote: lance várias árvores, revise o conjunto numa tabela e salve tudo de uma vez."
             onAddTrees={handleAddTree}
           />
 
-          <section className="mt-8 bg-white p-6 rounded-3xl border border-[#D7D0C2]">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-verde-mata font-semibold text-xl font-newsreader">
-                  Árvores registradas
-                </h2>
-                <p className="text-verde-mata/60 text-sm">
-                  {trees.length} árvores registradas &nbsp;·&nbsp; faltam {15 - trees.length} para a
-                  meta
-                </p>
-              </div>
+          <section
+            id="arvores-registradas"
+            className="mt-4 bg-white p-4 rounded-2xl border border-[#D7D0C2] lg:p-6"
+          >
+            <div className="mb-6 flex flex-col gap-1 md:flex-row md:items-baseline md:gap-3">
+              <h2 className="text-verde-mata font-semibold text-2xl font-newsreader">
+                Árvores registradas
+              </h2>
+              <p className="text-[#6D786E] text-sm">
+                {trees.length} {trees.length === 1 ? 'árvore registrada' : 'árvores registradas'}
+                &nbsp;·&nbsp;
+                {faltamParaMeta > 0 ? `faltam ${faltamParaMeta} para a meta` : 'meta atingida'}
+              </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {trees.map((tree) => (
-                <TreeCard
-                  key={tree.id}
-                  tree={tree}
-                  onRemove={handleOpenDelete}
-                  onView={handleOpenView}
-                />
-              ))}
-            </div>
+            {trees.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {trees.map((tree) => (
+                  <TreeCard
+                    key={tree.id}
+                    tree={tree}
+                    onRemove={handleOpenDelete}
+                    onView={handleOpenView}
+                  />
+                ))}
+              </div>
+            ) : (
+              <p className="py-6 text-center text-sm text-[#6D786E]">
+                Nenhuma árvore registrada nesta parcela.
+              </p>
+            )}
           </section>
 
-          <div className="mt-12 flex justify-end">
-            <Button
+          <div id="parcela-acoes" className="mt-4">
+            <button
               type="button"
-              label="Concluir Parcela"
               onClick={handleConcluir}
-              className="bg-coral-flor text-creme-flor border-2 border-[#D8D1C4] rounded-xl px-6 py-3 font-semibold hover:bg-coral-flor/70 transition-colors cursor-pointer"
-            />
+              className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-coral-flor bg-[#FBECE8] px-4 py-3 font-semibold text-[#A96A50] transition-colors hover:bg-coral-flor/20 sm:w-auto"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M4 22V4a1 1 0 0 1 1-1h14l-3 5 3 5H4" />
+              </svg>
+              Concluir Parcela
+            </button>
           </div>
 
           {treeToView && (
@@ -215,7 +255,7 @@ export default function ParcelaPage({ params }: ParcelaPageProps) {
               metragemTotal={trees
                 .reduce((acc, t) => acc + parseFloat(t.altura.replace(',', '.')), 0)
                 .toFixed(1)}
-              metaReferencia={15}
+              metaReferencia={PARCELA.meta}
               onConfirm={handleConfirmComplete}
               onClose={() => setCompleteModalOpen(false)}
             />
