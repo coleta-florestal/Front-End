@@ -146,6 +146,7 @@ export default function RedefinirSenha() {
           )}
 
           <Button
+            type="submit"
             label={loading ? 'Redefinindo...' : 'Redefinir senha'}
             className="mt-4 h-12 w-full self-center bg-[#F17C38] text-lg text-creme-flor hover:bg-[#F17C38]/90 md:w-auto"
             disabled={loading}

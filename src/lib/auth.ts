@@ -29,6 +29,11 @@ function readCookie(name: string): string | null {
   return match ? decodeURIComponent(match[1]) : null;
 }
 
+export function setAuthCookies(tokens: AuthToken) {
+  setCookie(ACCESS_TOKEN_COOKIE, tokens.accessToken);
+  setCookie(REFRESH_TOKEN_COOKIE, tokens.refreshToken);
+}
+
 export function clearAuthCookies() {
   document.cookie = `${ACCESS_TOKEN_COOKIE}=; path=/; max-age=0`;
   document.cookie = `${REFRESH_TOKEN_COOKIE}=; path=/; max-age=0`;
