@@ -1,6 +1,9 @@
 import { getAccessToken } from '@/lib/auth';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://back-end-cp74.onrender.com').replace(
+  /\/$/,
+  '',
+);
 
 export enum Role {
   USER = 'USER',
@@ -10,7 +13,7 @@ export enum Role {
 export interface User {
   id: string;
   email: string;
-  name: string;
+  userName: string;
   password: string;
   role: Role;
 }
@@ -21,9 +24,10 @@ export interface Token {
 }
 
 export interface CreateUserDto {
-  name: string;
+  userName: string;
   email: string;
   password: string;
+  confirmPassword: string;
 }
 
 export interface LoginDto {
@@ -45,10 +49,15 @@ export async function createUser(dto: CreateUserDto): Promise<User> {
 }
 
 export async function login(dto: LoginDto): Promise<AuthToken> {
-  return apiFetch('/auth/signin', {
+  const response = await apiFetch('/auth/signin', {
     method: 'POST',
     body: JSON.stringify(dto),
   });
+
+  return {
+    accessToken: response.accessToken || response.access_token,
+    refreshToken: response.refreshToken || response.refresh_token,
+  };
 }
 
 export async function apiFetch(
@@ -58,10 +67,13 @@ export async function apiFetch(
 ) {
   const { accessToken, ...restOptions } = options;
 
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  const fullUrl = `${BASE_URL}${cleanPath}`;
+
   let response: Response;
 
   try {
-    response = await fetch(BASE_URL + path, {
+    response = await fetch(fullUrl, {
       ...restOptions,
       cache: 'no-store',
       headers: {

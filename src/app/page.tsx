@@ -10,7 +10,7 @@ import { login } from './api/api';
 import { setAuthCookies } from '../lib/auth';
 import { useRouter } from 'next/navigation';
 
-export default function Home() {
+export default function Login() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
