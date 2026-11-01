@@ -6,8 +6,12 @@ import { Input } from '@/components/core/Input';
 import Image from 'next/image';
 import Link from 'next/link';
 import logo from '../../public/assets/apenas_circulo.png';
+import { login } from './api/api';
+import { setAuthCookies } from '../lib/auth';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -39,16 +43,16 @@ export default function Home() {
     setLoading(true);
 
     try {
-      // Simulação da chamada de API
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const tokens = await login({ email, password });
+      setAuthCookies(tokens);
+      router.push('/platform');
 
       setIsSuccess(true);
       setEmail('');
       setPassword('');
       setError(null);
-    } catch {
-      setError('Erro ao entrar. Tente novamente.');
-    } finally {
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Não foi possível entrar');
       setLoading(false);
     }
   }
@@ -134,6 +138,7 @@ export default function Home() {
           )}
 
           <Button
+            type="submit"
             label={loading ? 'Entrando...' : 'Entrar'}
             className="h-12 w-full self-center bg-[#F17C38] text-lg text-creme-flor hover:bg-[#F17C38]/90 md:w-auto"
             disabled={loading}
