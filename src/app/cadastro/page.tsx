@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation';
 import { createUser, login } from '../api/api';
 import { setAuthCookies } from '@/lib/auth';
 
-export default function Home() {
+export default function Cadastro() {
   const router = useRouter();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -65,6 +65,10 @@ export default function Home() {
       setError('Senha deve conter pelo menos um número');
       return false;
     }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      setError('Senha deve conter pelo menos um caractere especial (!@#$...)');
+      return false;
+    }
 
     if (!confirmPassword) {
       setError('Confirmação de senha é obrigatória');
@@ -88,7 +92,7 @@ export default function Home() {
     setLoading(true);
 
     try {
-      await createUser({ name: fullName, email, password });
+      await createUser({ userName: fullName, email, password, confirmPassword });
       const tokens = await login({ email, password });
       setAuthCookies(tokens);
       router.push('/platform');
