@@ -6,8 +6,12 @@ import { Input } from '@/components/core/Input';
 import Image from 'next/image';
 import Link from 'next/link';
 import logo from '../../../public/assets/apenas_circulo.png';
+import { useRouter } from 'next/navigation';
+import { createUser, login } from '../api/api';
+import { setAuthCookies } from '@/lib/auth';
 
 export default function Home() {
+  const router = useRouter();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -84,8 +88,10 @@ export default function Home() {
     setLoading(true);
 
     try {
-      // Simulação da chamada da API
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await createUser({ name: fullName, email, password });
+      const tokens = await login({ email, password });
+      setAuthCookies(tokens);
+      router.push('/platform');
 
       setIsSuccess(true);
       setFullName('');
@@ -93,9 +99,8 @@ export default function Home() {
       setPassword('');
       setConfirmPassword('');
       setError(null);
-    } catch {
-      setError('Erro ao enviar a solicitação. Tente novamente.');
-    } finally {
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Não foi possível cadastrar');
       setLoading(false);
     }
   }
@@ -205,6 +210,7 @@ export default function Home() {
           )}
 
           <Button
+            type="submit"
             label={loading ? 'Enviando...' : 'Enviar solicitação'}
             className="mt-2 h-12 w-full self-center bg-[#F17C38] text-lg text-creme-flor hover:bg-[#F17C38]/90 md:w-auto"
             disabled={loading}
