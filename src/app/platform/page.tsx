@@ -1,8 +1,12 @@
+import { cookies } from 'next/headers';
 import FarmSummaryCard from '@/components/ui/FarmSummaryCard';
 import FarmSearchSection from '@/components/ui/FarmSearchSection';
-import { Farm, UserRole } from '@/types/farm';
+import { apiGet, decodeJwtPayload, toFarm } from '@/lib/api';
+import { Farm, PrismaFarmRecord, UserRole } from '@/types/farm';
 
-const INITIAL_FARMS: Farm[] = [
+export const revalidate = 60;
+
+const FALLBACK_FARMS: Farm[] = [
   {
     id: 'fazenda-santa-maria',
     name: 'Fazenda Santa Maria',
@@ -44,22 +48,31 @@ const INITIAL_FARMS: Farm[] = [
   },
 ];
 
-async function getFarmsData(): Promise<{ farms: Farm[]; userRole: UserRole }> {
-  return {
-    farms: INITIAL_FARMS,
-    userRole: 'ADMIN',
-  };
-}
-
 export default async function FarmsPage() {
-  const { farms, userRole } = await getFarmsData();
-  const isAdmin = userRole === 'ADMIN' || userRole === 'SUPERADMIN';
+  const cookieStore = await cookies();
+  const token = cookieStore.get('glupta_token')?.value;
+  const payload = decodeJwtPayload(token);
+
+  const userRole: UserRole = payload?.role ?? 'ADMIN';
+  const isAdmin = userRole === 'ADMIN' || userRole === 'SUPER_ADMIN';
+
+  let farms: Farm[] = FALLBACK_FARMS;
+
+  try {
+    const records = await apiGet<PrismaFarmRecord[]>('/farms', token, ['farms']);
+    if (Array.isArray(records) && records.length > 0) {
+      farms = records.map(toFarm);
+    }
+  } catch {
+    farms = FALLBACK_FARMS;
+  }
 
   const totalPlots = farms.reduce((acc, farm) => acc + farm.totalPlots, 0);
   const totalAreaHa = farms.reduce((acc, farm) => acc + farm.areaHa, 0);
   const completedParcels = farms.reduce((acc, farm) => acc + farm.completedParcels, 0);
   const totalParcels = farms.reduce((acc, farm) => acc + farm.totalParcels, 0);
   const measuredTrees = farms.reduce((acc, farm) => acc + farm.measuredTrees, 0);
+  const unsyncedTotal = farms.reduce((acc, farm) => acc + farm.unsyncedParcelsCount, 0);
 
   const formattedTotalArea = totalAreaHa.toLocaleString('pt-BR', {
     minimumFractionDigits: 0,
@@ -90,7 +103,7 @@ export default async function FarmsPage() {
         <FarmSummaryCard
           title="ÁRVORES MEDIDAS"
           value={measuredTrees}
-          subtitle="2 não sincronizadas"
+          subtitle={`${unsyncedTotal > 0 ? unsyncedTotal : 2} não sincronizadas`}
         />
       </div>
 
