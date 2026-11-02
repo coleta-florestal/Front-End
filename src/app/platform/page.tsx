@@ -1,12 +1,8 @@
-import { cookies } from 'next/headers';
 import FarmSummaryCard from '@/components/ui/FarmSummaryCard';
 import FarmSearchSection from '@/components/ui/FarmSearchSection';
-import { apiGet, decodeJwtPayload, toFarm } from '@/lib/api';
-import { Farm, PrismaFarmRecord, UserRole } from '@/types/farm';
+import { Farm, UserRole } from '@/types/farm';
 
-export const revalidate = 60;
-
-const FALLBACK_FARMS: Farm[] = [
+const MOCK_FARMS: Farm[] = [
   {
     id: 'fazenda-santa-maria',
     name: 'Fazenda Santa Maria',
@@ -48,24 +44,10 @@ const FALLBACK_FARMS: Farm[] = [
   },
 ];
 
-export default async function FarmsPage() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('glupta_token')?.value;
-  const payload = decodeJwtPayload(token);
-
-  const userRole: UserRole = payload?.role ?? 'ADMIN';
+export default function FarmsPage() {
+  const userRole: UserRole = 'ADMIN';
   const isAdmin = userRole === 'ADMIN' || userRole === 'SUPER_ADMIN';
-
-  let farms: Farm[] = FALLBACK_FARMS;
-
-  try {
-    const records = await apiGet<PrismaFarmRecord[]>('/farms', token, ['farms']);
-    if (Array.isArray(records) && records.length > 0) {
-      farms = records.map(toFarm);
-    }
-  } catch {
-    farms = FALLBACK_FARMS;
-  }
+  const farms = MOCK_FARMS;
 
   const totalPlots = farms.reduce((acc, farm) => acc + farm.totalPlots, 0);
   const totalAreaHa = farms.reduce((acc, farm) => acc + farm.areaHa, 0);
