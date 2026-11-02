@@ -1,23 +1,33 @@
 import { Farm, FarmStatus, JwtPayload, PrismaFarmRecord } from '@/types/farm';
 
-const API_URL = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3333';
+const RAW_API_URL =
+  process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3333';
+
+const API_URL = RAW_API_URL.replace(/\/+$/, '');
+const API_KEY = process.env.NEXT_PUBLIC_API_KEY ?? '';
 
 export async function apiGet<T>(path: string, token?: string, tags: string[] = []): Promise<T> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
 
+  if (API_KEY) {
+    headers['x-api-key'] = API_KEY;
+  }
+
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_URL}${path}`, {
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+
+  const response = await fetch(`${API_URL}${normalizedPath}`, {
     headers,
     next: { revalidate: 60, tags },
   });
 
   if (!response.ok) {
-    throw new Error(`API ${path} respondeu ${response.status}`);
+    throw new Error(`API ${normalizedPath} respondeu ${response.status}`);
   }
 
   return (await response.json()) as T;
