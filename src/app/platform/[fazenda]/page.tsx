@@ -152,7 +152,6 @@ export default function FazendaTalhoesPage({ params }: FazendaTalhoesPageProps) 
                 parcelasConcluidas={talhao.parcelasConcluidas}
                 parcelasTotais={talhao.parcelasTotais}
                 progresso={talhao.progresso}
-                arvoresMedidas={talhao.arvoresMedidas}
               />
             </div>
           ))}
