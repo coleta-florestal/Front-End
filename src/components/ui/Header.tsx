@@ -11,32 +11,36 @@ type NavLink = {
   label: string;
   href: string;
   icon: ReactNode;
+  adminOnly?: boolean;
+  exact?: boolean;
 };
 
 const navLinks: NavLink[] = [
   {
     label: 'Início',
-    href: '/',
+    href: '/platform',
     icon: <House size={24} />,
+    exact: true,
   },
   {
     label: 'Fazenda',
-    href: '/fazenda',
+    href: '/platform/fazendas',
     icon: <Farm size={24} />,
   },
   {
     label: 'Dashboard',
-    href: '/dashboard',
+    href: '/platform/dashboards',
     icon: <Dashboard size={24} />,
   },
   {
     label: 'Admin',
-    href: '/painel-admin',
+    href: '/platform/painel-admin',
     icon: <Admin size={24} />,
+    adminOnly: true,
   },
 ];
 
-export default function Header() {
+export default function Header({ isAdmin }: { isAdmin: boolean }) {
   const pathname = usePathname();
 
   return (
@@ -57,28 +61,30 @@ export default function Header() {
       </div>
 
       <nav className="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around px-2 h-16 bg-verde-mata/95 backdrop-blur-md border-t border-creme-flor/20 print:hidden">
-        {navLinks.map((link) => {
-          const active = pathname.startsWith(link.href);
-          return (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors ${
-                active ? 'text-coral-flor' : 'text-creme-flor/70'
-              }`}
-              aria-label={link.label}
-            >
-              <div className={`${active ? 'text-coral-flor' : 'text-creme-flor/70'}`}>
-                {link.icon}
-              </div>
-              <span
-                className={`text-xs font-semibold ${active ? 'text-coral-flor' : 'text-creme-flor/70'}`}
+        {navLinks
+          .filter((link) => isAdmin || !link.adminOnly)
+          .map((link) => {
+            const active = link.exact ? pathname === link.href : pathname.startsWith(link.href);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors ${
+                  active ? 'text-coral-flor' : 'text-creme-flor/70'
+                }`}
+                aria-label={link.label}
               >
-                {link.label}
-              </span>
-            </Link>
-          );
-        })}
+                <div className={`${active ? 'text-coral-flor' : 'text-creme-flor/70'}`}>
+                  {link.icon}
+                </div>
+                <span
+                  className={`text-xs font-semibold ${active ? 'text-coral-flor' : 'text-creme-flor/70'}`}
+                >
+                  {link.label}
+                </span>
+              </Link>
+            );
+          })}
       </nav>
     </header>
   );

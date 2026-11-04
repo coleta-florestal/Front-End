@@ -1,6 +1,7 @@
 'use client';
 
-import { TreeData } from './TreeForm';
+import { QUALIDADE_LABELS, TreeData } from './TreeForm';
+import { TreeQuality } from '@/types/farm';
 import { Cloud, Trash } from '../core/Icons';
 
 export interface TreeCardProps {
@@ -19,24 +20,20 @@ export function TreeCard({ tree, onRemove, onEdit, onView }: TreeCardProps) {
 
   return (
     <div
-      className="bg-creme-flor rounded-2xl border border-[#D7D0C2] p-6 cursor-pointer hover:bg-[#faf7f0] transition-colors"
+      className="bg-[#FCFAF8] rounded-[20px] border border-[#E3DCD0] p-4 cursor-pointer hover:bg-[#F5F2EC] transition-colors w-full max-w-95"
       onClick={() => onView?.(tree)}
     >
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#E3DCD0]">
         <div className="flex items-center gap-3">
-          <span className="bg-verde-mata text-creme-flor px-3 py-1 rounded-lg font-mono text-sm font-semibold">
-            Nº {tree.numero}
+          <span className="bg-[#EBF2EA] text-verde-mata px-3 py-1.5 rounded-xl font-newsreader text-lg font-bold">
+            Nº {tree.numero.toString().padStart(2, '0')}
           </span>
-          <span
-            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-              tree.qualidade === 'NORMAL'
-                ? 'bg-verde-eucalipto/20 text-verde-mata'
-                : 'bg-green-100 text-green-700'
-            }`}
-          >
-            {tree.qualidade.charAt(0).toUpperCase() + tree.qualidade.slice(1).toLowerCase()}
+
+          <span className="bg-[#F0F5EF] text-[#245225] px-3 py-1 rounded-full text-[13px] font-bold">
+            {QUALIDADE_LABELS[tree.qualidade as TreeQuality] ?? tree.qualidade}
           </span>
         </div>
+
         <div className="flex items-center gap-2">
           {onEdit && (
             <button
@@ -44,13 +41,14 @@ export function TreeCard({ tree, onRemove, onEdit, onView }: TreeCardProps) {
                 event.stopPropagation();
                 onEdit(tree.id);
               }}
-              className="p-1.5 text-marrom-casca/60 hover:text-marrom-casca hover:bg-creme-flor/80 rounded-lg transition-colors"
-              title="Editar árvore"
-              aria-label="Editar árvore"
+              className="p-1.5 text-[#B88746] hover:bg-[#F0EBE1] rounded-lg transition-colors"
+              title="Sincronizar/Editar"
+              aria-label="Sincronizar/Editar"
             >
-              <Cloud className="w-4 h-4" />
+              <Cloud className="w-5 h-5" />
             </button>
           )}
+
           {onRemove && (
             <button
               type="button"
@@ -58,7 +56,7 @@ export function TreeCard({ tree, onRemove, onEdit, onView }: TreeCardProps) {
                 event.stopPropagation();
                 onRemove(tree);
               }}
-              className="p-1.5 border border-[#D7D0C2] text-marrom-casca/60 hover:text-marrom-casca hover:bg-creme-flor/80 rounded-lg transition-colors cursor-pointer "
+              className="p-2 bg-[#FCEAE8] border border-[#F2C9C5] text-[#A66158] hover:bg-[#F5D8D5] rounded-xl transition-colors cursor-pointer"
               title="Remover árvore"
               aria-label="Remover árvore"
             >
@@ -68,22 +66,20 @@ export function TreeCard({ tree, onRemove, onEdit, onView }: TreeCardProps) {
         </div>
       </div>
 
-      <div className="space-y-3">
-        <div className="flex justify-between text-sm">
-          <span className="text-verde-mata/70">DAP</span>
-          <span className="font-mono font-semibold text-verde-mata">
-            {formatNumber(tree.dap)} cm
-          </span>
+      <div className="space-y-3.5 px-1">
+        <div className="flex justify-between items-center text-[15px]">
+          <span className="text-[#71766F] font-medium">DAP</span>
+          <span className="font-bold text-verde-mata">{formatNumber(tree.dap)} cm</span>
         </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-verde-mata/70">Altura</span>
-          <span className="font-mono font-semibold text-verde-mata">
-            {formatNumber(tree.altura)} m
-          </span>
+
+        <div className="flex justify-between items-center text-[15px]">
+          <span className="text-[#71766F] font-medium">Altura</span>
+          <span className="font-bold text-verde-mata">{formatNumber(tree.altura)} m</span>
         </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-verde-mata/70">Obs.</span>
-          <span className="text-verde-mata/70">{tree.observacoes || '—'}</span>
+
+        <div className="flex justify-between items-start text-[15px] gap-4">
+          <span className="text-[#71766F] font-medium whitespace-nowrap">Obs.</span>
+          <span className="text-[#848079] text-right truncate">{tree.observacoes || '—'}</span>
         </div>
       </div>
     </div>

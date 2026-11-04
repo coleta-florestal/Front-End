@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { decodeJwt } from './lib/auth';
+import { decodeJwt, isAdminToken } from './lib/auth';
 
 const PUBLIC_ROUTES = ['/', '/cadastro', '/recuperar-acesso', 'redefinir-senha'];
 
@@ -10,15 +10,17 @@ export function proxy(request: NextRequest) {
   const isValid = !!payload && (!payload.exp || payload.exp * 1000 > Date.now());
 
   if (PUBLIC_ROUTES.includes(pathname)) {
-    return isValid ? NextResponse.redirect(new URL('/platform', request.url)) : NextResponse.next();
+    return isValid
+      ? NextResponse.redirect(new URL('/platform/fazendas', request.url))
+      : NextResponse.next();
   }
 
   if (!isValid) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
-  if (pathname.startsWith('/platform/painel-admin') && payload?.role !== 'ADMIN') {
-    return NextResponse.redirect(new URL('/platform', request.url));
+  if (pathname.startsWith('/platform/painel-admin') && !isAdminToken(token)) {
+    return NextResponse.redirect(new URL('/platform/fazendas', request.url));
   }
 
   return NextResponse.next();

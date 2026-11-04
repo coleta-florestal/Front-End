@@ -21,7 +21,7 @@ export default function Login() {
 
   const validate = (): boolean => {
     if (!email.trim()) {
-      setError('Email ou usuário é obrigatório');
+      setError('Email é obrigatório');
       return false;
     }
 
@@ -45,7 +45,7 @@ export default function Login() {
     try {
       const tokens = await login({ email, password });
       setAuthCookies(tokens);
-      router.push('/platform');
+      router.push('/platform/fazendas');
 
       setIsSuccess(true);
       setEmail('');
@@ -73,10 +73,10 @@ export default function Login() {
         <form onSubmit={handleSubmit} className="flex w-full flex-col gap-4">
           <Input
             variant="inverted"
-            label="Email ou usuário"
-            placeholder="Digite seu email ou usuário"
-            type="text"
-            autoComplete="username"
+            label="Email"
+            placeholder="Digite seu email"
+            type="email"
+            autoComplete="email"
             value={email}
             onChange={(e) => {
               setEmail(e.target.value);

@@ -5,7 +5,7 @@ const REFRESH_TOKEN_COOKIE = 'refreshToken';
 
 interface JwtPayload {
   sub?: string;
-  role?: 'ADMIN' | 'USER';
+  role?: 'ADMIN' | 'USER' | 'SUPER_ADMIN';
   exp?: number;
   [key: string]: unknown;
 }
@@ -31,7 +31,7 @@ function readCookie(name: string): string | null {
 
 export function setAuthCookies(tokens: AuthToken) {
   setCookie(ACCESS_TOKEN_COOKIE, tokens.accessToken);
-  setCookie(REFRESH_TOKEN_COOKIE, tokens.refreshToken);
+  if (tokens.refreshToken) setCookie(REFRESH_TOKEN_COOKIE, tokens.refreshToken);
 }
 
 export function clearAuthCookies() {
@@ -41,6 +41,15 @@ export function clearAuthCookies() {
 
 export function getAccessToken(): string | null {
   return readCookie(ACCESS_TOKEN_COOKIE);
+}
+
+export function isAdminToken(token?: string | null): boolean {
+  const role = token ? decodeJwt(token)?.role : undefined;
+  return role === 'ADMIN' || role === 'SUPER_ADMIN';
+}
+
+export function isCurrentUserAdmin(): boolean {
+  return isAdminToken(getAccessToken());
 }
 
 export function getRefreshToken(): string | null {

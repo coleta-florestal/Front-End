@@ -11,6 +11,8 @@ type NavLink = {
   label: string;
   href: string;
   icon: ReactNode;
+  adminOnly?: boolean;
+  exact?: boolean;
 };
 
 export function NavDivider() {
@@ -20,27 +22,29 @@ export function NavDivider() {
 const navLinks: NavLink[] = [
   {
     label: 'Início',
-    href: '/',
+    href: '/platform',
     icon: <House size={22} />,
+    exact: true,
   },
   {
     label: 'Fazenda',
-    href: '/fazenda',
+    href: '/platform/fazendas',
     icon: <Farm size={22} />,
   },
   {
     label: 'Dashboard',
-    href: '/dashboard',
+    href: '/platform/dashboards',
     icon: <Dashboard size={22} />,
   },
   {
     label: 'Admin',
-    href: '/painel-admin',
+    href: '/platform/painel-admin',
     icon: <Admin size={22} />,
+    adminOnly: true,
   },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ isAdmin }: { isAdmin: boolean }) {
   const pathname = usePathname();
 
   return (
@@ -61,27 +65,31 @@ export default function Sidebar() {
       <NavDivider />
 
       <nav className="mt-6 space-y-2 flex-1">
-        {navLinks.map((link) => {
-          const active = pathname.startsWith(link.href);
-          return (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm text-creme-flor transition-colors ${
-                active
-                  ? 'bg-creme-flor/10 border-l-coral-flor border-l-6'
-                  : 'hover:bg-creme-flor/10 hover:border-l-coral-flor hover:border-l-6'
-              }`}
-            >
-              <div className={`${active ? 'text-coral-flor' : 'text-creme-flor'}`}>{link.icon}</div>
-              <span
-                className={`font-semibold text-lg ${active ? 'text-coral-flor' : 'text-creme-flor'}`}
+        {navLinks
+          .filter((link) => isAdmin || !link.adminOnly)
+          .map((link) => {
+            const active = link.exact ? pathname === link.href : pathname.startsWith(link.href);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm text-creme-flor transition-colors ${
+                  active
+                    ? 'bg-creme-flor/10 border-l-coral-flor border-l-6'
+                    : 'hover:bg-creme-flor/10 hover:border-l-coral-flor hover:border-l-6'
+                }`}
               >
-                {link.label}
-              </span>
-            </Link>
-          );
-        })}
+                <div className={`${active ? 'text-coral-flor' : 'text-creme-flor'}`}>
+                  {link.icon}
+                </div>
+                <span
+                  className={`font-semibold text-lg ${active ? 'text-coral-flor' : 'text-creme-flor'}`}
+                >
+                  {link.label}
+                </span>
+              </Link>
+            );
+          })}
       </nav>
     </aside>
   );

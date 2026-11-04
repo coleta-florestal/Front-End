@@ -1,75 +1,70 @@
 'use client';
 
-import { useEffect } from 'react';
-import Button from '../core/Button';
-import { Close } from '../core/Icons';
+import { useState } from 'react';
+import Button from '@/components/core/Button';
+import { Close } from '@/components/core/Icons';
 
 export interface CompleteParcelModalProps {
   isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void | Promise<void>;
+  parcelaNumero: string;
   fazenda: string;
   talhao: string;
-  parcela: string;
   arvoresRegistradas: number;
-  metragemTotal: string;
+  metragemTotal: number;
   metaReferencia: number;
-  onConfirm: () => void;
-  onClose: () => void;
+  arvoresFaltando: number;
 }
 
 export function CompleteParcelModal({
   isOpen,
+  onClose,
+  onConfirm,
+  parcelaNumero,
   fazenda,
   talhao,
-  parcela,
   arvoresRegistradas,
   metragemTotal,
   metaReferencia,
-  onConfirm,
-  onClose,
+  arvoresFaltando,
 }: CompleteParcelModalProps) {
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   if (!isOpen) return null;
 
-  const faltam = Math.max(0, metaReferencia - arvoresRegistradas);
+  const handleConfirm = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      await onConfirm();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Não foi possível concluir a parcela');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const numeroSeguro = parcelaNumero || '';
+  const faltamSeguro = arvoresFaltando || 0;
 
   return (
     <div
       id="complete-parcel-modal-backdrop"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 sm:p-6"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       onClick={onClose}
     >
       <div
         id="complete-parcel-modal"
-        className="w-full max-w-sm max-h-[calc(100vh-2rem)] overflow-y-auto md:max-w-xl rounded-3xl border border-[#e7e2d8] bg-[#faf7f0] shadow-2xl"
+        className="w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden rounded-3xl border border-[#e7e2d8] bg-[#faf7f0] shadow-2xl"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-[#e7e2d8] px-4 py-3 sm:px-6 sm:py-4">
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="rounded-lg bg-[#FDECEA]/30 p-2 shrink-0">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="text-coral-flor"
-              >
-                <path
-                  d="M6 12L3 2L6 2L10 4L14 2L17 2L14 12L17 12L17 22L14 22L14 12L10 12L10 22L7 22L7 12L4 12L4 22L1 22L1 12L6 12Z"
-                  fill="#D9765F"
-                />
-              </svg>
-            </div>
-            <h2 className="text-xl font-bold text-verde-mata leading-tight font-newsreader min-w-0">
-              Concluir Parcela {parcela}?
+        <div className="flex-none flex items-center justify-between border-b border-[#e7e2d8] px-6 py-4 gap-4">
+          <div className="flex items-center gap-2">
+            <h2 className="text-2xl font-semibold text-verde-mata font-newsreader">
+              Concluir Parcela {numeroSeguro}?
             </h2>
           </div>
           <button
@@ -78,81 +73,82 @@ export function CompleteParcelModal({
             className="border-none bg-transparent p-0 font-semibold text-[#3d3d3d] shadow-none hover:bg-[#f0ede5]"
             aria-label="Fechar modal"
           >
-            <Close size={20} />
+            <Close size={16} />
           </button>
         </div>
 
-        <div className="flex flex-col gap-6 px-4 py-4 sm:px-6 sm:py-4">
-          <p className="text-[#3d3d3d] text-sm leading-relaxed">
-            Depois de concluída, {parcela} deixa de aceitar novos registros de árvore. Reabrir é uma
-            ação separada e fica registrada na auditoria.
+        <div className="flex-1 overflow-y-auto px-6 py-4">
+          <p className="text-[#848079] text-sm mb-6 leading-relaxed">
+            Depois de concluída, a Parcela {numeroSeguro} deixa de aceitar novos registos de árvore.
+            Reabrir é uma ação separada e fica registada na auditoria.
           </p>
 
-          <div className="rounded-xl border border-[#e7e2d8] bg-white p-4 sm:p-6">
-            <div className="space-y-3 sm:space-y-4">
-              <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-                <span className="text-[#5c5c5c] text-sm shrink-0">Fazenda:</span>
-                <span className="font-semibold text-[#3d3d3d] min-w-0">{fazenda}</span>
+          <div className="mb-8 p-4 rounded-xl border border-[#e7e2d8] bg-white">
+            <div className="space-y-3 text-black">
+              <div className="flex justify-between text-sm gap-2">
+                <span className="text-[#848079]">Fazenda:</span>
+                <span className="font-semibold text-right">{fazenda || '-'}</span>
               </div>
-              <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-                <span className="text-[#5c5c5c] text-sm shrink-0">Talhão:</span>
-                <span className="font-semibold text-[#3d3d3d] min-w-0">{talhao}</span>
+              <div className="flex justify-between text-sm gap-2">
+                <span className="text-[#848079]">Talhão:</span>
+                <span className="font-semibold text-right">{talhao || '-'}</span>
               </div>
-              <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-                <span className="text-[#5c5c5c] text-sm shrink-0">Parcela:</span>
-                <span className="font-semibold text-[#3d3d3d] min-w-0">{parcela}</span>
-              </div>
-              <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-                <span className="text-[#5c5c5c] text-sm shrink-0">Árvores registradas:</span>
-                <span className="font-semibold text-[#3d3d3d] min-w-0">
-                  {arvoresRegistradas} árvores
+              <div className="flex justify-between text-sm gap-2">
+                <span className="text-[#848079]">Parcela:</span>
+                <span className="font-semibold text-right">
+                  {numeroSeguro ? `Parcela ${numeroSeguro}` : '-'}
                 </span>
               </div>
-              <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-                <span className="text-[#5c5c5c] text-sm shrink-0">Metragem total:</span>
-                <span className="font-semibold text-[#3d3d3d] min-w-0">Σ {metragemTotal} m</span>
+              <div className="flex justify-between text-sm gap-2">
+                <span className="text-[#848079]">Árvores registadas:</span>
+                <span className="font-semibold text-right">{arvoresRegistradas || 0} árvores</span>
+              </div>
+              <div className="flex justify-between text-sm gap-2">
+                <span className="text-[#848079]">Metragem total:</span>
+                <span className="font-semibold text-right">{metragemTotal || 0} m</span>
               </div>
             </div>
           </div>
 
-          {faltam > 0 && (
-            <div className="rounded-xl border border-[#F5E7D1] bg-[#FBF3E4]/50 p-4 sm:p-6">
-              <div className="flex items-start gap-3 sm:gap-4">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="text-[#B4834B] shrink-0 mt-0.5 sm:mt-0"
-                >
-                  <path
-                    d="M12 22C6.477 22 2 17.523 2 12C2 6.477 6.477 2 12 2C17.523 2 22 6.477 22 12C22 17.523 17.523 22 12 22ZM12 20C7.582 20 4 16.418 4 12C4 7.582 7.582 4 12 4C16.418 4 20 7.582 20 12C20 16.418 16.418 20 12 20ZM12 18C14.209 18 16 16.209 16 14C16 11.791 14.209 10 12 10C9.791 10 8 11.791 8 14C8 16.209 9.791 18 12 18ZM12 16L13.41 17.41L14.83 15.99L16.24 17.4L14.83 18.81L13.41 20.22L12 18.81L10.59 20.22L9.17 18.81L7.76 17.4L9.17 15.99L10.59 17.41L12 16Z"
-                    fill="#B4834B"
-                  />
-                </svg>
-                <p className="text-[#8a6d3b] text-sm leading-relaxed min-w-0">
-                  Faltam {faltam} árvore{faltam > 1 ? 's' : ''} para a meta de {metaReferencia}.
-                  Você pode concluir assim mesmo, mas a parcela ficará bloqueada para novos
-                  registros.
-                </p>
-              </div>
+          <div className="mb-8 p-4 rounded-xl border border-[#f2dcd8] bg-[#fdf7ec]">
+            <div className="flex items-start gap-3">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="text-[#B06A57] shrink-0 mt-0.5"
+              >
+                <path
+                  d="M13.162 1.304C12.744.886 12.158.886 11.74 1.304l-4.763 4.763c-.584.584-.584 1.53 0 2.114l1.327 1.327-.53 1.059c-.284.568-.427.852-.427 1.136s.143.568.427 1.136l1.06 1.06c.284.284.658.427 1.031.427s.747-.143 1.031-.427l4.233-4.233c.584-.584.584-1.53 0-2.114L13.162 1.304ZM16.838 22.696c-.584.584-1.53.584-2.114 0l-1.06-1.06c-.284-.284-.427-.658-.427-1.031s.143-.747.427-1.031l.53-1.059-1.327-1.327c-.584-.584-.584-1.53 0-2.114l4.763-4.763c.584-.584 1.53-.584 2.114 0l4.763 4.763c.584.584.584 1.53 0 2.114L16.838 22.696Z"
+                  fill="#B06A57"
+                />
+              </svg>
+              <span className="text-[#8B4A3E] text-sm font-medium leading-relaxed">
+                Faltam {faltamSeguro} árvores para a meta de {metaReferencia || 0}. Pode concluir
+                assim mesmo, mas a parcela ficará bloqueada para novos registos.
+              </span>
             </div>
+          </div>
+
+          {error && (
+            <p className="mb-4 flex items-center gap-1 text-sm text-coral-flor" role="alert">
+              {error}
+            </p>
           )}
 
-          <div className="flex flex-col justify-end gap-2 border-t border-[#e7e2d8] px-6 py-4 sm:flex-row">
+          <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-[#e7e2d8]">
             <Button
               label="Voltar e continuar coletando"
               onClick={onClose}
-              className="border border-[#D7D0C2] bg-creme-flor text-verde-mata hover:bg-[#f0ede5]"
+              className="border border-[#D7D0C2] bg-white text-verde-mata hover:bg-[#f0ede5] rounded-xl px-6 py-3 font-semibold w-full sm:w-auto"
             />
             <Button
-              label="Sim, concluir parcela"
-              onClick={() => {
-                onConfirm();
-                onClose();
-              }}
-              className="bg-[#a96a50] text-white hover:bg-[#945a45]"
+              label={loading ? 'Concluindo...' : 'Sim, concluir parcela'}
+              onClick={handleConfirm}
+              disabled={loading}
+              className="bg-[#B06A57] text-creme-flor hover:bg-[#9C5A47] rounded-xl px-6 py-3 font-semibold w-full sm:w-auto"
             />
           </div>
         </div>
