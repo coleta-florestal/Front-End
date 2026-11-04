@@ -453,7 +453,7 @@ export function toFarm(record: PrismaFarmRecord): Farm {
   const summary = summarizeSubPlots(plots.flatMap((plot) => plot.subPlots ?? []));
 
   return {
-    id: record.id,
+    farmId: record.id,
     name: record.name,
     address: record.address ?? '',
     location: record.address ?? 'Local não informado',

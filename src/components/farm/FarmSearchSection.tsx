@@ -69,7 +69,7 @@ export default function FarmSearchSection({
   };
 
   const handleConfirmDeleteFarm = async (farm: Farm) => {
-    await deleteFarm(farm.id);
+    await deleteFarm(farm.farmId);
     setFarmToDelete(null);
     await onFarmsChanged();
   };
@@ -84,7 +84,7 @@ export default function FarmSearchSection({
             placeholder="Buscar Fazenda"
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
-            className="rounded-xl border-[#DFDBD0] bg-[#FAF8F3] px-4 py-3 text-sm text-[#2C5F2D] focus:border-[#2C5F2D]"
+            className="rounded-xl border-[#DFDBD0] bg-[#FAF8F3] px-4 py-3 text-sm text-verde-mata focus:border-verde-mata"
           />
         </div>
 
@@ -93,7 +93,7 @@ export default function FarmSearchSection({
             type="button"
             label="+ Adicionar Fazenda"
             onClick={handleOpenCreateFarm}
-            className="shrink-0 rounded-xl border-2 border-dashed border-[#2C5F2D]/60 bg-[#FAF8F3] px-5 py-3 text-sm text-[#2C5F2D] shadow-none transition-colors hover:bg-[#E4EDE2]"
+            className="shrink-0 rounded-xl border-2 border-dashed border-verde-mata/60 bg-[#FAF8F3] px-5 py-3 text-sm text-verde-mata shadow-none transition-colors hover:bg-[#E4EDE2]"
           />
         )}
       </div>
@@ -102,7 +102,7 @@ export default function FarmSearchSection({
         {filteredFarms.length > 0 ? (
           filteredFarms.map((farm) => (
             <FarmListCard
-              key={farm.id}
+              key={farm.farmId}
               farm={farm}
               isAdmin={isAdmin}
               onEdit={handleOpenEditFarm}
@@ -131,7 +131,7 @@ export default function FarmSearchSection({
           isOpen
           farm={farmToEdit}
           onClose={() => setFarmToEdit(null)}
-          onSave={(data) => handleUpdateFarm(farmToEdit.id, data)}
+          onSave={(data) => handleUpdateFarm(farmToEdit.farmId, data)}
         />
       )}
 
