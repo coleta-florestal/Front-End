@@ -1,5 +1,9 @@
-import FarmSummaryCard from '@/components/ui/FarmSummaryCard';
-import FarmSearchSection from '@/components/ui/FarmSearchSection';
+'use client';
+
+import { useRouter } from 'next/navigation';
+import Topbar from '@/components/ui/Topbar';
+import FarmSummaryCard from '@/components/farm/FarmSummaryCard';
+import FarmSearchSection from '@/components/farm/FarmSearchSection';
 import { Farm, UserRole } from '@/types/farm';
 
 const MOCK_FARMS: Farm[] = [
@@ -45,6 +49,8 @@ const MOCK_FARMS: Farm[] = [
 ];
 
 export default function FarmsPage() {
+  const router = useRouter();
+
   const userRole: UserRole = 'ADMIN';
   const isAdmin = userRole === 'ADMIN' || userRole === 'SUPER_ADMIN';
   const farms = MOCK_FARMS;
@@ -62,34 +68,42 @@ export default function FarmsPage() {
   });
 
   return (
-    <section className="flex flex-col gap-6 bg-[#EFECE4] p-6 md:p-8">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <FarmSummaryCard
-          title="PARCELAS"
-          value={farms.length}
-          subtitle={`${totalPlots} Talhões cadastrados`}
-        />
+    <div className="flex flex-col min-h-full bg-[#EFECE4]">
+      <Topbar
+        title="Fazendas"
+        description="Nível 1 - selecione a fazenda do inventário"
+        onBack={() => router.push('/platform')}
+      />
 
-        <FarmSummaryCard
-          title="ÁREA TOTAL"
-          value={`${formattedTotalArea} ha`}
-          subtitle="área plantada inventariada"
-        />
+      <section className="flex flex-col gap-6 p-6 md:p-8">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <FarmSummaryCard
+            title="PARCELAS"
+            value={farms.length}
+            subtitle={`${totalPlots} Talhões cadastrados`}
+          />
 
-        <FarmSummaryCard
-          title="PARCELAS CONCLUÍDAS"
-          value={completedParcels}
-          subtitle={`de ${totalParcels} parcelas`}
-        />
+          <FarmSummaryCard
+            title="ÁREA TOTAL"
+            value={`${formattedTotalArea} ha`}
+            subtitle="área plantada inventariada"
+          />
 
-        <FarmSummaryCard
-          title="ÁRVORES MEDIDAS"
-          value={measuredTrees}
-          subtitle={`${unsyncedTotal > 0 ? unsyncedTotal : 2} não sincronizadas`}
-        />
-      </div>
+          <FarmSummaryCard
+            title="PARCELAS CONCLUÍDAS"
+            value={completedParcels}
+            subtitle={`de ${totalParcels} parcelas`}
+          />
 
-      <FarmSearchSection initialFarms={farms} isAdmin={isAdmin} />
-    </section>
+          <FarmSummaryCard
+            title="ÁRVORES MEDIDAS"
+            value={measuredTrees}
+            subtitle={`${unsyncedTotal > 0 ? unsyncedTotal : 2} não sincronizadas`}
+          />
+        </div>
+
+        <FarmSearchSection initialFarms={farms} isAdmin={isAdmin} />
+      </section>
+    </div>
   );
 }
