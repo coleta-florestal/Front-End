@@ -50,7 +50,7 @@ export interface PrismaFarmRecord {
 }
 
 export interface Farm {
-  id: string;
+  farmId: string;
   name: string;
   address: string;
   location: string;
