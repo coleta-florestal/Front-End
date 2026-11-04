@@ -210,12 +210,15 @@ export default function ParcelaPage({ params }: ParcelaPageProps) {
               isOpen={completeModalOpen}
               fazenda={resolvedParams.fazenda}
               talhao={resolvedParams.talhao}
-              parcela={`Parcela ${resolvedParams.parcela}`}
+              parcelaNumero={resolvedParams.parcela}
               arvoresRegistradas={trees.length}
-              metragemTotal={trees
-                .reduce((acc, t) => acc + parseFloat(t.altura.replace(',', '.')), 0)
-                .toFixed(1)}
+              metragemTotal={Number(
+                trees
+                  .reduce((acc, t) => acc + parseFloat(t.altura.replace(',', '.')), 0)
+                  .toFixed(1),
+              )}
               metaReferencia={15}
+              arvoresFaltando={Math.max(0, 15 - trees.length)}
               onConfirm={handleConfirmComplete}
               onClose={() => setCompleteModalOpen(false)}
             />
