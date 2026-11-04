@@ -1,93 +1,117 @@
 'use client';
 
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { getApprovedUsers, getFarmsWithDetails, getPendingUsers, User } from '@/app/api/api';
 import Topbar from '@/components/ui/Topbar';
 import AdminOverviewSection from '@/components/admin/AdminOverviewSection';
 import {
-  AdminAuditEntry,
   AdminPendingUserRequest,
   AdminPlotsSummary,
   AdminRecentPlotItem,
   AdminUsersSummary,
 } from '@/types/admin';
+import { PrismaFarmRecord } from '@/types/farm';
 
-const MOCK_AUDIT_ENTRIES: AdminAuditEntry[] = [
-  {
-    id: 'audit-1',
-    timestamp: '12/08 09:41',
-    actorName: 'Eng. Amanda',
-    actionText: 'concluiu',
-    targetText: 'Parcela 01 · Fazenda Santa Clara',
-  },
-  {
-    id: 'audit-2',
-    timestamp: '12/08 09:28',
-    actorName: 'Eng. Amanda',
-    actionText: 'registrou',
-    targetText: 'Árvore 02 · Parcela 02',
-  },
-];
+interface AdminData {
+  usersSummary: AdminUsersSummary;
+  plotsSummary: AdminPlotsSummary;
+  pendingRequest: AdminPendingUserRequest | null;
+  recentPlots: AdminRecentPlotItem[];
+}
 
-const MOCK_USERS_SUMMARY: AdminUsersSummary = {
-  totalApprovedUsers: 24,
-  pendingRequestsCount: 1,
-};
+function toPendingRequest(user: User): AdminPendingUserRequest {
+  const initials = user.name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase();
 
-const MOCK_PLOTS_SUMMARY: AdminPlotsSummary = {
-  totalRegisteredParcels: 128,
-  processedCount: 96,
-  pendingCount: 32,
-};
+  return { id: user.id, name: user.name, email: user.email, initials };
+}
 
-const MOCK_PENDING_REQUEST: AdminPendingUserRequest = {
-  id: 'pending-user-1',
-  name: 'Carla Menezes',
-  email: 'carla@fazendaboavista.com',
-  initials: 'CM',
-};
+function toAdminData(approved: User[], pending: User[], farms: PrismaFarmRecord[]): AdminData {
+  const subPlots = farms.flatMap((farm) =>
+    (farm.plots ?? []).flatMap((plot) =>
+      (plot.subPlots ?? []).map((subPlot) => ({ farm, plot, subPlot })),
+    ),
+  );
+  const processedCount = subPlots.filter(({ subPlot }) => subPlot.status === 'COMPLETED').length;
 
-const MOCK_RECENT_PLOTS: AdminRecentPlotItem[] = [
-  {
-    id: 'plot-recent-1',
-    code: 'AM-0128',
-    locationLabel: 'Talhão A · Parcela 04',
-    responsible: 'Eng. Amanda',
-    status: 'PROCESSADA',
-  },
-  {
-    id: 'plot-recent-2',
-    code: 'AM-0127',
-    locationLabel: 'Talhão B · Parcela 02',
-    responsible: 'Pedro Silva',
-    status: 'PENDENTE',
-  },
-  {
-    id: 'plot-recent-3',
-    code: 'AM-0126',
-    locationLabel: 'Talhão A · Parcela 03',
-    responsible: 'Marina Lima',
-    status: 'PROCESSADA',
-  },
-];
+  const recentPlots = [...subPlots]
+    .sort((a, b) => b.subPlot.createdAt.localeCompare(a.subPlot.createdAt))
+    .slice(0, 3)
+    .map(({ farm, plot, subPlot }) => ({
+      id: subPlot.id,
+      code: `Parcela ${subPlot.name}`,
+      locationLabel: `${farm.name} · ${plot.name}`,
+      responsible: farm.owner?.name ?? '—',
+      status: subPlot.status === 'COMPLETED' ? ('PROCESSADA' as const) : ('PENDENTE' as const),
+    }));
+
+  return {
+    usersSummary: { totalApprovedUsers: approved.length, pendingRequestsCount: pending.length },
+    plotsSummary: {
+      totalRegisteredParcels: subPlots.length,
+      processedCount,
+      pendingCount: subPlots.length - processedCount,
+    },
+    pendingRequest: pending.length > 0 ? toPendingRequest(pending[0]) : null,
+    recentPlots,
+  };
+}
 
 export default function AdminDashboardPage() {
   const router = useRouter();
+
+  const [data, setData] = useState<AdminData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(
+    () =>
+      Promise.all([getApprovedUsers(), getPendingUsers(), getFarmsWithDetails()])
+        .then(([approved, pending, farms]) => {
+          setData(toAdminData(approved, pending, farms));
+          setError(null);
+        })
+        .catch((err) => {
+          setError(err instanceof Error ? err.message : 'Não foi possível carregar o painel');
+        }),
+    [],
+  );
+
+  useEffect(() => {
+    load();
+  }, [load]);
 
   return (
     <section className="flex flex-col gap-6 bg-[#EFECE4] p-6 md:p-8">
       <Topbar
         title="Administração"
         description="Visão geral, usuários e amostras"
-        onBack={() => router.push('/platform')}
+        onBack={() => router.push('/platform/fazendas')}
       />
 
-      <AdminOverviewSection
-        initialAuditEntries={MOCK_AUDIT_ENTRIES}
-        initialUsersSummary={MOCK_USERS_SUMMARY}
-        initialPlotsSummary={MOCK_PLOTS_SUMMARY}
-        initialPendingRequest={MOCK_PENDING_REQUEST}
-        initialRecentPlots={MOCK_RECENT_PLOTS}
-      />
+      {error && (
+        <p role="alert" className="text-sm text-coral-flor">
+          {error}
+        </p>
+      )}
+
+      {!data && !error && <p className="text-sm text-[#6E776B]">Carregando painel...</p>}
+
+      {data && (
+        <AdminOverviewSection
+          auditEntries={[]}
+          usersSummary={data.usersSummary}
+          plotsSummary={data.plotsSummary}
+          pendingRequest={data.pendingRequest}
+          recentPlots={data.recentPlots}
+          onChanged={load}
+        />
+      )}
     </section>
   );
 }

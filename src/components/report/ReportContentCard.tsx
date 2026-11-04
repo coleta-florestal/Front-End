@@ -1,5 +1,5 @@
 import Button from '@/components/core/Button';
-import ReportCheckboxItem from '@/components/ui/ReportCheckboxItem';
+import ReportCheckboxItem from '@/components/report/ReportCheckboxItem';
 import { ReportSectionKey, ReportSectionOption } from '@/types/report';
 
 interface ReportContentCardProps {

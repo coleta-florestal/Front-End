@@ -1,18 +1,29 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { createFarm, deleteFarm, updateFarm } from '@/app/api/api';
 import Button from '@/components/core/Button';
 import { Input } from '@/components/core/Input';
-import FarmCard from '@/components/farm/FarmCard';
+import FarmListCard from '@/components/farm/FarmListCard';
+import { DeleteFarmModal } from '@/components/modal/DeleteFarmModal';
+import { FarmFormData, FarmFormModal } from '@/components/modal/FarmFormModal';
 import { Farm } from '@/types/farm';
 
 interface FarmSearchSectionProps {
   initialFarms: Farm[];
   isAdmin: boolean;
+  onFarmsChanged: () => Promise<void>;
 }
 
-export default function FarmSearchSection({ initialFarms, isAdmin }: FarmSearchSectionProps) {
+export default function FarmSearchSection({
+  initialFarms,
+  isAdmin,
+  onFarmsChanged,
+}: FarmSearchSectionProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [farmToEdit, setFarmToEdit] = useState<Farm | null>(null);
+  const [farmToDelete, setFarmToDelete] = useState<Farm | null>(null);
 
   const filteredFarms = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
@@ -21,14 +32,46 @@ export default function FarmSearchSection({ initialFarms, isAdmin }: FarmSearchS
     return initialFarms.filter((farm) => farm.name.toLowerCase().includes(normalizedQuery));
   }, [initialFarms, searchQuery]);
 
-  const handleOpenCreateFarm = () => {};
+  const handleOpenCreateFarm = () => {
+    setIsCreateModalOpen(true);
+  };
+
+  const handleSaveFarm = async (data: FarmFormData) => {
+    await createFarm({
+      name: data.nome.trim(),
+      address: data.local.trim(),
+      ownerId: data.responsavelId,
+      description: data.descricao.trim() || undefined,
+    });
+
+    setIsCreateModalOpen(false);
+    await onFarmsChanged();
+  };
 
   const handleOpenEditFarm = (farm: Farm) => {
-    void farm;
+    setFarmToEdit(farm);
+  };
+
+  const handleUpdateFarm = async (farmId: string, data: FarmFormData) => {
+    await updateFarm(farmId, {
+      name: data.nome.trim(),
+      address: data.local.trim(),
+      ownerId: data.responsavelId,
+      description: data.descricao.trim(),
+    });
+
+    setFarmToEdit(null);
+    await onFarmsChanged();
   };
 
   const handleOpenDeleteFarm = (farm: Farm) => {
-    void farm;
+    setFarmToDelete(farm);
+  };
+
+  const handleConfirmDeleteFarm = async (farm: Farm) => {
+    await deleteFarm(farm.id);
+    setFarmToDelete(null);
+    await onFarmsChanged();
   };
 
   return (
@@ -58,7 +101,7 @@ export default function FarmSearchSection({ initialFarms, isAdmin }: FarmSearchS
       <div className="flex flex-col gap-4">
         {filteredFarms.length > 0 ? (
           filteredFarms.map((farm) => (
-            <FarmCard
+            <FarmListCard
               key={farm.id}
               farm={farm}
               isAdmin={isAdmin}
@@ -74,6 +117,32 @@ export default function FarmSearchSection({ initialFarms, isAdmin }: FarmSearchS
           </div>
         )}
       </div>
+
+      {isCreateModalOpen && (
+        <FarmFormModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onSave={handleSaveFarm}
+        />
+      )}
+
+      {farmToEdit && (
+        <FarmFormModal
+          isOpen
+          farm={farmToEdit}
+          onClose={() => setFarmToEdit(null)}
+          onSave={(data) => handleUpdateFarm(farmToEdit.id, data)}
+        />
+      )}
+
+      {farmToDelete && (
+        <DeleteFarmModal
+          isOpen
+          farm={farmToDelete}
+          onConfirm={handleConfirmDeleteFarm}
+          onClose={() => setFarmToDelete(null)}
+        />
+      )}
     </div>
   );
 }

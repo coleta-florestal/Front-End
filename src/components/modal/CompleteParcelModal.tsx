@@ -1,12 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import Button from '@/components/core/Button';
 import { Close } from '@/components/core/Icons';
 
 export interface CompleteParcelModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
   parcelaNumero: string;
   fazenda: string;
   talhao: string;
@@ -28,7 +29,23 @@ export function CompleteParcelModal({
   metaReferencia,
   arvoresFaltando,
 }: CompleteParcelModalProps) {
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
   if (!isOpen) return null;
+
+  const handleConfirm = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      await onConfirm();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Não foi possível concluir a parcela');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const numeroSeguro = parcelaNumero || '';
   const faltamSeguro = arvoresFaltando || 0;
@@ -115,6 +132,12 @@ export function CompleteParcelModal({
             </div>
           </div>
 
+          {error && (
+            <p className="mb-4 flex items-center gap-1 text-sm text-coral-flor" role="alert">
+              {error}
+            </p>
+          )}
+
           <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-[#e7e2d8]">
             <Button
               label="Voltar e continuar coletando"
@@ -122,8 +145,9 @@ export function CompleteParcelModal({
               className="border border-[#D7D0C2] bg-white text-verde-mata hover:bg-[#f0ede5] rounded-xl px-6 py-3 font-semibold w-full sm:w-auto"
             />
             <Button
-              label="Sim, concluir parcela"
-              onClick={onConfirm}
+              label={loading ? 'Concluindo...' : 'Sim, concluir parcela'}
+              onClick={handleConfirm}
+              disabled={loading}
               className="bg-[#B06A57] text-creme-flor hover:bg-[#9C5A47] rounded-xl px-6 py-3 font-semibold w-full sm:w-auto"
             />
           </div>

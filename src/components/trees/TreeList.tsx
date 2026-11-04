@@ -1,6 +1,7 @@
 'use client';
 
-import { TreeData } from './TreeForm';
+import { QUALIDADE_LABELS, TreeData } from './TreeForm';
+import { TreeQuality } from '@/types/farm';
 import { Trash, Tree, Edit } from '../core/Icons';
 
 export interface TreeListProps {
@@ -9,18 +10,6 @@ export interface TreeListProps {
   onEditTree?: (tree: TreeData) => void;
   onViewTree?: (tree: TreeData) => void;
 }
-
-const QUALIDADE_LABELS: Record<string, string> = {
-  NORMAL: 'Normal',
-  'BIFURCADA_ACIMA_1.3M': 'Bifurcada acima de 1,3m',
-  'BIFURCADA_ABAIXO_1.3M': 'Bifurcada abaixo de 1,3m',
-  INCLINADA: 'Inclinada',
-  MORTA: 'Morta',
-  FALHA: 'Falha',
-  PROBLEMAS_FITOSSANITARIOS: 'Problemas fitossanitários',
-  QUEBRADA: 'Quebrada',
-  OUTRO: 'Outro',
-};
 
 export function TreeList({ trees, onRemoveTree, onEditTree, onViewTree }: TreeListProps) {
   if (trees.length === 0) {
@@ -68,7 +57,7 @@ export function TreeList({ trees, onRemoveTree, onEditTree, onViewTree }: TreeLi
                 <td className="px-4 py-3 text-verde-mata">{parseFloat(tree.altura).toFixed(1)}</td>
                 <td className="px-4 py-3">
                   <span className="inline-flex items-center gap-1 rounded-md bg-verde-eucalipto/20 px-2 py-0.5 text-xs font-medium text-verde-mata">
-                    {QUALIDADE_LABELS[tree?.qualidade ?? ''] ?? tree?.qualidade}
+                    {QUALIDADE_LABELS[tree?.qualidade as TreeQuality] ?? tree?.qualidade}
                   </span>
                 </td>
                 <td

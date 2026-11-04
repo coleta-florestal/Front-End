@@ -4,23 +4,18 @@ import Button from '../core/Button';
 export interface ParcelCardProps {
   numero: string;
   area: string;
-  formato?: string; // Adicionado para bater com "Formato: Retangular" da imagem
   statusLabel: string;
-  syncStatus?: 'SINCRONIZADA' | 'NÃO SINCRONIZADA'; // Adicionado para a segunda tag
-  dimensoes: string;
   talhao: string;
   arvoresMedidas: number;
   metaReferencia: number;
   descricaoRodape: string;
-  onAddTrees: () => void;
+  onAddTrees?: () => void;
 }
 
 export function ParcelCard({
   numero,
   area,
-  formato = 'Retangular',
   statusLabel,
-  dimensoes,
   talhao,
   arvoresMedidas,
   metaReferencia,
@@ -39,7 +34,7 @@ export function ParcelCard({
 
           <div className="flex flex-col gap-2">
             <h2 className="text-verde-mata font-semibold text-xl lg:text-[22px] leading-tight font-newsreader">
-              Parcela {numero} – Área: {area} – Formato: {formato}
+              Parcela {numero} – Área: {area}
             </h2>
 
             <div className="flex flex-wrap items-center gap-2 mt-1">
@@ -47,9 +42,7 @@ export function ParcelCard({
                 {statusLabel}
               </span>
 
-              <span className="text-[#848079] text-sm ml-1">
-                {dimensoes} · {talhao}
-              </span>
+              <span className="text-[#848079] text-sm ml-1">{talhao}</span>
             </div>
           </div>
         </div>
@@ -75,11 +68,13 @@ export function ParcelCard({
 
       <div className="bg-[#FAFAF8] border-t border-[#D7D0C2] px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <p className="text-[#59554D] text-sm font-medium">{descricaoRodape}</p>
-        <Button
-          label="+ Adicionar Árvores"
-          onClick={onAddTrees}
-          className="w-full sm:w-auto bg-[#ED7D4D] text-white border-transparent hover:bg-[#D46B3E] rounded-xl px-6 py-2.5 font-semibold text-sm transition-colors whitespace-nowrap"
-        />
+        {onAddTrees && (
+          <Button
+            label="+ Adicionar Árvores"
+            onClick={onAddTrees}
+            className="w-full sm:w-auto bg-[#ED7D4D] text-white border-transparent hover:bg-[#D46B3E] rounded-xl px-6 py-2.5 font-semibold text-sm transition-colors whitespace-nowrap"
+          />
+        )}
       </div>
     </div>
   );
