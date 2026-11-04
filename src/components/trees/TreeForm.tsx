@@ -6,6 +6,7 @@ import { Select } from '../core/Select';
 import { Textarea } from '../core/Textarea';
 import Button from '../core/Button';
 import { Tree } from '../core/Icons';
+import { TreeQuality } from '@/types/farm';
 
 export interface TreeData {
   id: string;
@@ -21,17 +22,20 @@ export interface TreeFormProps {
   initialQualidade?: string;
 }
 
-const QUALIDADE_OPTIONS = [
-  { value: 'NORMAL', label: 'Normal' },
-  { value: 'BIFURCADA_ACIMA_1.3M', label: 'Bifurcada acima de 1,3m' },
-  { value: 'BIFURCADA_ABAIXO_1.3M', label: 'Bifurcada abaixo de 1,3m' },
-  { value: 'INCLINADA', label: 'Inclinada' },
-  { value: 'MORTA', label: 'Morta' },
-  { value: 'FALHA', label: 'Falha' },
-  { value: 'PROBLEMAS_FITOSSANITARIOS', label: 'Problemas fitossanitários' },
-  { value: 'QUEBRADA', label: 'Quebrada' },
-  { value: 'OUTRO', label: 'Outro' },
-];
+// Valores do enum TreeQuality do back: qualquer outro é rejeitado com 400.
+export const QUALIDADE_LABELS: Record<TreeQuality, string> = {
+  NORMAL: 'Normal',
+  BIFURCADA: 'Bifurcada',
+  DOMINADA: 'Dominada',
+  MORTA: 'Morta',
+  QUEBRADA: 'Quebrada',
+  PRAGA_DOENCA: 'Praga ou doença',
+};
+
+export const QUALIDADE_OPTIONS = Object.entries(QUALIDADE_LABELS).map(([value, label]) => ({
+  value,
+  label,
+}));
 
 export function TreeForm({ onAddTree, initialQualidade = 'NORMAL' }: TreeFormProps) {
   const [numero, setNumero] = useState('');

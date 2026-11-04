@@ -7,7 +7,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import logo from '../../../public/assets/apenas_circulo.png';
 import { useRouter } from 'next/navigation';
-import { createUser, login } from '../api/api';
+import { createUser } from '../api/api';
 import { setAuthCookies } from '@/lib/auth';
 
 export default function Cadastro() {
@@ -92,10 +92,9 @@ export default function Cadastro() {
     setLoading(true);
 
     try {
-      await createUser({ userName: fullName, email, password, confirmPassword });
-      const tokens = await login({ email, password });
+      const tokens = await createUser({ userName: fullName, email, password, confirmPassword });
       setAuthCookies(tokens);
-      router.push('/platform');
+      router.push('/platform/fazendas');
 
       setIsSuccess(true);
       setFullName('');

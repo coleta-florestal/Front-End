@@ -1,6 +1,7 @@
 'use client';
 
-import { TreeData } from './TreeForm';
+import { QUALIDADE_LABELS, TreeData } from './TreeForm';
+import { TreeQuality } from '@/types/farm';
 import { Cloud, Trash } from '../core/Icons';
 
 export interface TreeCardProps {
@@ -29,7 +30,7 @@ export function TreeCard({ tree, onRemove, onEdit, onView }: TreeCardProps) {
           </span>
 
           <span className="bg-[#F0F5EF] text-[#245225] px-3 py-1 rounded-full text-[13px] font-bold">
-            {tree.qualidade.charAt(0).toUpperCase() + tree.qualidade.slice(1).toLowerCase()}
+            {QUALIDADE_LABELS[tree.qualidade as TreeQuality] ?? tree.qualidade}
           </span>
         </div>
 

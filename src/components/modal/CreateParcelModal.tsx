@@ -8,7 +8,11 @@ import { Close } from '@/components/core/Icons';
 export interface CreateParcelModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: { identificacao: string; area: string; metaArvores: string }) => void;
+  onSave: (data: {
+    identificacao: string;
+    area: string;
+    metaArvores: string;
+  }) => void | Promise<void>;
 }
 
 export function CreateParcelModal({ isOpen, onClose, onSave }: CreateParcelModalProps) {
@@ -16,9 +20,25 @@ export function CreateParcelModal({ isOpen, onClose, onSave }: CreateParcelModal
   const [area, setArea] = useState('');
   const [metaArvores, setMetaArvores] = useState('');
 
-  const handleSave = () => {
-    onSave({ identificacao, area, metaArvores });
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSave = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      await onSave({ identificacao, area, metaArvores });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Não foi possível criar a parcela');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const meta = Number(metaArvores);
+  const isFormValid =
+    identificacao.trim() && Number(area) > 0 && Number.isInteger(meta) && meta > 0;
 
   if (!isOpen) return null;
 
@@ -56,7 +76,7 @@ export function CreateParcelModal({ isOpen, onClose, onSave }: CreateParcelModal
               label="Identificação da parcela"
               value={identificacao}
               onChange={(e) => setIdentificacao(e.target.value)}
-              placeholder="ex. Parcela 03"
+              placeholder="ex. P03"
             />
             <Input
               label="Área (m²)"
@@ -74,6 +94,12 @@ export function CreateParcelModal({ isOpen, onClose, onSave }: CreateParcelModal
             />
           </div>
 
+          {error && (
+            <p className="mb-4 flex items-center gap-1 text-sm text-coral-flor" role="alert">
+              {error}
+            </p>
+          )}
+
           <div className="flex flex-col md:flex-row justify-end gap-4 pt-6 border-t border-[#e7e2d8]">
             <Button
               label="Cancelar"
@@ -81,9 +107,9 @@ export function CreateParcelModal({ isOpen, onClose, onSave }: CreateParcelModal
               className="border border-[#D7D0C2] bg-white text-verde-mata hover:bg-[#f0ede5] rounded-xl px-6 py-3 font-semibold"
             />
             <Button
-              label="Criar parcela"
+              label={loading ? 'Criando...' : 'Criar parcela'}
               onClick={handleSave}
-              disabled={!identificacao.trim() || !area.trim() || !metaArvores.trim()}
+              disabled={!isFormValid || loading}
               className="bg-verde-mata text-creme-flor hover:bg-[#245225] rounded-xl px-6 py-3 font-semibold"
             />
           </div>

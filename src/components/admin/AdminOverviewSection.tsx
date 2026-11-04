@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { approveUser, rejectUser } from '@/app/api/api';
 import AdminAuditCard from '@/components/admin/AdminAuditCard';
 import AdminPendingRequestCard from '@/components/admin/AdminPendingRequestCard';
 import AdminPlotsSummaryCard from '@/components/admin/AdminPlotsSummaryCard';
@@ -20,11 +21,12 @@ import {
 import { AdminUserRole } from '@/types/admin';
 
 interface AdminOverviewSectionProps {
-  initialAuditEntries: AdminAuditEntry[];
-  initialUsersSummary: AdminUsersSummary;
-  initialPlotsSummary: AdminPlotsSummary;
-  initialPendingRequest: AdminPendingUserRequest | null;
-  initialRecentPlots: AdminRecentPlotItem[];
+  auditEntries: AdminAuditEntry[];
+  usersSummary: AdminUsersSummary;
+  plotsSummary: AdminPlotsSummary;
+  pendingRequest: AdminPendingUserRequest | null;
+  recentPlots: AdminRecentPlotItem[];
+  onChanged: () => Promise<void>;
 }
 
 const ADMIN_TABS: AdminTabOption[] = [
@@ -37,41 +39,36 @@ const ADMIN_TABS: AdminTabOption[] = [
 ];
 
 export default function AdminOverviewSection({
-  initialAuditEntries,
-  initialUsersSummary,
-  initialPlotsSummary,
-  initialPendingRequest,
-  initialRecentPlots,
+  auditEntries,
+  usersSummary,
+  plotsSummary,
+  pendingRequest,
+  recentPlots,
+  onChanged,
 }: AdminOverviewSectionProps) {
   const router = useRouter();
 
   const [activeTab, setActiveTab] = useState<AdminTabKey>('overview');
-  const [usersSummary, setUsersSummary] = useState<AdminUsersSummary>(initialUsersSummary);
-  const [pendingRequest, setPendingRequest] = useState<AdminPendingUserRequest | null>(
-    initialPendingRequest,
-  );
+  const [actionError, setActionError] = useState<string | null>(null);
 
-  const handleApproveUser = (userId: string, role: AdminUserRole) => {
-    void userId;
-    void role;
-    setPendingRequest(null);
-    setUsersSummary((prev) => ({
-      totalApprovedUsers: prev.totalApprovedUsers + 1,
-      pendingRequestsCount: Math.max(0, prev.pendingRequestsCount - 1),
-    }));
+  const runUserAction = async (action: () => Promise<unknown>) => {
+    setActionError(null);
+
+    try {
+      await action();
+      await onChanged();
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Não foi possível concluir a ação');
+    }
   };
 
-  const handleRejectUser = (userId: string) => {
-    void userId;
-    setPendingRequest(null);
-    setUsersSummary((prev) => ({
-      ...prev,
-      pendingRequestsCount: Math.max(0, prev.pendingRequestsCount - 1),
-    }));
-  };
+  const handleApproveUser = (userId: string, role: AdminUserRole) =>
+    runUserAction(() => approveUser(userId, role));
+
+  const handleRejectUser = (userId: string) => runUserAction(() => rejectUser(userId));
 
   const handleNavigateToFarms = () => {
-    router.push('/platform');
+    router.push('/platform/fazendas');
   };
 
   return (
@@ -79,18 +76,24 @@ export default function AdminOverviewSection({
       <AdminTabsBar tabs={ADMIN_TABS} activeTab={activeTab} onSelectTab={setActiveTab} />
 
       <div>
-        <h2 className="text-xl font-bold text-[#2C5F2D]">Visão geral</h2>
+        <h2 className="text-xl font-bold text-verde-mata">Visão geral</h2>
         <p className="mt-0.5 text-xs text-[#6E776B]">
           Acompanhe os dados principais da turma e acesse rapidamente cada área.
         </p>
       </div>
 
+      {actionError && (
+        <p role="alert" className="text-sm text-coral-flor">
+          {actionError}
+        </p>
+      )}
+
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-        <AdminAuditCard entries={initialAuditEntries} />
+        <AdminAuditCard entries={auditEntries} />
 
         <AdminUsersSummaryCard summary={usersSummary} onManageUsers={() => setActiveTab('users')} />
 
-        <AdminPlotsSummaryCard summary={initialPlotsSummary} onViewPlots={handleNavigateToFarms} />
+        <AdminPlotsSummaryCard summary={plotsSummary} onViewPlots={handleNavigateToFarms} />
       </div>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
@@ -106,8 +109,8 @@ export default function AdminOverviewSection({
 
         <div className="lg:col-span-6">
           <AdminRecentPlotsCard
-            items={initialRecentPlots}
-            updatedAgoText="Atualizado há 4 minutos"
+            items={recentPlots}
+            updatedAgoText="Atualizado agora"
             onViewAll={handleNavigateToFarms}
           />
         </div>

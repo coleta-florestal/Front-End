@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { use, useEffect, useState } from 'react';
+import { createTree, getFarm, getPlot, getSubPlot, toTreeDto } from '@/app/api/api';
 import Topbar from '@/components/ui/Topbar';
 import { TreeForm, type TreeData } from '@/components/trees/TreeForm';
 import { TreeList } from '@/components/trees/TreeList';
@@ -10,8 +11,18 @@ import { ViewTreeModal } from '@/components/modal/ViewTreeModal';
 import Button from '@/components/core/Button';
 import { useRouter } from 'next/navigation';
 
-export default function CadastrarArvorePage() {
+interface CadastrarArvorePageProps {
+  params: Promise<{ fazenda: string; talhao: string; parcela: string }>;
+}
+
+export default function CadastrarArvorePage({ params }: CadastrarArvorePageProps) {
   const router = useRouter();
+  const { fazenda, talhao, parcela } = use(params);
+
+  const [farmName, setFarmName] = useState('');
+  const [plotName, setPlotName] = useState('');
+  const [subPlotName, setSubPlotName] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   const [trees, setTrees] = useState<TreeData[]>([]);
   const [loading, setLoading] = useState(false);
@@ -20,6 +31,26 @@ export default function CadastrarArvorePage() {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [treeToDelete, setTreeToDelete] = useState<TreeData | null>(null);
   const [treeToView, setTreeToView] = useState<TreeData | null>(null);
+
+  useEffect(() => {
+    async function loadNames() {
+      try {
+        const [farmRecord, plotRecord, subPlotRecord] = await Promise.all([
+          getFarm(fazenda),
+          getPlot(fazenda, talhao),
+          getSubPlot(fazenda, talhao, parcela),
+        ]);
+
+        setFarmName(farmRecord.name);
+        setPlotName(plotRecord.name);
+        setSubPlotName(`Parcela ${subPlotRecord.name}`);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Não foi possível carregar a parcela');
+      }
+    }
+
+    loadNames();
+  }, [fazenda, talhao, parcela]);
 
   const handleAddTree = (treeData: Omit<TreeData, 'id'>) => {
     const newTree: TreeData = {
@@ -63,14 +94,30 @@ export default function CadastrarArvorePage() {
     }
 
     setLoading(true);
-    try {
+
+    // O back só cria uma árvore por vez: as que falharem ficam no lote para não perder a medição.
+    const results = await Promise.allSettled(
+      trees.map((tree) => createTree(fazenda, talhao, parcela, toTreeDto(tree))),
+    );
+    const failedTrees = trees.filter((_, index) => results[index].status === 'rejected');
+
+    setLoading(false);
+
+    if (failedTrees.length === 0) {
       alert(`${trees.length} árvore(s) salva(s) com sucesso!`);
       router.back();
-    } catch {
-      alert('Erro ao salvar. Tente novamente.');
-    } finally {
-      setLoading(false);
+      return;
     }
+
+    const firstFailure = results.find(
+      (result): result is PromiseRejectedResult => result.status === 'rejected',
+    );
+    const reason = firstFailure?.reason instanceof Error ? firstFailure.reason.message : '';
+
+    setTrees(failedTrees);
+    alert(
+      `${trees.length - failedTrees.length} árvore(s) salva(s). ${failedTrees.length} não foram salvas e continuam no lote. ${reason}`,
+    );
   };
 
   const handleBack = () => {
@@ -91,6 +138,12 @@ export default function CadastrarArvorePage() {
 
         <div className="p-6 lg:p-8 max-w-7xl mx-auto">
           <div className="space-y-6">
+            {error && (
+              <p role="alert" className="text-sm text-coral-flor">
+                {error}
+              </p>
+            )}
+
             <TreeForm onAddTree={handleAddTree} />
 
             <TreeList
@@ -104,9 +157,9 @@ export default function CadastrarArvorePage() {
               <ViewTreeModal
                 isOpen={viewModalOpen}
                 tree={treeToView}
-                fazenda="Fazenda Demo"
-                talhao="Talhão Demo"
-                parcela="Parcela Demo"
+                fazenda={farmName}
+                talhao={plotName}
+                parcela={subPlotName}
                 onClose={() => setViewModalOpen(false)}
                 onEdit={handleEditTree}
                 onDelete={handleOpenDelete}
@@ -117,7 +170,7 @@ export default function CadastrarArvorePage() {
               <DeleteTreeModal
                 isOpen={deleteModalOpen}
                 tree={treeToDelete}
-                parcela="Parcela Demo"
+                parcela={subPlotName}
                 onConfirm={handleRemoveTree}
                 onClose={() => setDeleteModalOpen(false)}
               />
@@ -127,8 +180,8 @@ export default function CadastrarArvorePage() {
               <EditTreeModal
                 isOpen={editModalOpen}
                 tree={treeToEdit}
-                fazenda="Fazenda Demo"
-                parcela="Parcela Demo"
+                fazenda={farmName}
+                parcela={subPlotName}
                 numeroArvore={treeToEdit.numero}
                 indiceAtual={trees.findIndex((t) => t.id === treeToEdit.id) + 1}
                 totalArvores={trees.length}
@@ -144,7 +197,7 @@ export default function CadastrarArvorePage() {
                 className="bg-creme-flor text-verde-mata border-2 border-verde-mata/30 hover:bg-verde-mata/5 w-full sm:w-auto"
               />
               <Button
-                label="Salvar"
+                label={loading ? 'Salvando...' : 'Salvar'}
                 onClick={handleSaveAll}
                 disabled={loading || trees.length === 0}
                 className="bg-verde-mata text-creme-flor hover:bg-verde-mata/90 w-full sm:w-auto min-w-45"

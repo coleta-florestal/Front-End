@@ -1,12 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import ReportContentCard from '@/components/ui/ReportContentCard';
-import ReportPreviewCard from '@/components/ui/ReportPreviewCard';
+import ReportContentCard from '@/components/report/ReportContentCard';
+import ReportPreviewCard from '@/components/report/ReportPreviewCard';
 import { ReportPreviewData, ReportSectionKey, ReportSectionOption } from '@/types/report';
 
 interface ReportGenerationSectionProps {
-  previewData?: ReportPreviewData;
+  previewData: ReportPreviewData;
 }
 
 const REPORT_SECTION_OPTIONS: ReportSectionOption[] = [
@@ -27,15 +27,7 @@ const DEFAULT_SELECTED_SECTIONS: ReportSectionKey[] = [
   'qualitativeAnalysis',
 ];
 
-const DEFAULT_PREVIEW_DATA: ReportPreviewData = {
-  systemTitle: 'Lyptus',
-  farmName: 'Fazenda Santa Clara',
-  hasData: true,
-};
-
-export default function ReportGenerationSection({
-  previewData = DEFAULT_PREVIEW_DATA,
-}: ReportGenerationSectionProps) {
+export default function ReportGenerationSection({ previewData }: ReportGenerationSectionProps) {
   const [selectedSections, setSelectedSections] =
     useState<ReportSectionKey[]>(DEFAULT_SELECTED_SECTIONS);
   const [isExporting, setIsExporting] = useState(false);

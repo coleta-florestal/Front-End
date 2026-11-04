@@ -10,6 +10,10 @@ export default function AdminAuditCard({ entries }: AdminAuditCardProps) {
       <h3 className="font-serif text-lg font-bold text-[#2C5F2D]">Auditoria</h3>
 
       <div className="mt-4 flex flex-col divide-y divide-[#E5E0D5]">
+        {entries.length === 0 && (
+          <span className="py-3.5 text-xs text-[#6E776B]">Auditoria ainda não disponível.</span>
+        )}
+
         {entries.map((entry) => (
           <div
             key={entry.id}

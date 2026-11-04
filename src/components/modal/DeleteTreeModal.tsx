@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { TreeData } from '../trees/TreeForm';
 import Button from '../core/Button';
 import { Close } from '../core/Icons';
@@ -9,7 +9,7 @@ export interface DeleteTreeModalProps {
   isOpen: boolean;
   tree: TreeData | null;
   parcela: string;
-  onConfirm: (tree: TreeData) => void;
+  onConfirm: (tree: TreeData) => void | Promise<void>;
   onClose: () => void;
 }
 
@@ -20,6 +20,9 @@ export function DeleteTreeModal({
   onConfirm,
   onClose,
 }: DeleteTreeModalProps) {
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -30,6 +33,22 @@ export function DeleteTreeModal({
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
+
+  const handleConfirm = async () => {
+    if (!tree) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      await onConfirm(tree);
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Não foi possível excluir a árvore');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div
@@ -73,6 +92,12 @@ export function DeleteTreeModal({
             A árvore será removida de {parcela} e o progresso da parcela será atualizado. A exclusão
             fica registrada na auditoria.
           </p>
+
+          {error && (
+            <p className="flex items-center gap-1 text-sm text-coral-flor" role="alert">
+              {error}
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col justify-end gap-2 border-t border-[#e7e2d8] px-6 py-4 sm:flex-row">
@@ -82,11 +107,9 @@ export function DeleteTreeModal({
             className="border border-[#D7D0C2] bg-creme-flor text-verde-mata hover:bg-[#f0ede5]"
           />
           <Button
-            label="Excluir árvore"
-            onClick={() => {
-              if (tree) onConfirm(tree);
-              onClose();
-            }}
+            label={loading ? 'Excluindo...' : 'Excluir árvore'}
+            onClick={handleConfirm}
+            disabled={loading}
             className="bg-[#a96a50] text-white hover:bg-[#945a45]"
           />
         </div>

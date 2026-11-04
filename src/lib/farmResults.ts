@@ -72,7 +72,7 @@ export function buildFarmChartMetrics(
       subPlotVolumes.push({
         id: subPlot.id,
         plotName: plot.name,
-        subPlotNumber: subPlot.number,
+        subPlotName: subPlot.name,
         volumeM3: Number(subPlotVolume.toFixed(2)),
       });
     }

@@ -9,7 +9,7 @@ import { Close } from '@/components/core/Icons';
 export interface CreateTalhaoModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: { nome: string; area: string; descricao: string }) => void;
+  onSave: (data: { nome: string; area: string; descricao: string }) => void | Promise<void>;
 }
 
 export function CreateTalhaoModal({ isOpen, onClose, onSave }: CreateTalhaoModalProps) {
@@ -17,8 +17,20 @@ export function CreateTalhaoModal({ isOpen, onClose, onSave }: CreateTalhaoModal
   const [area, setArea] = useState('');
   const [descricao, setDescricao] = useState('');
 
-  const handleSave = () => {
-    onSave({ nome, area, descricao });
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSave = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      await onSave({ nome, area, descricao });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Não foi possível criar o talhão');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -73,6 +85,12 @@ export function CreateTalhaoModal({ isOpen, onClose, onSave }: CreateTalhaoModal
             />
           </div>
 
+          {error && (
+            <p className="mb-4 flex items-center gap-1 text-sm text-coral-flor" role="alert">
+              {error}
+            </p>
+          )}
+
           <div className="flex flex-col md:flex-row items-center justify-between border-t border-[#e7e2d8] pt-6 gap-4">
             <p className="text-[#848079] text-sm md:order-1 order-2">
               O talhão é criado sem parcelas. Você adiciona a primeira parcela na tela de detalhe.
@@ -84,9 +102,9 @@ export function CreateTalhaoModal({ isOpen, onClose, onSave }: CreateTalhaoModal
                 className="w-full md:w-auto border border-[#D7D0C2] bg-white text-verde-mata hover:bg-[#f0ede5] rounded-xl px-6 py-3 font-semibold"
               />
               <Button
-                label="Criar Talhão"
+                label={loading ? 'Criando...' : 'Criar Talhão'}
                 onClick={handleSave}
-                disabled={!nome.trim() || !area.trim()}
+                disabled={!nome.trim() || !(Number(area) > 0) || loading}
                 className="w-full md:w-auto bg-verde-mata text-creme-flor hover:bg-[#245225] rounded-xl px-6 py-3 font-semibold whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>

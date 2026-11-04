@@ -39,8 +39,7 @@ export default function SubPlotVolumeCard({ data }: SubPlotVolumeCardProps) {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               });
-              const subPlotCode = String(item.subPlotNumber).padStart(2, '0');
-              const label = `${item.plotName} · Parcela ${subPlotCode}`;
+              const label = `${item.plotName} · Parcela ${item.subPlotName}`;
 
               return (
                 <div

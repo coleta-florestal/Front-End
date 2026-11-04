@@ -2,32 +2,39 @@ export type UserRole = 'USER' | 'ADMIN' | 'SUPER_ADMIN';
 
 export type FarmStatus = 'EM_ANDAMENTO' | 'CONCLUIDA' | 'SEM_MEDICAO';
 
-export interface JwtPayload {
-  sub: string;
-  email: string;
-  role: UserRole;
-  exp?: number;
-}
+export type PlotStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'FINISHED';
+
+export type SubPlotStatus = 'OPEN' | 'COMPLETED';
+
+export type TreeQuality =
+  'NORMAL' | 'BIFURCADA' | 'DOMINADA' | 'MORTA' | 'QUEBRADA' | 'PRAGA_DOENCA';
 
 export interface PrismaTreeRecord {
   id: string;
-  number?: number | null;
+  name: string;
   diameterDapCm: number;
   height?: number | null;
-  condition?: string | null;
+  quality: TreeQuality;
+  observations?: string | null;
 }
 
 export interface PrismaSubPlotRecord {
   id: string;
-  number: number;
+  name: string;
   areaM2?: number | null;
+  targetTrees: number;
+  status: SubPlotStatus;
+  createdAt: string;
   trees?: PrismaTreeRecord[];
 }
 
 export interface PrismaPlotRecord {
   id: string;
   name: string;
-  areaHa?: number | null;
+  areaHa: number;
+  status: PlotStatus;
+  description?: string | null;
+  createdAt: string;
   subPlots?: PrismaSubPlotRecord[];
 }
 
@@ -35,35 +42,34 @@ export interface PrismaFarmRecord {
   id: string;
   name: string;
   address?: string | null;
-  responsible?: string | null;
-  status?: FarmStatus;
+  description?: string | null;
+  ownerId: string;
+  owner?: { name: string };
+  createdAt: string;
   plots?: PrismaPlotRecord[];
-  totalPlots?: number;
-  areaHa?: number;
-  completedParcels?: number;
-  totalParcels?: number;
-  measuredTrees?: number;
-  unsyncedParcelsCount?: number;
 }
 
 export interface Farm {
   id: string;
   name: string;
+  address: string;
   location: string;
+  description: string;
+  ownerId: string;
   responsible: string;
+  createdAt: string;
   status: FarmStatus;
   totalPlots: number;
   areaHa: number;
   completedParcels: number;
   totalParcels: number;
   measuredTrees: number;
-  unsyncedParcelsCount: number;
 }
 
 export interface SubPlotVolumeItem {
   id: string;
   plotName: string;
-  subPlotNumber: number;
+  subPlotName: string;
   volumeM3: number;
 }
 

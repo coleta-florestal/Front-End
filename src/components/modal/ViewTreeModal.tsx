@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { TreeData } from '../trees/TreeForm';
+import { QUALIDADE_LABELS, TreeData } from '../trees/TreeForm';
+import { TreeQuality } from '@/types/farm';
 import Button from '../core/Button';
 import { Close } from '../core/Icons';
 
@@ -15,18 +16,6 @@ export interface ViewTreeModalProps {
   onEdit: (tree: TreeData) => void;
   onDelete: (tree: TreeData) => void;
 }
-
-const QUALIDADE_LABELS: Record<string, string> = {
-  NORMAL: 'Normal',
-  'BIFURCADA_ACIMA_1.3M': 'Bifurcada acima de 1,3m',
-  'BIFURCADA_ABAIXO_1.3M': 'Bifurcada abaixo de 1,3m',
-  INCLINADA: 'Inclinada',
-  MORTA: 'Morta',
-  FALHA: 'Falha',
-  PROBLEMAS_FITOSSANITARIOS: 'Problemas fitossanitários',
-  QUEBRADA: 'Quebrada',
-  OUTRO: 'Outro',
-};
 
 export function ViewTreeModal({
   isOpen,
@@ -104,7 +93,7 @@ export function ViewTreeModal({
                 Árvore {tree?.numero}
               </h2>
               <span className="inline-flex items-center gap-1 rounded-md bg-verde-eucalipto/20 px-2 py-0.5 text-xs font-medium text-verde-mata">
-                {QUALIDADE_LABELS[tree?.qualidade ?? ''] ?? tree?.qualidade}
+                {QUALIDADE_LABELS[tree?.qualidade as TreeQuality] ?? tree?.qualidade}
               </span>
             </div>
           </div>
