@@ -59,3 +59,23 @@ export interface Farm {
   measuredTrees: number;
   unsyncedParcelsCount: number;
 }
+
+export interface SubPlotVolumeItem {
+  id: string;
+  plotName: string;
+  subPlotNumber: number;
+  volumeM3: number;
+}
+
+export interface PlotVolumeItem {
+  id: string;
+  plotName: string;
+  volumeM3: number;
+}
+
+export interface DiametricClassItem {
+  id: string;
+  rangeLabel: string;
+  treeCount: number;
+  volumeM3: number;
+}
