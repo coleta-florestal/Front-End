@@ -9,6 +9,7 @@ type InputProps = InputHTMLAttributes<HTMLInputElement> & {
   error?: string;
   helperText?: string;
   variant?: InputVariant;
+  hideLabel?: boolean;
 };
 
 const variantStyles: Record<InputVariant, { label: string; input: string; helper: string }> = {
@@ -25,13 +26,19 @@ const variantStyles: Record<InputVariant, { label: string; input: string; helper
 };
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, helperText, variant = 'default', className = '', id, ...props }, ref) => {
+  (
+    { label, error, helperText, variant = 'default', hideLabel, className = '', id, ...props },
+    ref,
+  ) => {
     const inputId = id || label.toLowerCase().replace(/\s+/g, '-');
     const styles = variantStyles[variant];
 
     return (
       <div className="flex flex-col gap-1.5 w-full">
-        <label htmlFor={inputId} className={`text-sm font-semibold ${styles.label}`}>
+        <label
+          htmlFor={inputId}
+          className={`text-sm font-semibold ${styles.label} ${hideLabel ? 'sr-only' : ''}`}
+        >
           {label}
         </label>
 

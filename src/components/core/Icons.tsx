@@ -409,6 +409,72 @@ export function Edit({ size = 18, color, className, ...props }: IconProps) {
   );
 }
 
+export function Bell({ size = 18, color, className, ...props }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      {...props}
+    >
+      <path
+        d="M6 9a6 6 0 0112 0c0 7 3 8 3 8H3s3-1 3-8zM10.3 21a2 2 0 003.4 0"
+        stroke={color ?? 'currentColor'}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function Flag({ size = 22, color, className, ...props }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      {...props}
+    >
+      <path
+        d="M4 21V4h11l-1.5 4H20l-2 7H8.5L10 11H4"
+        stroke={color ?? 'currentColor'}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function Warning({ size = 18, color, className, ...props }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      {...props}
+    >
+      <path
+        d="M12 3L2 20h20L12 3zM12 10v5M12 17.5v.5"
+        stroke={color ?? 'currentColor'}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export function Close({ size = 18, color, className, ...props }: IconProps) {
   return (
     <svg
