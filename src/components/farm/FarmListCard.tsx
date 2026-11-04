@@ -54,7 +54,7 @@ export default function FarmListCard({ farm, isAdmin, onEdit, onDelete }: FarmLi
 
         <div className="flex flex-col gap-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="font-serif text-xl font-bold text-[#2C5F2D]">{farm.name}</h2>
+            <h2 className="font-serif text-xl font-bold text-verde-mata">{farm.name}</h2>
 
             <span
               className={`rounded-full border px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide ${statusConfig.badgeClass}`}
@@ -108,8 +108,8 @@ export default function FarmListCard({ farm, isAdmin, onEdit, onDelete }: FarmLi
         )}
 
         <Link
-          href={`/platform/fazendas/${farm.id}`}
-          className="flex h-10 items-center gap-2 rounded-xl border border-[#B8CDB9] bg-transparent px-4 text-sm font-bold text-[#2C5F2D] transition-colors hover:bg-[#E4EDE2]"
+          href={`/platform/fazendas/${farm.farmId}`}
+          className="flex h-10 items-center gap-2 rounded-xl border border-[#B8CDB9] bg-transparent px-4 text-sm font-bold text-verde-mata transition-colors hover:bg-[#E4EDE2]"
         >
           <span>{actionLabel}</span>
           <span aria-hidden="true">→</span>
