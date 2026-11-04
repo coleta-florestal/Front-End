@@ -1,6 +1,8 @@
 import Button from '../core/Button';
 
 export type UserRole = 'User' | 'Admin' | 'SuperAdmin';
+// SuperAdmin é cadastrado direto no banco e não pode ser atribuído pela aplicação
+export type AssignableRole = Exclude<UserRole, 'SuperAdmin'>;
 export type UserStatus = 'ATIVO' | 'INATIVO';
 
 export interface AdminUser {
@@ -29,6 +31,8 @@ const statusStyles: Record<UserStatus, string> = {
 };
 
 export function UserRow({ user, onToggleRole, onRemove }: UserRowProps) {
+  const isSuperAdmin = user.papel === 'SuperAdmin';
+
   return (
     <li
       id={`usuario-${user.id}`}
@@ -40,23 +44,33 @@ export function UserRow({ user, onToggleRole, onRemove }: UserRowProps) {
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          onClick={() => onToggleRole(user)}
-          aria-label={`Alterar papel de ${user.nome}. Papel atual: ${user.papel}`}
-          className={`cursor-pointer rounded-full border px-3 py-1 text-xs font-bold transition-opacity hover:opacity-80 ${roleStyles[user.papel]}`}
-        >
-          {user.papel}
-        </button>
+        {isSuperAdmin ? (
+          <span
+            className={`rounded-full border px-3 py-1 text-xs font-bold ${roleStyles[user.papel]}`}
+          >
+            {user.papel}
+          </span>
+        ) : (
+          <button
+            type="button"
+            onClick={() => onToggleRole(user)}
+            aria-label={`Alterar papel de ${user.nome}. Papel atual: ${user.papel}`}
+            className={`cursor-pointer rounded-full border px-3 py-1 text-xs font-bold transition-opacity hover:opacity-80 ${roleStyles[user.papel]}`}
+          >
+            {user.papel}
+          </button>
+        )}
         <span className={`rounded-full px-3 py-1 text-xs font-bold ${statusStyles[user.status]}`}>
           {user.status}
         </span>
-        <Button
-          label="Remover"
-          variant="coral"
-          onClick={() => onRemove(user)}
-          className="ml-auto md:ml-2"
-        />
+        {!isSuperAdmin && (
+          <Button
+            label="Remover"
+            variant="coral"
+            onClick={() => onRemove(user)}
+            className="ml-auto md:ml-2"
+          />
+        )}
       </div>
     </li>
   );

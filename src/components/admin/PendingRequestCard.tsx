@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Button from '../core/Button';
 import { Select } from '../core/Select';
-import type { UserRole } from './UserRow';
+import type { AssignableRole } from './UserRow';
 
 export interface AccessRequest {
   id: string;
@@ -14,18 +14,17 @@ export interface AccessRequest {
 
 export interface PendingRequestCardProps {
   request: AccessRequest;
-  onApprove: (request: AccessRequest, papel: UserRole) => void;
+  onApprove: (request: AccessRequest, papel: AssignableRole) => void;
   onReject: (request: AccessRequest) => void;
 }
 
-const roleOptions: { value: UserRole; label: string }[] = [
+const roleOptions: { value: AssignableRole; label: string }[] = [
   { value: 'User', label: 'User' },
   { value: 'Admin', label: 'Admin' },
-  { value: 'SuperAdmin', label: 'SuperAdmin' },
 ];
 
 export function PendingRequestCard({ request, onApprove, onReject }: PendingRequestCardProps) {
-  const [papel, setPapel] = useState<UserRole>('User');
+  const [papel, setPapel] = useState<AssignableRole>('User');
 
   return (
     <li
@@ -46,7 +45,7 @@ export function PendingRequestCard({ request, onApprove, onReject }: PendingRequ
             label="Papel de acesso"
             options={roleOptions}
             value={papel}
-            onChange={(event) => setPapel(event.target.value as UserRole)}
+            onChange={(event) => setPapel(event.target.value as AssignableRole)}
           />
         </div>
         <Button label="Recusar" variant="danger-outline" onClick={() => onReject(request)} />

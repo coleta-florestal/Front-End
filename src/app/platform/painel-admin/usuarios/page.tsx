@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { type AccessRequest, PendingRequestCard } from '@/components/admin/PendingRequestCard';
-import { type AdminUser, UserRow, type UserRole } from '@/components/admin/UserRow';
+import { type AdminUser, type AssignableRole, UserRow } from '@/components/admin/UserRow';
 import { Bell, MapPin } from '@/components/core/Icons';
 import { Input } from '@/components/core/Input';
 import { RejectRequestModal } from '@/components/modal/RejectRequestModal';
@@ -42,10 +42,9 @@ const USERS: AdminUser[] = [
   },
 ];
 
-const NEXT_ROLE: Record<UserRole, UserRole> = {
+const NEXT_ROLE: Record<AssignableRole, AssignableRole> = {
   User: 'Admin',
-  Admin: 'SuperAdmin',
-  SuperAdmin: 'User',
+  Admin: 'User',
 };
 
 // Permite buscar "Jose" e encontrar "José"
@@ -65,7 +64,7 @@ export default function UsuariosPage() {
     (user) => normalize(user.nome).includes(term) || normalize(user.email).includes(term),
   );
 
-  const handleApprove = (request: AccessRequest, papel: UserRole) => {
+  const handleApprove = (request: AccessRequest, papel: AssignableRole) => {
     setRequests((current) => current.filter((item) => item.id !== request.id));
     setUsers((current) => [
       ...current,
@@ -81,7 +80,9 @@ export default function UsuariosPage() {
   const handleToggleRole = (user: AdminUser) => {
     setUsers((current) =>
       current.map((item) =>
-        item.id === user.id ? { ...item, papel: NEXT_ROLE[item.papel] } : item,
+        item.id === user.id && item.papel !== 'SuperAdmin'
+          ? { ...item, papel: NEXT_ROLE[item.papel] }
+          : item,
       ),
     );
   };
@@ -154,7 +155,7 @@ export default function UsuariosPage() {
               Usuários aprovados
             </h2>
             <p className="text-sm text-[#6D786E]">
-              Clique no papel para alternar entre User, Admin e SuperAdmin.
+              Clique no papel para alternar entre User e Admin.
             </p>
           </div>
 
