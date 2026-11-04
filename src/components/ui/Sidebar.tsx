@@ -35,7 +35,7 @@ const navLinks: NavLink[] = [
   },
   {
     label: 'Admin',
-    href: '/painel-admin',
+    href: '/platform/painel-admin',
     icon: <Admin size={22} />,
   },
 ];
