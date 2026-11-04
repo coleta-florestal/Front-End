@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import Button from '@/components/core/Button';
 import { Input } from '@/components/core/Input';
-import FarmCard from '@/components/ui/FarmCard';
+import FarmCard from '@/components/farm/FarmCard';
 import { Farm } from '@/types/farm';
 
 interface FarmSearchSectionProps {

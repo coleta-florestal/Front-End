@@ -1,4 +1,8 @@
-import AdminOverviewSection from '@/components/ui/AdminOverviewSection';
+'use client';
+
+import { useRouter } from 'next/navigation';
+import Topbar from '@/components/ui/Topbar';
+import AdminOverviewSection from '@/components/admin/AdminOverviewSection';
 import {
   AdminAuditEntry,
   AdminPendingUserRequest,
@@ -67,8 +71,16 @@ const MOCK_RECENT_PLOTS: AdminRecentPlotItem[] = [
 ];
 
 export default function AdminDashboardPage() {
+  const router = useRouter();
+
   return (
     <section className="flex flex-col gap-6 bg-[#EFECE4] p-6 md:p-8">
+      <Topbar
+        title="Administração"
+        description="Visão geral, usuários e amostras"
+        onBack={() => router.push('/platform')}
+      />
+
       <AdminOverviewSection
         initialAuditEntries={MOCK_AUDIT_ENTRIES}
         initialUsersSummary={MOCK_USERS_SUMMARY}

@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import AdminAuditCard from '@/components/ui/AdminAuditCard';
-import AdminPendingRequestCard from '@/components/ui/AdminPendingRequestCard';
-import AdminPlotsSummaryCard from '@/components/ui/AdminPlotsSummaryCard';
-import AdminRecentPlotsCard from '@/components/ui/AdminRecentPlotsCard';
-import AdminTabsBar from '@/components/ui/AdminTabBar';
-import AdminUsersSummaryCard from '@/components/ui/AdminUsersSummaryCard';
+import AdminAuditCard from '@/components/admin/AdminAuditCard';
+import AdminPendingRequestCard from '@/components/admin/AdminPendingRequestCard';
+import AdminPlotsSummaryCard from '@/components/admin/AdminPlotsSummaryCard';
+import AdminRecentPlotsCard from '@/components/admin/AdminRecentPlotsCard';
+import AdminTabsBar from '@/components/admin/AdminTabBar';
+import AdminUsersSummaryCard from '@/components/admin/AdminUsersSummaryCard';
 import {
   AdminAuditEntry,
   AdminPendingUserRequest,
