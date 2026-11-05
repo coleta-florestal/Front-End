@@ -9,14 +9,17 @@ import {
   getFarmWithDetails,
   summarizeSubPlots,
   toFarm,
+  deletePlot,
+  updatePlot,
 } from '@/app/api/api';
 import { isCurrentUserAdmin } from '@/lib/auth';
 import Topbar from '@/components/ui/Topbar';
 import { FarmCard } from '@/components/farm/FarmCard';
 import { TalhaoSummary } from '@/components/talhoes/TalhaoSummary';
 import { Input } from '@/components/core/Input';
-import { CreateTalhaoModal } from '@/components/modal/CreateTalhaoModal'; // Ajuste o caminho se necessário
-import { PrismaFarmRecord } from '@/types/farm';
+import { CreateTalhaoModal } from '@/components/modal/CreateTalhaoModal';
+import { DeleteTalhaoModal } from '@/components/modal/DeleteTalhaoModal';
+import { PrismaFarmRecord, PrismaPlotRecord } from '@/types/farm';
 
 interface FazendaTalhoesPageProps {
   params: Promise<{ fazenda: string }>;
@@ -34,6 +37,9 @@ export default function FazendaTalhoesPage({ params }: FazendaTalhoesPageProps) 
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [talhaoToEdit, setTalhaoToEdit] = useState<PrismaPlotRecord | null>(null);
+  const [talhaoToDelete, setTalhaoToDelete] = useState<PrismaPlotRecord | null>(null);
 
   const load = useCallback(
     () =>
@@ -61,6 +67,7 @@ export default function FazendaTalhoesPage({ params }: FazendaTalhoesPageProps) 
 
     return {
       id: plot.id,
+      record: plot,
       nome: plot.name,
       status: FARM_STATUS_LABELS[resumo.status],
       area: `${formatArea(plot.areaHa)} ha`,
@@ -82,6 +89,25 @@ export default function FazendaTalhoesPage({ params }: FazendaTalhoesPageProps) 
     });
 
     setIsCreateModalOpen(false);
+    await load();
+  };
+
+  const handleConfirmDelete = async (plot: PrismaPlotRecord) => {
+    await deletePlot(fazenda, plot.id);
+    setTalhaoToDelete(null);
+    await load();
+  };
+
+  const handleUpdateTalhao = async (data: { nome: string; area: string; descricao: string }) => {
+    if (!talhaoToEdit) return;
+
+    await updatePlot(fazenda, talhaoToEdit.id, {
+      name: data.nome.trim(),
+      areaHA: Number(data.area),
+      description: data.descricao.trim(),
+    });
+
+    setTalhaoToEdit(null);
     await load();
   };
 
@@ -164,6 +190,9 @@ export default function FazendaTalhoesPage({ params }: FazendaTalhoesPageProps) 
                     parcelasConcluidas={talhao.parcelasConcluidas}
                     parcelasTotais={talhao.parcelasTotais}
                     progresso={talhao.progresso}
+                    isAdmin={isAdmin}
+                    onEdit={() => setTalhaoToEdit(talhao.record)}
+                    onDelete={() => setTalhaoToDelete(talhao.record)}
                   />
                 </div>
               ))}
@@ -185,6 +214,24 @@ export default function FazendaTalhoesPage({ params }: FazendaTalhoesPageProps) 
           isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
           onSave={handleSaveTalhao}
+        />
+      )}
+
+      {talhaoToDelete && (
+        <DeleteTalhaoModal
+          isOpen
+          talhao={talhaoToDelete}
+          onConfirm={handleConfirmDelete}
+          onClose={() => setTalhaoToDelete(null)}
+        />
+      )}
+
+      {talhaoToEdit && (
+        <CreateTalhaoModal
+          isOpen
+          talhao={talhaoToEdit}
+          onClose={() => setTalhaoToEdit(null)}
+          onSave={handleUpdateTalhao}
         />
       )}
     </div>
