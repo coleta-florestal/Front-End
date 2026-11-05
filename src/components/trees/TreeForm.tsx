@@ -52,10 +52,6 @@ export function TreeForm({ onAddTree, initialQualidade = 'NORMAL' }: TreeFormPro
       setError('Número da árvore é obrigatório');
       return false;
     }
-    if (!/^\d+$/.test(numero.trim())) {
-      setError('Número deve conter apenas dígitos');
-      return false;
-    }
 
     if (!dap.trim()) {
       setError('DAP é obrigatório');
