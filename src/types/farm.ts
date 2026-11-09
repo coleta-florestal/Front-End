@@ -7,7 +7,15 @@ export type PlotStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'FINISHED';
 export type SubPlotStatus = 'OPEN' | 'COMPLETED';
 
 export type TreeQuality =
-  'NORMAL' | 'BIFURCADA' | 'DOMINADA' | 'MORTA' | 'QUEBRADA' | 'PRAGA_DOENCA';
+  | 'NORMAL'
+  | 'BIFURCADA_ACIMA_DE_1_3M'
+  | 'BIFURCADA_ABAIXO_DE_1_3M'
+  | 'INCLINADA'
+  | 'MORTA'
+  | 'FALHA'
+  | 'PROBLEMAS_FITOSSANITARIOS'
+  | 'QUEBRADA'
+  | 'OUTRO';
 
 export interface PrismaTreeRecord {
   id: string;

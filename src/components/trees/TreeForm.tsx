@@ -22,14 +22,16 @@ export interface TreeFormProps {
   initialQualidade?: string;
 }
 
-// Valores do enum TreeQuality do back: qualquer outro é rejeitado com 400.
 export const QUALIDADE_LABELS: Record<TreeQuality, string> = {
   NORMAL: 'Normal',
-  BIFURCADA: 'Bifurcada',
-  DOMINADA: 'Dominada',
+  BIFURCADA_ACIMA_DE_1_3M: 'Bifurcada',
+  BIFURCADA_ABAIXO_DE_1_3M: 'Dominada',
+  INCLINADA: 'Inclinada',
   MORTA: 'Morta',
+  FALHA: 'Falha',
+  PROBLEMAS_FITOSSANITARIOS: 'Problemas fitossanitários',
   QUEBRADA: 'Quebrada',
-  PRAGA_DOENCA: 'Praga ou doença',
+  OUTRO: 'Outro',
 };
 
 export const QUALIDADE_OPTIONS = Object.entries(QUALIDADE_LABELS).map(([value, label]) => ({
