@@ -104,7 +104,6 @@ export default function CadastrarArvorePage({ params }: CadastrarArvorePageProps
     setLoading(false);
 
     if (failedTrees.length === 0) {
-      alert(`${trees.length} árvore(s) salva(s) com sucesso!`);
       router.back();
       return;
     }
