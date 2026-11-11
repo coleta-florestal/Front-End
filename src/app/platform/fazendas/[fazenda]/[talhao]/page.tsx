@@ -169,11 +169,20 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
                   className="rounded-xl!"
                 />
               </div>
-              <Button
-                label="+ Adicionar Parcela"
-                onClick={() => setIsCreateModalOpen(true)}
-                className="border-2 border-verde-mata/30 bg-white text-verde-mata hover:bg-verde-mata/5 rounded-xl px-6 h-11.5 font-semibold whitespace-nowrap"
-              />
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Button
+                  label="+ Adicionar Parcela"
+                  onClick={() => setIsCreateModalOpen(true)}
+                  className="border-2 border-verde-mata/30 bg-white text-verde-mata hover:bg-verde-mata/5 rounded-xl px-6 h-11.5 font-semibold whitespace-nowrap"
+                />
+                <Button
+                  label="Processar talhão"
+                  onClick={() =>
+                    router.push(`/platform/fazendas/${fazenda}/${talhao}/processamento`)
+                  }
+                  className="bg-coral-flor text-creme-flor hover:bg-coral-flor/90 rounded-xl px-6 h-11.5 font-semibold whitespace-nowrap"
+                />
+              </div>
             </div>
 
             <div className="mt-8 space-y-4">
