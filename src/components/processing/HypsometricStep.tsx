@@ -38,7 +38,8 @@ export function HypsometricStep({
       id="processamento-hipsometrica"
       step={1}
       title="Relação hipsométrica"
-      description="Estima a altura (h) a partir do DAP (d). É aplicada antes da equação de volume, e a altura estimada alimenta o cálculo volumétrico."
+      description="Estima a altura (h) a partir do DAP (d), antes da equação de volume. Ainda é só uma prévia: o back-end não aplica esta etapa ao cálculo."
+      badge="Prévia · não aplicada"
     >
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Select
@@ -83,11 +84,8 @@ export function HypsometricStep({
       </div>
 
       <p className="text-xs text-[#6D786E]">
-        A altura medida em campo é mantida. O modelo {model.label} estima a altura só das árvores
-        sem medição ({treesWithoutHeight} de {totalTrees} neste talhão).
-      </p>
-      <p className="text-xs font-semibold text-[#A96A50]">
-        Esta etapa ainda não entra no cálculo: o back-end não estima altura por enquanto.
+        Se fosse aplicada, a altura medida em campo seria mantida e o modelo {model.label} estimaria
+        a altura só das árvores sem medição ({treesWithoutHeight} de {totalTrees} neste talhão).
       </p>
     </ProcessingStepCard>
   );
