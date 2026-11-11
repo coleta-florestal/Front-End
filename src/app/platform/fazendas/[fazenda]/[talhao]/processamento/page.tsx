@@ -2,20 +2,28 @@
 
 import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getEquations, getFarm, getPlot, processPlot } from '@/app/api/api';
+import {
+  getEquations,
+  getFarm,
+  getPlot,
+  getSubPlotsWithTrees,
+  processPlot,
+  summarizeSubPlots,
+} from '@/app/api/api';
 import Button from '@/components/core/Button';
+import { Check } from '@/components/core/Icons';
+import { HypsometricStep, HypsometricValues } from '@/components/processing/HypsometricStep';
+import { ProcessingSummaryCard } from '@/components/processing/ProcessingSummaryCard';
 import {
   CoefficientKey,
   Coefficients,
-  CoefficientsSection,
-} from '@/components/processing/CoefficientsSection';
-import { CUSTOM_EQUATION, EquationSection } from '@/components/processing/EquationSection';
-import { ProcessingSummaryCard } from '@/components/processing/ProcessingSummaryCard';
-import { SamplingSection, SamplingSettings } from '@/components/processing/SamplingSection';
+  VolumetricStep,
+} from '@/components/processing/VolumetricStep';
 import Topbar from '@/components/ui/Topbar';
-import { EQUATION_MODELS } from '@/lib/equations';
-import { EquationType, VolumetricEquation } from '@/types/equation';
-import { PrismaFarmRecord, PrismaPlotRecord } from '@/types/farm';
+import { isCurrentUserAdmin } from '@/lib/auth';
+import { DEFAULT_HYPSOMETRIC, EQUATION_MODELS } from '@/lib/equations';
+import { VolumetricEquation } from '@/types/equation';
+import { PrismaFarmRecord, PrismaPlotRecord, PrismaSubPlotRecord } from '@/types/farm';
 import { InventoryProcessingResult, ProcessInventoryDto } from '@/types/processing';
 
 interface ProcessamentoPageProps {
@@ -23,13 +31,6 @@ interface ProcessamentoPageProps {
 }
 
 const EMPTY_COEFFICIENTS: Coefficients = { beta0: '', beta1: '', beta2: '' };
-
-const DEFAULT_SAMPLING: SamplingSettings = {
-  method: 'AAS',
-  confidenceLevel: '0.95',
-  errorThresholdPercent: '10',
-  finitePopulation: false,
-};
 
 // Aceita "1,85" e "1.85"; campo vazio vira NaN para ser barrado na validação
 function parseDecimal(value: string): number {
@@ -55,46 +56,55 @@ export default function ProcessamentoPage({ params }: ProcessamentoPageProps) {
 
   const [farm, setFarm] = useState<PrismaFarmRecord | null>(null);
   const [plot, setPlot] = useState<PrismaPlotRecord | null>(null);
+  const [subPlots, setSubPlots] = useState<PrismaSubPlotRecord[]>([]);
   const [equations, setEquations] = useState<VolumetricEquation[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [equationsError, setEquationsError] = useState<string | null>(null);
 
-  const [selectedEquationId, setSelectedEquationId] = useState(CUSTOM_EQUATION);
-  const [modelType, setModelType] = useState<EquationType>('SCHUMACHER_HALL');
+  const [hypsometric, setHypsometric] = useState<HypsometricValues>({
+    modelType: DEFAULT_HYPSOMETRIC.modelType,
+    beta0: toInputValue(DEFAULT_HYPSOMETRIC.beta0),
+    beta1: toInputValue(DEFAULT_HYPSOMETRIC.beta1),
+  });
+  const [selectedEquationId, setSelectedEquationId] = useState('');
   const [coefficients, setCoefficients] = useState<Coefficients>(EMPTY_COEFFICIENTS);
-  const [sampling, setSampling] = useState<SamplingSettings>(DEFAULT_SAMPLING);
+  const [coefficientErrors, setCoefficientErrors] = useState<
+    Partial<Record<CoefficientKey, string>>
+  >({});
 
-  const [fieldErrors, setFieldErrors] = useState<Partial<Record<CoefficientKey, string>>>({});
-  const [errorThresholdError, setErrorThresholdError] = useState<string>();
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [result, setResult] = useState<InventoryProcessingResult | null>(null);
 
   useEffect(() => {
     async function load() {
+      setIsAdmin(isCurrentUserAdmin());
+
       try {
-        const [farmRecord, plotRecord] = await Promise.all([
+        const [farmRecord, plotRecord, subPlotRecords] = await Promise.all([
           getFarm(fazenda),
           getPlot(fazenda, talhao),
+          getSubPlotsWithTrees(fazenda, talhao),
         ]);
         setFarm(farmRecord);
         setPlot(plotRecord);
+        setSubPlots(subPlotRecords);
       } catch (err) {
         setLoadError(err instanceof Error ? err.message : 'Não foi possível carregar o talhão');
       }
 
-      // A lista de equações é rota de admin: sem acesso, ainda dá para usar a personalizada
       try {
         const active = (await getEquations()).filter((equation) => equation.isActive);
         setEquations(active);
         if (active.length > 0) {
           setSelectedEquationId(active[0].id);
-          setModelType(active[0].modelType);
           setCoefficients(coefficientsFrom(active[0]));
         }
       } catch {
-        setEquationsError('Equações cadastradas indisponíveis. Use uma personalizada.');
+        // GET /admin/equations é restrito a admins no back-end
+        setEquationsError('Não foi possível carregar as equações ativas.');
       } finally {
         setLoading(false);
       }
@@ -103,71 +113,59 @@ export default function ProcessamentoPage({ params }: ProcessamentoPageProps) {
     load();
   }, [fazenda, talhao]);
 
+  const resumo = summarizeSubPlots(subPlots);
+  const allTrees = subPlots.flatMap((subPlot) => subPlot.trees ?? []);
+  const treesWithoutHeight = allTrees.filter((tree) => !tree.height).length;
   const selectedEquation = equations.find((equation) => equation.id === selectedEquationId);
-  const usesBeta2 = EQUATION_MODELS[modelType].usesBeta2;
-  const usedKeys: CoefficientKey[] = usesBeta2 ? ['beta0', 'beta1', 'beta2'] : ['beta0', 'beta1'];
 
   const handleSelectEquation = (equationId: string) => {
-    setSelectedEquationId(equationId);
-    setFieldErrors({});
     const equation = equations.find((item) => item.id === equationId);
-    if (equation) {
-      setModelType(equation.modelType);
-      setCoefficients(coefficientsFrom(equation));
-    }
+    if (!equation) return;
+    setSelectedEquationId(equationId);
+    setCoefficients(coefficientsFrom(equation));
+    setCoefficientErrors({});
   };
 
   const handleChangeCoefficient = (key: CoefficientKey, value: string) => {
     setCoefficients((current) => ({ ...current, [key]: value }));
-    setFieldErrors((current) => ({ ...current, [key]: undefined }));
+    setCoefficientErrors((current) => ({ ...current, [key]: undefined }));
   };
 
-  const buildRequest = (): ProcessInventoryDto | null => {
+  // A etapa hipsométrica não é enviada: o back recusa campos que não conhece
+  const buildRequest = (equation: VolumetricEquation): ProcessInventoryDto | null => {
+    if (!isAdmin) return { equationId: equation.id };
+
+    const usesBeta2 = EQUATION_MODELS[equation.modelType].usesBeta2;
+    const keys: CoefficientKey[] = usesBeta2 ? ['beta0', 'beta1', 'beta2'] : ['beta0', 'beta1'];
     const parsed = Object.fromEntries(
-      usedKeys.map((key) => [key, parseDecimal(coefficients[key])]),
-    ) as Partial<Record<CoefficientKey, number>>;
+      keys.map((key) => [key, parseDecimal(coefficients[key])]),
+    ) as Record<CoefficientKey, number>;
 
     const errors: Partial<Record<CoefficientKey, string>> = {};
-    usedKeys.forEach((key) => {
+    keys.forEach((key) => {
       if (!Number.isFinite(parsed[key])) errors[key] = 'Informe um número válido';
     });
+    setCoefficientErrors(errors);
+    if (Object.keys(errors).length > 0) return null;
 
-    const errorThreshold = parseDecimal(sampling.errorThresholdPercent);
-    const thresholdInvalid =
-      !Number.isFinite(errorThreshold) || errorThreshold < 0.1 || errorThreshold > 100;
+    const unchanged = keys.every((key) => parsed[key] === equation[key]);
+    if (unchanged) return { equationId: equation.id };
 
-    setFieldErrors(errors);
-    setErrorThresholdError(thresholdInvalid ? 'Informe um valor entre 0,1 e 100' : undefined);
-    if (Object.keys(errors).length > 0 || thresholdInvalid) return null;
-
-    const samplingDto = {
-      confidenceLevel: Number(sampling.confidenceLevel),
-      errorThresholdPercent: errorThreshold,
-      finitePopulation: sampling.finitePopulation,
-    };
-
-    const unchanged =
-      selectedEquation &&
-      usedKeys.every((key) => parsed[key] === (selectedEquation[key] ?? undefined));
-    if (selectedEquation && unchanged) {
-      return { equationId: selectedEquation.id, ...samplingDto };
-    }
-
-    // O back recusa beta2 em modelos que não o usam, então ele só vai no Schumacher-Hall
+    // O back recusa beta2 em modelos que não o usam
     return {
       equation: {
-        name: selectedEquation ? `${selectedEquation.name} (ajustada)` : undefined,
-        modelType,
-        beta0: parsed.beta0!,
-        beta1: parsed.beta1!,
-        ...(usesBeta2 ? { beta2: parsed.beta2! } : {}),
+        name: `${equation.name} (ajustada)`,
+        modelType: equation.modelType,
+        beta0: parsed.beta0,
+        beta1: parsed.beta1,
+        ...(usesBeta2 ? { beta2: parsed.beta2 } : {}),
       },
-      ...samplingDto,
     };
   };
 
   const handleProcess = async () => {
-    const request = buildRequest();
+    if (!selectedEquation) return;
+    const request = buildRequest(selectedEquation);
     if (!request) return;
 
     setSubmitting(true);
@@ -182,17 +180,17 @@ export default function ProcessamentoPage({ params }: ProcessamentoPageProps) {
     }
   };
 
+  const handleBack = () => router.push(`/platform/fazendas/${fazenda}/${talhao}`);
+
   return (
-    <div className="min-h-screen bg-creme-flor">
+    <div className="min-h-screen bg-[#ECE8DE]">
       <Topbar
-        title="Configurar processamento"
-        description={
-          farm && plot ? `${farm.name} · ${plot.name}` : 'Equação, coeficientes e amostragem'
-        }
-        onBack={() => router.push(`/platform/fazendas/${fazenda}/${talhao}`)}
+        title="Processamento"
+        description="Equação, coeficientes e metodologia"
+        onBack={handleBack}
       />
 
-      <main className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+      <main className="mx-auto flex max-w-4xl flex-col gap-4 px-4 py-6 lg:px-6">
         {loading && <p className="text-sm text-verde-eucalipto">Carregando dados...</p>}
 
         {loadError && (
@@ -201,28 +199,39 @@ export default function ProcessamentoPage({ params }: ProcessamentoPageProps) {
           </p>
         )}
 
-        {!loading && !loadError && (
+        {!loading && !loadError && farm && plot && (
           <>
-            <EquationSection
+            <div
+              id="processamento-aviso"
+              className="flex items-start gap-3 rounded-xl border border-[#B8D8BE] bg-[#E8F0EA] px-4 py-3 text-sm text-verde-mata"
+            >
+              <Check size={18} color="#2C5F2D" className="mt-0.5 shrink-0" />
+              <p>
+                <strong>
+                  {farm.name} · {plot.name}
+                </strong>{' '}
+                concluído com {resumo.completedParcels} de {resumo.totalParcels} parcelas e{' '}
+                {resumo.measuredTrees} árvores. Defina as equações para processar.
+              </p>
+            </div>
+
+            <HypsometricStep
+              values={hypsometric}
+              canEdit={isAdmin}
+              treesWithoutHeight={treesWithoutHeight}
+              totalTrees={allTrees.length}
+              onChange={setHypsometric}
+            />
+
+            <VolumetricStep
               equations={equations}
-              selectedEquationId={selectedEquationId}
-              modelType={modelType}
+              selectedEquation={selectedEquation}
+              coefficients={coefficients}
+              coefficientErrors={coefficientErrors}
+              canEdit={isAdmin}
               loadError={equationsError}
               onSelectEquation={handleSelectEquation}
-              onChangeModel={setModelType}
-            />
-
-            <CoefficientsSection
-              values={coefficients}
-              usesBeta2={usesBeta2}
-              errors={fieldErrors}
-              onChange={handleChangeCoefficient}
-            />
-
-            <SamplingSection
-              values={sampling}
-              errorThresholdError={errorThresholdError}
-              onChange={setSampling}
+              onChangeCoefficient={handleChangeCoefficient}
             />
 
             {submitError && (
@@ -231,12 +240,20 @@ export default function ProcessamentoPage({ params }: ProcessamentoPageProps) {
               </p>
             )}
 
-            <div id="processamento-acoes" className="flex justify-end">
+            <div
+              id="processamento-acoes"
+              className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"
+            >
               <Button
-                label={submitting ? 'Processando...' : 'Processar talhão'}
+                label="Voltar"
+                onClick={handleBack}
+                className="cursor-pointer rounded-xl border-2 border-[#D7D0C2] bg-white px-6 py-3 text-verde-mata shadow-none hover:bg-[#F5F2EC]"
+              />
+              <Button
+                label={submitting ? 'Processando...' : 'Processar: altura → volume'}
                 onClick={handleProcess}
-                disabled={submitting}
-                className="w-full cursor-pointer rounded-xl bg-coral-flor px-6 py-3 text-creme-flor transition-colors hover:bg-coral-flor/90 sm:w-auto"
+                disabled={submitting || !selectedEquation}
+                className="cursor-pointer rounded-xl bg-verde-mata px-6 py-3 text-white hover:bg-verde-mata/90"
               />
             </div>
 
