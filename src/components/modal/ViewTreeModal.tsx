@@ -13,8 +13,9 @@ export interface ViewTreeModalProps {
   talhao: string;
   parcela: string;
   onClose: () => void;
-  onEdit: (tree: TreeData) => void;
-  onDelete: (tree: TreeData) => void;
+  // Opcionais: parcela concluída é somente leitura, então a tela não passa os dois.
+  onEdit?: (tree: TreeData) => void;
+  onDelete?: (tree: TreeData) => void;
 }
 
 export function ViewTreeModal({
@@ -137,22 +138,26 @@ export function ViewTreeModal({
             onClick={onClose}
             className="border border-[#D7D0C2] bg-creme-flor text-verde-mata hover:bg-[#f0ede5] mr-2"
           />
-          <Button
-            label="Editar árvore"
-            onClick={() => {
-              onClose();
-              onEdit(tree!);
-            }}
-            className="bg-verde-mata text-creme-flor hover:bg-[#245225]"
-          />
-          <Button
-            label="Excluir"
-            onClick={() => {
-              onDelete(tree!);
-              onClose();
-            }}
-            className="border border-coral-flor bg-white text-coral-flor hover:bg-coral-flor/5"
-          />
+          {onEdit && (
+            <Button
+              label="Editar árvore"
+              onClick={() => {
+                onClose();
+                onEdit(tree!);
+              }}
+              className="bg-verde-mata text-creme-flor hover:bg-[#245225]"
+            />
+          )}
+          {onDelete && (
+            <Button
+              label="Excluir"
+              onClick={() => {
+                onDelete(tree!);
+                onClose();
+              }}
+              className="border border-coral-flor bg-white text-coral-flor hover:bg-coral-flor/5"
+            />
+          )}
         </div>
       </div>
     </div>

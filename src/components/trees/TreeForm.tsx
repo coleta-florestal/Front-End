@@ -22,14 +22,16 @@ export interface TreeFormProps {
   initialQualidade?: string;
 }
 
-// Valores do enum TreeQuality do back: qualquer outro é rejeitado com 400.
 export const QUALIDADE_LABELS: Record<TreeQuality, string> = {
   NORMAL: 'Normal',
-  BIFURCADA: 'Bifurcada',
-  DOMINADA: 'Dominada',
+  BIFURCADA_ACIMA_DE_1_3M: 'Bifurcada acima de 1,3 m',
+  BIFURCADA_ABAIXO_DE_1_3M: 'Bifurcada abaixo de 1,3 m',
+  INCLINADA: 'Inclinada',
   MORTA: 'Morta',
+  FALHA: 'Falha',
+  PROBLEMAS_FITOSSANITARIOS: 'Problemas fitossanitários',
   QUEBRADA: 'Quebrada',
-  PRAGA_DOENCA: 'Praga ou doença',
+  OUTRO: 'Outro',
 };
 
 export const QUALIDADE_OPTIONS = Object.entries(QUALIDADE_LABELS).map(([value, label]) => ({
@@ -50,10 +52,6 @@ export function TreeForm({ onAddTree, initialQualidade = 'NORMAL' }: TreeFormPro
   const validate = (): boolean => {
     if (!numero.trim()) {
       setError('Número da árvore é obrigatório');
-      return false;
-    }
-    if (!/^\d+$/.test(numero.trim())) {
-      setError('Número deve conter apenas dígitos');
       return false;
     }
 

@@ -13,6 +13,7 @@ import {
   summarizeSubPlots,
   updateSubPlotStatus,
 } from '@/app/api/api';
+import { isCurrentUserAdmin } from '@/lib/auth';
 import Topbar from '@/components/ui/Topbar';
 import { TalhaoCard } from '@/components/talhoes/TalhaoCard';
 import { ParcelRow } from '@/components/parcels/ParcelRow';
@@ -36,6 +37,7 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
   const [subPlots, setSubPlots] = useState<PrismaSubPlotRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isReopenModalOpen, setIsReopenModalOpen] = useState(false);
@@ -55,6 +57,7 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
           setFarm(farmRecord);
           setPlot(plotRecord);
           setSubPlots(subPlotRecords);
+          setIsAdmin(isCurrentUserAdmin());
           setError(null);
         })
         .catch((err) => {
@@ -169,11 +172,22 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
                   className="rounded-xl!"
                 />
               </div>
-              <Button
-                label="+ Adicionar Parcela"
-                onClick={() => setIsCreateModalOpen(true)}
-                className="border-2 border-verde-mata/30 bg-white text-verde-mata hover:bg-verde-mata/5 rounded-xl px-6 h-11.5 font-semibold whitespace-nowrap"
-              />
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Button
+                  label="+ Adicionar Parcela"
+                  onClick={() => setIsCreateModalOpen(true)}
+                  className="border-2 border-verde-mata/30 bg-white text-verde-mata hover:bg-verde-mata/5 rounded-xl px-6 h-11.5 font-semibold whitespace-nowrap"
+                />
+                {isAdmin && (
+                  <Button
+                    label="Processar talhão"
+                    onClick={() =>
+                      router.push(`/platform/fazendas/${fazenda}/${talhao}/processamento`)
+                    }
+                    className="bg-coral-flor text-creme-flor hover:bg-coral-flor/90 rounded-xl px-6 h-11.5 font-semibold whitespace-nowrap"
+                  />
+                )}
+              </div>
             </div>
 
             <div className="mt-8 space-y-4">

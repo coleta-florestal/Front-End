@@ -15,9 +15,9 @@ import {
   AdminPlotsSummary,
   AdminRecentPlotItem,
   AdminTabKey,
-  AdminTabOption,
   AdminUsersSummary,
 } from '@/types/admin';
+import { ADMIN_TAB_PATHS, ADMIN_TABS } from '@/lib/adminTabs';
 import { AdminUserRole } from '@/types/admin';
 
 interface AdminOverviewSectionProps {
@@ -28,15 +28,6 @@ interface AdminOverviewSectionProps {
   recentPlots: AdminRecentPlotItem[];
   onChanged: () => Promise<void>;
 }
-
-const ADMIN_TABS: AdminTabOption[] = [
-  { key: 'overview', label: 'Visão Geral' },
-  { key: 'users', label: 'Usuários' },
-  { key: 'projects', label: 'Projetos' },
-  { key: 'equations', label: 'Equações' },
-  { key: 'validations', label: 'Validações' },
-  { key: 'audit', label: 'Auditoria' },
-];
 
 export default function AdminOverviewSection({
   auditEntries,
@@ -67,13 +58,22 @@ export default function AdminOverviewSection({
 
   const handleRejectUser = (userId: string) => runUserAction(() => rejectUser(userId));
 
+  const handleSelectTab = (tabKey: AdminTabKey) => {
+    const path = ADMIN_TAB_PATHS[tabKey];
+    if (path === ADMIN_TAB_PATHS.overview) {
+      setActiveTab(tabKey);
+      return;
+    }
+    router.push(path);
+  };
+
   const handleNavigateToFarms = () => {
     router.push('/platform/fazendas');
   };
 
   return (
     <div className="flex flex-col gap-6">
-      <AdminTabsBar tabs={ADMIN_TABS} activeTab={activeTab} onSelectTab={setActiveTab} />
+      <AdminTabsBar tabs={ADMIN_TABS} activeTab={activeTab} onSelectTab={handleSelectTab} />
 
       <div>
         <h2 className="text-xl font-bold text-verde-mata">Visão geral</h2>

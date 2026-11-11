@@ -1,6 +1,7 @@
 import type { TreeData } from '@/components/trees/TreeForm';
 import { clearAuthCookies, getAccessToken } from '@/lib/auth';
 import { EquationType, VolumetricEquation } from '@/types/equation';
+import { InventoryProcessingResult, ProcessInventoryDto } from '@/types/processing';
 import {
   Farm,
   FarmStatus,
@@ -181,7 +182,7 @@ const plotsPath = (farmId: string) => `${farmPath(farmId)}/plots`;
 const subPlotsPath = (farmId: string, plotId: string) =>
   `${plotsPath(farmId)}/${encodeURIComponent(plotId)}/subplots`;
 const treesPath = (farmId: string, plotId: string, subPlotId: string) =>
-  `${subPlotsPath(farmId, plotId)}/${encodeURIComponent(subPlotId)}/tree`;
+  `${subPlotsPath(farmId, plotId)}/${encodeURIComponent(subPlotId)}/trees`;
 const adminUserPath = (id: string) => `/admin/users/${encodeURIComponent(id)}`;
 const equationPath = (id: string) => `/admin/equations/${encodeURIComponent(id)}`;
 
@@ -230,6 +231,14 @@ export function createPlot(farmId: string, dto: CreatePlotDto): Promise<PrismaPl
 
 export function deletePlot(farmId: string, plotId: string): Promise<null> {
   return authFetch(`${plotsPath(farmId)}/${encodeURIComponent(plotId)}`, { method: 'DELETE' });
+}
+
+export function updatePlot(
+  farmId: string,
+  plotId: string,
+  dto: Partial<CreatePlotDto>,
+): Promise<PrismaPlotRecord> {
+  return authFetch(`${plotsPath(farmId)}/${encodeURIComponent(plotId)}`, jsonBody('PATCH', dto));
 }
 
 export function getSubPlots(farmId: string, plotId: string): Promise<PrismaSubPlotRecord[]> {
@@ -412,6 +421,17 @@ export function updateEquationStatus(id: string, isActive: boolean): Promise<Vol
 
 export function deleteEquation(id: string): Promise<VolumetricEquation> {
   return authFetch(equationPath(id), { method: 'DELETE' });
+}
+
+export function processPlot(
+  farmId: string,
+  plotId: string,
+  dto: ProcessInventoryDto,
+): Promise<InventoryProcessingResult> {
+  return authFetch(
+    `/processing/farms/${encodeURIComponent(farmId)}/plots/${encodeURIComponent(plotId)}`,
+    jsonBody('POST', dto),
+  );
 }
 
 export const FARM_STATUS_LABELS: Record<FarmStatus, string> = {

@@ -48,3 +48,24 @@ export interface ApproveUserPayload {
   userId: string;
   role: AdminUserRole;
 }
+
+// ----------------------------------------------------
+// Tipagens adicionadas para a aba de Projetos (Fazendas)
+// ----------------------------------------------------
+
+export type ProjectUserRoleType = 'SuperAdmin' | 'Admin' | 'User';
+
+export interface ProjectUser {
+  id: string;
+  name: string;
+  roleTitle: string;
+  roleType: ProjectUserRoleType;
+  plots: string[];
+}
+
+export interface AdminProjectItem {
+  id: string;
+  title: string;
+  description: string;
+  users: ProjectUser[];
+}
