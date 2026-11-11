@@ -5,7 +5,7 @@ export interface ProcessingSummaryCardProps {
   result: InventoryProcessingResult;
 }
 
-const formatNumber = (value: number, digits = 2) =>
+export const formatNumber = (value: number, digits = 2) =>
   value.toLocaleString('pt-BR', { minimumFractionDigits: digits, maximumFractionDigits: digits });
 
 export function ProcessingSummaryCard({ result }: ProcessingSummaryCardProps) {
