@@ -53,10 +53,8 @@ const MOCK_STORAGE_KEY = 'glupta_mock_admin_projects';
 export default function AdminProjectsPage() {
   const router = useRouter();
 
-  // 1. Estado de Hidratação (evita erro do Next.js entre Servidor e Cliente)
   const [isMounted, setIsMounted] = useState(false);
 
-  // 2. Inicialização preguiçosa buscando do localStorage
   const [projects, setProjects] = useState<AdminProjectItem[]>(() => {
     if (typeof window !== 'undefined') {
       const savedData = localStorage.getItem(MOCK_STORAGE_KEY);
@@ -77,13 +75,11 @@ export default function AdminProjectsPage() {
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const [activeUser, setActiveUser] = useState<ProjectUser | null>(null);
 
-  // 3. Resolve erro do ESLint com setTimeout (mesma técnica do Perfil)
   useEffect(() => {
     const timer = setTimeout(() => setIsMounted(true), 0);
     return () => clearTimeout(timer);
   }, []);
 
-  // 4. Salva no localStorage SEMPRE que o estado 'projects' mudar
   useEffect(() => {
     if (isMounted) {
       localStorage.setItem(MOCK_STORAGE_KEY, JSON.stringify(projects));
@@ -133,7 +129,6 @@ export default function AdminProjectsPage() {
           ];
         }
 
-        // Atualiza também a descrição (contagem de usuários) para ficar dinâmico
         const descriptionParts = proj.description.split('·');
         const newDescription = `${descriptionParts[0].trim()} · ${newUsers.length} usuário${newUsers.length !== 1 ? 's' : ''} associado${newUsers.length !== 1 ? 's' : ''}`;
 
@@ -149,7 +144,6 @@ export default function AdminProjectsPage() {
 
         const newUsers = proj.users.filter((u) => u.id !== activeUser?.id);
 
-        // Atualiza também a descrição
         const descriptionParts = proj.description.split('·');
         const newDescription = `${descriptionParts[0].trim()} · ${newUsers.length} usuário${newUsers.length !== 1 ? 's' : ''} associado${newUsers.length !== 1 ? 's' : ''}`;
 
@@ -158,7 +152,6 @@ export default function AdminProjectsPage() {
     );
   };
 
-  // 5. Truque de renderização para hidratação perfeita
   const displayProjects = isMounted ? projects : INITIAL_MOCK_PROJECTS;
 
   return (
@@ -178,21 +171,20 @@ export default function AdminProjectsPage() {
 
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col gap-1">
-            <h2 className="font-serif text-2xl font-bold text-[#2C5F2D]">Fazendas</h2>
+            <h2 className="font-serif text-2xl font-bold text-verde-mata">Fazendas</h2>
             <p className="text-sm font-medium text-[#6D786E]">
               Associe usuários e defina as fazendas/talhões que cada um pode acessar.
             </p>
           </div>
           <button
             type="button"
-            className="whitespace-nowrap rounded-xl border-2 border-[#D7D0C2] bg-transparent px-5 py-2.5 text-sm font-bold text-[#2C5F2D] transition-colors hover:bg-[#E4EDE2]/50"
+            className="whitespace-nowrap rounded-xl border-2 border-[#D7D0C2] bg-transparent px-5 py-2.5 text-sm font-bold text-verde-mata transition-colors hover:bg-[#E4EDE2]/50"
           >
             + Nova Fazenda
           </button>
         </div>
 
         <div className="flex flex-col gap-6">
-          {/* Mapeando displayProjects em vez de projects diretamente */}
           {displayProjects.map((project) => (
             <AdminProjectCard
               key={project.id}
