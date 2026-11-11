@@ -1,5 +1,7 @@
 import type { TreeData } from '@/components/trees/TreeForm';
 import { clearAuthCookies, getAccessToken } from '@/lib/auth';
+import { ValidationSettings } from '@/types/admin';
+import type { FarmDashboardSummary } from '@/types/dashboard';
 import { EquationType, VolumetricEquation } from '@/types/equation';
 import { InventoryProcessingResult, ProcessInventoryDto } from '@/types/processing';
 import {
@@ -172,7 +174,7 @@ function authFetch(path: string, options: RequestInit = {}) {
   return apiFetch(path, { ...options, accessToken: getAccessToken() ?? undefined }, expireSession);
 }
 
-function jsonBody(method: 'POST' | 'PATCH', body: unknown): RequestInit {
+function jsonBody(method: 'POST' | 'PATCH' | 'PUT', body: unknown): RequestInit {
   return { method, body: JSON.stringify(body) };
 }
 
@@ -421,6 +423,18 @@ export function updateEquationStatus(id: string, isActive: boolean): Promise<Vol
 
 export function deleteEquation(id: string): Promise<VolumetricEquation> {
   return authFetch(equationPath(id), { method: 'DELETE' });
+}
+
+export function getValidationSettings(): Promise<ValidationSettings> {
+  return authFetch('/admin/validations');
+}
+
+export function updateValidationSettings(dto: ValidationSettings): Promise<ValidationSettings> {
+  return authFetch('/admin/validations', jsonBody('PUT', dto));
+}
+
+export function getFarmDashboardSummary(farmId: string): Promise<FarmDashboardSummary> {
+  return authFetch(`/dashboard/${encodeURIComponent(farmId)}`);
 }
 
 export function processPlot(

@@ -13,6 +13,13 @@ export interface AdminAuditEntry {
   targetText: string;
 }
 
+export interface ValidationSettings {
+  minDapCm: number;
+  maxDapCm: number;
+  minHeightM: number;
+  maxHeightM: number;
+}
+
 export interface AdminUsersSummary {
   totalApprovedUsers: number;
   pendingRequestsCount: number;
