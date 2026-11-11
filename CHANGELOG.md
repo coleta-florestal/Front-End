@@ -1,3 +1,9 @@
+# [1.1.0-rc.3](https://github.com/coleta-florestal/Front-End/compare/v1.1.0-rc.2...v1.1.0-rc.3) (2026-11-11)
+
+### Bug Fixes
+
+- retirei aba de projetos ([3820139](https://github.com/coleta-florestal/Front-End/commit/382013988bad2d44eb9622dd8b8f3657902d7928))
+
 # [1.1.0-rc.2](https://github.com/coleta-florestal/Front-End/compare/v1.1.0-rc.1...v1.1.0-rc.2) (2026-11-11)
 
 ### Bug Fixes
