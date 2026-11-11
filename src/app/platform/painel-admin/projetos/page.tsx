@@ -7,16 +7,8 @@ import AdminTabsBar from '@/components/admin/AdminTabBar';
 import AdminProjectCard from '@/components/admin/projects/AdminProjectCard';
 import UserPermissionsModal from '@/components/modal/admin/UserPermissionsModal';
 import RemoveUserModal from '@/components/modal/admin/RemoveUserModal';
-import { AdminProjectItem, AdminTabOption, ProjectUser } from '@/types/admin';
-
-const ADMIN_TABS: AdminTabOption[] = [
-  { key: 'overview', label: 'Visão Geral' },
-  { key: 'users', label: 'Usuários' },
-  { key: 'projects', label: 'Projetos' },
-  { key: 'equations', label: 'Equações' },
-  { key: 'validations', label: 'Validações' },
-  { key: 'audit', label: 'Auditoria' },
-];
+import { AdminProjectItem, AdminTabKey, ProjectUser } from '@/types/admin';
+import { ADMIN_TAB_PATHS, ADMIN_TABS } from '@/lib/adminTabs';
 
 const INITIAL_MOCK_PROJECTS: AdminProjectItem[] = [
   {
@@ -98,13 +90,7 @@ export default function AdminProjectsPage() {
     }
   }, [projects, isMounted]);
 
-  const handleTabChange = (key: string) => {
-    if (key === 'overview') {
-      router.push('/platform/painel-admin');
-    } else {
-      router.push(`/platform/painel-admin/${key}`);
-    }
-  };
+  const handleTabChange = (key: AdminTabKey) => router.push(ADMIN_TAB_PATHS[key]);
 
   const openAddUser = (projectId: string) => {
     setActiveProjectId(projectId);
@@ -185,6 +171,10 @@ export default function AdminProjectsPage() {
 
       <section className="flex flex-col gap-8 p-6 md:p-10">
         <AdminTabsBar tabs={ADMIN_TABS} activeTab="projects" onSelectTab={handleTabChange} />
+
+        <p className="text-xs font-semibold text-[#6D786E]">
+          Dados locais: esta tela ainda não tem backend e guarda tudo só neste navegador.
+        </p>
 
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col gap-1">

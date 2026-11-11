@@ -27,7 +27,11 @@ export default function ProfilePage() {
         onBack={() => router.back()}
       />
 
-      <section className="flex flex-1 items-start justify-center p-6 md:p-10">
+      <section className="flex flex-1 flex-col items-center gap-4 p-6 md:p-10">
+        <p className="text-xs font-semibold text-[#6D786E]">
+          Dados locais: esta tela ainda não tem backend, os valores iniciais são fictícios e o que
+          você salvar fica só neste navegador.
+        </p>
         <ProfileFormCard initialProfile={MOCK_USER_PROFILE} />
       </section>
     </div>

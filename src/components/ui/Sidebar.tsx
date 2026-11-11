@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import logo from '../../../public/assets/apenas_circulo.png';
+import { clearAuthCookies } from '@/lib/auth';
 import { House, Farm, Admin, Dashboard, Close } from '../core/Icons';
 import { ReactNode, useEffect, useState } from 'react';
 
@@ -55,8 +56,8 @@ export default function Sidebar({ isAdmin }: { isAdmin: boolean }) {
   const pathname = usePathname();
   const isProfileActive = pathname.startsWith('/platform/perfil');
 
-  const [userName, setUserName] = useState('Eng. Amanda');
-  const [userInitials, setUserInitials] = useState('EA');
+  const [userName, setUserName] = useState('Meu perfil');
+  const [userInitials, setUserInitials] = useState('U');
 
   useEffect(() => {
     const updateProfileFromStorage = () => {
@@ -66,7 +67,7 @@ export default function Sidebar({ isAdmin }: { isAdmin: boolean }) {
           const parsed = JSON.parse(savedData);
           if (parsed.name) {
             setUserName(parsed.name.trim());
-            setUserInitials(getInitialsFromName(parsed.name, 'EA'));
+            setUserInitials(getInitialsFromName(parsed.name, 'U'));
           }
         } catch (error) {
           console.error('Erro ao ler mock do perfil:', error);
@@ -146,13 +147,13 @@ export default function Sidebar({ isAdmin }: { isAdmin: boolean }) {
           </div>
           <div className="flex flex-col min-w-0">
             <span className="text-sm font-bold text-creme-flor truncate">{userName}</span>
-            <span className="text-xs text-creme-flor/70 truncate">Inventário Campo</span>
           </div>
         </Link>
 
         <button
           type="button"
           onClick={() => {
+            clearAuthCookies();
             window.location.href = '/';
           }}
           className="flex items-center gap-1.5 rounded-xl bg-coral-flor px-3.5 py-2 text-xs font-bold text-creme-flor transition-opacity hover:opacity-90 shrink-0"
