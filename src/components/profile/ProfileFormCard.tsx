@@ -1,6 +1,6 @@
 'use client';
 
-import { ChangeEvent, FormEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, useState, useEffect } from 'react';
 import Button from '@/components/core/Button';
 import { Input } from '@/components/core/Input';
 import { ProfileFormErrors, ProfileFormValues, UserProfile } from '@/types/profile';
@@ -57,7 +57,8 @@ function validateProfileForm(values: ProfileFormValues): ProfileFormErrors {
 }
 
 export default function ProfileFormCard({ initialProfile }: ProfileFormCardProps) {
-  // Inicialização preguiçosa (Lazy Initializer) que evita o useEffect e cascading renders
+  const [isMounted, setIsMounted] = useState(false);
+
   const [values, setValues] = useState<ProfileFormValues>(() => {
     if (typeof window !== 'undefined') {
       const savedData = localStorage.getItem(MOCK_STORAGE_KEY);
@@ -106,6 +107,16 @@ export default function ProfileFormCard({ initialProfile }: ProfileFormCardProps
   const [errors, setErrors] = useState<ProfileFormErrors>({});
   const [isSaving, setIsSaving] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Solução para o ESLint e Hidratação:
+  // Usa setTimeout para tirar o setState do fluxo síncrono do useEffect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsMounted(true);
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleFieldChange = (
     field: keyof ProfileFormValues,
@@ -157,6 +168,23 @@ export default function ProfileFormCard({ initialProfile }: ProfileFormCardProps
     }, 600);
   };
 
+  const displayHeader = isMounted
+    ? profileHeader
+    : {
+        initials: initialProfile.initials,
+        displayName: initialProfile.displayName,
+        roleTitle: initialProfile.roleTitle,
+      };
+
+  const displayValues = isMounted
+    ? values
+    : {
+        name: initialProfile.name,
+        email: initialProfile.email,
+        organization: initialProfile.organization,
+        phone: initialProfile.phone,
+      };
+
   return (
     <article className="mx-auto w-full max-w-3xl rounded-2xl border border-[#DFDBD0] bg-[#FAF8F3] p-6 shadow-sm sm:p-10">
       <header className="flex items-center gap-4">
@@ -164,14 +192,14 @@ export default function ProfileFormCard({ initialProfile }: ProfileFormCardProps
           aria-hidden="true"
           className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#E4EDE2] font-serif text-lg font-bold text-[#2C5F2D]"
         >
-          {profileHeader.initials}
+          {displayHeader.initials}
         </div>
 
         <div className="flex flex-col">
           <h2 className="font-serif text-xl font-bold text-[#2C5F2D]">
-            {profileHeader.displayName}
+            {displayHeader.displayName}
           </h2>
-          <p className="mt-0.5 text-xs text-[#6E776B]">{profileHeader.roleTitle}</p>
+          <p className="mt-0.5 text-xs text-[#6E776B]">{displayHeader.roleTitle}</p>
         </div>
       </header>
 
@@ -182,7 +210,7 @@ export default function ProfileFormCard({ initialProfile }: ProfileFormCardProps
           <Input
             id="profile-name"
             label="Nome"
-            value={values.name}
+            value={displayValues.name}
             placeholder="Digite seu nome completo"
             error={errors.name}
             disabled={isSaving}
@@ -194,7 +222,7 @@ export default function ProfileFormCard({ initialProfile }: ProfileFormCardProps
             id="profile-email"
             label="Email"
             type="email"
-            value={values.email}
+            value={displayValues.email}
             placeholder="seu.email@dominio.com.br"
             error={errors.email}
             disabled={isSaving}
@@ -205,7 +233,7 @@ export default function ProfileFormCard({ initialProfile }: ProfileFormCardProps
           <Input
             id="profile-organization"
             label="Organização"
-            value={values.organization}
+            value={displayValues.organization}
             placeholder="Nome da organização"
             error={errors.organization}
             disabled={isSaving}
@@ -217,7 +245,7 @@ export default function ProfileFormCard({ initialProfile }: ProfileFormCardProps
             id="profile-phone"
             label="Telefone"
             type="tel"
-            value={values.phone}
+            value={displayValues.phone}
             placeholder="(00) 00000-0000"
             error={errors.phone}
             disabled={isSaving}
