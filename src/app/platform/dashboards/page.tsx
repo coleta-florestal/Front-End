@@ -2,18 +2,26 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getFarms, getPlotsWithDetails, toFarm } from '@/app/api/api';
+import { getFarmDashboardSummary, getFarms, getPlotsWithDetails, toFarm } from '@/app/api/api';
 import { buildFarmDashboard, formatDecimal } from '@/lib/dashboard';
 import Topbar from '@/components/ui/Topbar';
 import { DashboardFarmHeader } from '@/components/dashboard/DashboardFarmHeader';
 import { DashboardStatCard } from '@/components/dashboard/DashboardStatCard';
 import { TreesPerParcelChart } from '@/components/dashboard/TreesPerParcelChart';
 import { ParcelProgressList } from '@/components/dashboard/ParcelProgressList';
+import { QualityDistributionCard } from '@/components/dashboard/QualityDistributionCard';
+import type { FarmDashboardSummary } from '@/types/dashboard';
 import type { PrismaFarmRecord, PrismaPlotRecord } from '@/types/farm';
 
 interface LoadedPlots {
   farmId: string;
   plots: PrismaPlotRecord[];
+}
+
+interface LoadedSummary {
+  farmId: string;
+  data: FarmDashboardSummary | null;
+  failed: boolean;
 }
 
 export default function Dashboards() {
@@ -22,6 +30,7 @@ export default function Dashboards() {
   const [farms, setFarms] = useState<PrismaFarmRecord[]>([]);
   const [selectedFarmId, setSelectedFarmId] = useState('');
   const [loadedPlots, setLoadedPlots] = useState<LoadedPlots | null>(null);
+  const [loadedSummary, setLoadedSummary] = useState<LoadedSummary | null>(null);
   const [loadingFarms, setLoadingFarms] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -58,6 +67,28 @@ export default function Dashboards() {
       cancelled = true;
     };
   }, [selectedFarmId]);
+
+  // O back reprocessa todos os talhões nesse endpoint, então ele carrega à parte e não trava o resto da tela.
+  useEffect(() => {
+    if (!selectedFarmId) return;
+
+    let cancelled = false;
+
+    getFarmDashboardSummary(selectedFarmId)
+      .then((data) => {
+        if (!cancelled) setLoadedSummary({ farmId: selectedFarmId, data, failed: false });
+      })
+      .catch(() => {
+        if (!cancelled) setLoadedSummary({ farmId: selectedFarmId, data: null, failed: true });
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedFarmId]);
+
+  const summaryState = loadedSummary?.farmId === selectedFarmId ? loadedSummary : null;
+  const summary = summaryState?.data ?? null;
 
   const farmRecord = useMemo(() => {
     const base = farms.find((farm) => farm.id === selectedFarmId);
@@ -132,6 +163,41 @@ export default function Dashboards() {
                 subtitle="média da amostra"
               />
             </div>
+
+            {summaryState?.failed && (
+              <p className="text-sm text-[#848079]">
+                Não foi possível carregar volume e qualidade desta fazenda.
+              </p>
+            )}
+
+            {!summaryState && (
+              <p className="text-sm text-verde-mata/60">Calculando volume e qualidade...</p>
+            )}
+
+            {summary && (
+              <>
+                <div className="grid grid-cols-2 gap-4 xl:gap-6">
+                  <DashboardStatCard
+                    label="Volume estimado"
+                    value={`${summary.summary.totalEstimatedVolumeM3.toLocaleString('pt-BR', {
+                      maximumFractionDigits: 1,
+                    })} m³`}
+                    subtitle={
+                      summary.summary.isVolumeTotalPartial
+                        ? `parcial: ${summary.summary.plotsWithEstimatedVolume} de ${summary.summary.totalPlots} talhões`
+                        : 'total da fazenda'
+                    }
+                  />
+                  <DashboardStatCard
+                    label="Talhões processados"
+                    value={summary.summary.processedPlots}
+                    subtitle={`de ${summary.summary.totalPlots} talhões`}
+                  />
+                </div>
+
+                <QualityDistributionCard distribution={summary.qualityDistribution} />
+              </>
+            )}
 
             <TreesPerParcelChart
               parcels={dashboard.parcels}
