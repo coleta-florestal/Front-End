@@ -10,9 +10,7 @@ export function proxy(request: NextRequest) {
   const isValid = !!payload && (!payload.exp || payload.exp * 1000 > Date.now());
 
   if (PUBLIC_ROUTES.includes(pathname)) {
-    return isValid
-      ? NextResponse.redirect(new URL('/platform/fazendas', request.url))
-      : NextResponse.next();
+    return isValid ? NextResponse.redirect(new URL('/platform', request.url)) : NextResponse.next();
   }
 
   if (!isValid) {
