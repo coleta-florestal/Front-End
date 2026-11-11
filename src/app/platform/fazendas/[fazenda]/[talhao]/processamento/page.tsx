@@ -13,6 +13,7 @@ import {
 import Button from '@/components/core/Button';
 import { Check } from '@/components/core/Icons';
 import { HypsometricStep, HypsometricValues } from '@/components/processing/HypsometricStep';
+import { ProcessingExportActions } from '@/components/processing/ProcessingExportActions';
 import { ProcessingResultDetails } from '@/components/processing/ProcessingResultDetails';
 import { ProcessingSummaryCard } from '@/components/processing/ProcessingSummaryCard';
 import {
@@ -262,6 +263,7 @@ export default function ProcessamentoPage({ params }: ProcessamentoPageProps) {
             {result && (
               <>
                 <ProcessingSummaryCard result={result} />
+                <ProcessingExportActions result={result} />
                 <ProcessingResultDetails result={result} />
               </>
             )}
