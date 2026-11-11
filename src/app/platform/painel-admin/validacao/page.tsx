@@ -5,16 +5,8 @@ import { useRouter } from 'next/navigation';
 import Topbar from '@/components/ui/Topbar';
 import AdminTabsBar from '@/components/admin/AdminTabBar';
 import ValidationLimitsCard from '@/components/admin/validations/ValidationLimitsCard';
-import { AdminTabOption } from '@/types/admin';
-
-const ADMIN_TABS: AdminTabOption[] = [
-  { key: 'overview', label: 'Visão Geral' },
-  { key: 'users', label: 'Usuários' },
-  { key: 'projects', label: 'Projetos' },
-  { key: 'equations', label: 'Equações' },
-  { key: 'validations', label: 'Validações' },
-  { key: 'audit', label: 'Auditoria' },
-];
+import { AdminTabKey } from '@/types/admin';
+import { ADMIN_TAB_PATHS, ADMIN_TABS } from '@/lib/adminTabs';
 
 export default function AdminValidationsPage() {
   const router = useRouter();
@@ -28,13 +20,7 @@ export default function AdminValidationsPage() {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleTabChange = (key: string) => {
-    if (key === 'overview') {
-      router.push('/platform/painel-admin');
-    } else {
-      router.push(`/platform/painel-admin/${key}`);
-    }
-  };
+  const handleTabChange = (key: AdminTabKey) => router.push(ADMIN_TAB_PATHS[key]);
 
   return (
     <div className="flex min-h-full flex-col bg-[#EFECE4]">

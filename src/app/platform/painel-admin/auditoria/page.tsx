@@ -5,16 +5,8 @@ import { useRouter } from 'next/navigation';
 import Topbar from '@/components/ui/Topbar';
 import AdminTabsBar from '@/components/admin/AdminTabBar';
 import AuditLogCard, { AuditLogEntry } from '@/components/admin/audit/AuditLogCard';
-import { AdminTabOption } from '@/types/admin';
-
-const ADMIN_TABS: AdminTabOption[] = [
-  { key: 'overview', label: 'Visão Geral' },
-  { key: 'users', label: 'Usuários' },
-  { key: 'projects', label: 'Projetos' },
-  { key: 'equations', label: 'Equações' },
-  { key: 'validations', label: 'Validações' },
-  { key: 'audit', label: 'Auditoria' },
-];
+import { AdminTabKey } from '@/types/admin';
+import { ADMIN_TAB_PATHS, ADMIN_TABS } from '@/lib/adminTabs';
 
 // Dados mocados extraídos exatamente do design fornecido
 const MOCK_AUDIT_LOGS: AuditLogEntry[] = [
@@ -46,13 +38,7 @@ export default function AdminAuditPage() {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleTabChange = (key: string) => {
-    if (key === 'overview') {
-      router.push('/platform/painel-admin');
-    } else {
-      router.push(`/platform/painel-admin/${key}`);
-    }
-  };
+  const handleTabChange = (key: AdminTabKey) => router.push(ADMIN_TAB_PATHS[key]);
 
   return (
     <div className="flex min-h-full flex-col bg-[#EFECE4]">
@@ -64,6 +50,10 @@ export default function AdminAuditPage() {
 
       <section className="flex flex-col gap-8 p-6 md:p-10">
         <AdminTabsBar tabs={ADMIN_TABS} activeTab="audit" onSelectTab={handleTabChange} />
+
+        <p className="text-xs font-semibold text-[#6D786E]">
+          Exemplo: a auditoria ainda não tem backend e os registros abaixo são fictícios.
+        </p>
 
         {/* Só renderiza o conteúdo principal no lado do cliente */}
         {isMounted && <AuditLogCard logs={MOCK_AUDIT_LOGS} />}
