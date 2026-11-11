@@ -5,7 +5,6 @@ import { getFarmsWithDetails, toFarm } from '@/app/api/api';
 import type { Farm } from '@/types/farm';
 
 import FarmOverviewSection from '@/components/farm/FarmOverviewSection';
-import { ColetoresList, type Coletor } from '@/components/coletores/ColetoresList';
 import Topbar from '@/components/ui/Topbar';
 import { useRouter } from 'next/navigation';
 
@@ -39,12 +38,6 @@ export default function VisaoGeralPage() {
   const totalParcelas = farms.reduce((acc, farm) => acc + farm.totalParcels, 0);
 
   const talhoesEmAndamento = farms.filter((f) => f.status === 'EM_ANDAMENTO').length;
-
-  const mockColetores: Coletor[] = [
-    { id: '1', nome: 'Eng. Amanda', status: 'EM COLETA' },
-    { id: '2', nome: 'Pedro Silva', status: 'ONLINE' },
-    { id: '3', nome: 'Marina Lima', status: 'OFFLINE' },
-  ];
 
   return (
     <div className="min-h-screen bg-[#F5F2EC]">
@@ -87,8 +80,8 @@ export default function VisaoGeralPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="bg-white rounded-3xl border border-[#D7D0C2] p-6 lg:p-8 lg:col-span-2 flex flex-col">
+        <div className="grid grid-cols-1 gap-6">
+          <div className="bg-white rounded-3xl border border-[#D7D0C2] p-6 lg:p-8 flex flex-col">
             <h2 className="text-[22px] font-bold text-verde-mata font-newsreader mb-6">
               Progresso das Fazendas
             </h2>
@@ -128,8 +121,6 @@ export default function VisaoGeralPage() {
               )}
             </div>
           </div>
-
-          <ColetoresList coletores={mockColetores} className="h-full" />
         </div>
 
         <FarmOverviewSection initialFarms={farms} isAdmin={true} onFarmsChanged={fetchFarms} />

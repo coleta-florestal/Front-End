@@ -2,16 +2,15 @@
 
 import { QUALIDADE_LABELS, TreeData } from './TreeForm';
 import { TreeQuality } from '@/types/farm';
-import { Cloud, Trash } from '../core/Icons';
+import { Trash } from '../core/Icons';
 
 export interface TreeCardProps {
   tree: TreeData;
   onRemove?: (tree: TreeData) => void;
-  onEdit?: (id: string) => void;
   onView?: (tree: TreeData) => void;
 }
 
-export function TreeCard({ tree, onRemove, onEdit, onView }: TreeCardProps) {
+export function TreeCard({ tree, onRemove, onView }: TreeCardProps) {
   const formatNumber = (value: string) =>
     parseFloat(value.replace(',', '.')).toLocaleString('pt-BR', {
       minimumFractionDigits: 1,
@@ -35,20 +34,6 @@ export function TreeCard({ tree, onRemove, onEdit, onView }: TreeCardProps) {
         </div>
 
         <div className="flex items-center gap-2">
-          {onEdit && (
-            <button
-              onClick={(event) => {
-                event.stopPropagation();
-                onEdit(tree.id);
-              }}
-              className="p-1.5 text-[#B88746] hover:bg-[#F0EBE1] rounded-lg transition-colors"
-              title="Sincronizar/Editar"
-              aria-label="Sincronizar/Editar"
-            >
-              <Cloud className="w-5 h-5" />
-            </button>
-          )}
-
           {onRemove && (
             <button
               type="button"
