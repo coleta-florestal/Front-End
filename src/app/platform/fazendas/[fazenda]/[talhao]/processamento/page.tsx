@@ -172,7 +172,8 @@ export default function ProcessamentoPage({ params }: ProcessamentoPageProps) {
     setSubmitError(null);
     setResult(null);
     try {
-      setResult(await processPlot(fazenda, talhao, request));
+      // As árvores vêm no resultado para o CSV por árvore
+      setResult(await processPlot(fazenda, talhao, { ...request, includeTreesInResult: true }));
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : 'Não foi possível processar o talhão');
     } finally {
