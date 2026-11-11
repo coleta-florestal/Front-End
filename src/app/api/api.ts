@@ -233,6 +233,14 @@ export function deletePlot(farmId: string, plotId: string): Promise<null> {
   return authFetch(`${plotsPath(farmId)}/${encodeURIComponent(plotId)}`, { method: 'DELETE' });
 }
 
+export function updatePlot(
+  farmId: string,
+  plotId: string,
+  dto: Partial<CreatePlotDto>,
+): Promise<PrismaPlotRecord> {
+  return authFetch(`${plotsPath(farmId)}/${encodeURIComponent(plotId)}`, jsonBody('PATCH', dto));
+}
+
 export function getSubPlots(farmId: string, plotId: string): Promise<PrismaSubPlotRecord[]> {
   return authFetch(subPlotsPath(farmId, plotId));
 }

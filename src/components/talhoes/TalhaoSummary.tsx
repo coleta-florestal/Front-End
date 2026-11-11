@@ -1,3 +1,5 @@
+import { Edit, Trash } from '../core/Icons';
+
 export interface TalhaoCardProps {
   nome: string;
   status: string;
@@ -6,6 +8,9 @@ export interface TalhaoCardProps {
   parcelasConcluidas: number;
   parcelasTotais: number;
   progresso: number;
+  isAdmin?: boolean;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 export function TalhaoSummary({
@@ -16,9 +21,41 @@ export function TalhaoSummary({
   parcelasConcluidas,
   parcelasTotais,
   progresso,
+  isAdmin,
+  onEdit,
+  onDelete,
 }: TalhaoCardProps) {
   return (
     <div className="bg-white rounded-3xl border border-[#E3DCD0] p-6 w-full max-w-sm shadow-sm">
+      <div className="flex items-center mb-4 gap-2.5 justify-between md:self-center">
+        {isAdmin && (
+          <>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit?.();
+              }}
+              aria-label={`Editar ${nome}`}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#B8CDB9] bg-transparent transition-colors hover:bg-[#E4EDE2]"
+            >
+              <Edit size={18} color="#2C5F2D" />
+            </button>
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete?.();
+              }}
+              aria-label={`Excluir ${nome}`}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#E5B8AD] bg-transparent transition-colors hover:bg-[#FBECE8]"
+            >
+              <Trash size={18} color="#A64B35" />
+            </button>
+          </>
+        )}
+      </div>
       <div className="flex items-center justify-between mb-6 gap-4">
         <h2 className="text-[#245225] font-semibold text-3xl font-newsreader">{nome}</h2>
         <span className="bg-[#FDF4E6] text-[#A06E22] border border-[#E8D1B1] rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">
