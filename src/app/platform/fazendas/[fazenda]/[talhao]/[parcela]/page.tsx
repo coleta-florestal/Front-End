@@ -169,7 +169,7 @@ export default function ParcelaPage({ params }: ParcelaPageProps) {
                     <TreeCard
                       key={tree.id}
                       tree={tree}
-                      onRemove={handleOpenDelete}
+                      onRemove={concluida ? undefined : handleOpenDelete}
                       onView={handleOpenView}
                     />
                   ))}
@@ -197,8 +197,8 @@ export default function ParcelaPage({ params }: ParcelaPageProps) {
               talhao={plotName}
               parcela={nomeParcela}
               onClose={() => setViewModalOpen(false)}
-              onEdit={handleEditTree}
-              onDelete={handleOpenDelete}
+              onEdit={concluida ? undefined : handleEditTree}
+              onDelete={concluida ? undefined : handleOpenDelete}
             />
           )}
 

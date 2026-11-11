@@ -23,6 +23,7 @@ export default function CadastrarArvorePage({ params }: CadastrarArvorePageProps
   const [plotName, setPlotName] = useState('');
   const [subPlotName, setSubPlotName] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [concluida, setConcluida] = useState(false);
 
   const [trees, setTrees] = useState<TreeData[]>([]);
   const [loading, setLoading] = useState(false);
@@ -44,6 +45,7 @@ export default function CadastrarArvorePage({ params }: CadastrarArvorePageProps
         setFarmName(farmRecord.name);
         setPlotName(plotRecord.name);
         setSubPlotName(`Parcela ${subPlotRecord.name}`);
+        setConcluida(subPlotRecord.status === 'COMPLETED');
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Não foi possível carregar a parcela');
       }
@@ -89,10 +91,11 @@ export default function CadastrarArvorePage({ params }: CadastrarArvorePageProps
 
   const handleSaveAll = async () => {
     if (trees.length === 0) {
-      alert('Adicione pelo menos uma árvore antes de salvar.');
+      setError('Adicione pelo menos uma árvore antes de salvar.');
       return;
     }
 
+    setError(null);
     setLoading(true);
 
     // O back só cria uma árvore por vez: as que falharem ficam no lote para não perder a medição.
@@ -114,7 +117,7 @@ export default function CadastrarArvorePage({ params }: CadastrarArvorePageProps
     const reason = firstFailure?.reason instanceof Error ? firstFailure.reason.message : '';
 
     setTrees(failedTrees);
-    alert(
+    setError(
       `${trees.length - failedTrees.length} árvore(s) salva(s). ${failedTrees.length} não foram salvas e continuam no lote. ${reason}`,
     );
   };
@@ -143,7 +146,13 @@ export default function CadastrarArvorePage({ params }: CadastrarArvorePageProps
               </p>
             )}
 
-            <TreeForm onAddTree={handleAddTree} />
+            {concluida ? (
+              <p role="alert" className="text-sm text-coral-flor">
+                Esta parcela já foi concluída; não é possível cadastrar novas árvores.
+              </p>
+            ) : (
+              <TreeForm onAddTree={handleAddTree} />
+            )}
 
             <TreeList
               trees={trees}
