@@ -182,7 +182,7 @@ const plotsPath = (farmId: string) => `${farmPath(farmId)}/plots`;
 const subPlotsPath = (farmId: string, plotId: string) =>
   `${plotsPath(farmId)}/${encodeURIComponent(plotId)}/subplots`;
 const treesPath = (farmId: string, plotId: string, subPlotId: string) =>
-  `${subPlotsPath(farmId, plotId)}/${encodeURIComponent(subPlotId)}/tree`;
+  `${subPlotsPath(farmId, plotId)}/${encodeURIComponent(subPlotId)}/trees`;
 const adminUserPath = (id: string) => `/admin/users/${encodeURIComponent(id)}`;
 const equationPath = (id: string) => `/admin/equations/${encodeURIComponent(id)}`;
 
