@@ -431,3 +431,25 @@ export function Close({ size = 18, color, className, ...props }: IconProps) {
     </svg>
   );
 }
+
+export function Check({ size = 18, color, className, ...props }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 18 18"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      {...props}
+    >
+      <path
+        d="M3.75 9.75l3.5 3.5 7-8"
+        stroke={color ?? 'black'}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
