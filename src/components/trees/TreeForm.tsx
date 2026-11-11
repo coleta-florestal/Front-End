@@ -24,8 +24,8 @@ export interface TreeFormProps {
 
 export const QUALIDADE_LABELS: Record<TreeQuality, string> = {
   NORMAL: 'Normal',
-  BIFURCADA_ACIMA_DE_1_3M: 'Bifurcada',
-  BIFURCADA_ABAIXO_DE_1_3M: 'Dominada',
+  BIFURCADA_ACIMA_DE_1_3M: 'Bifurcada acima de 1,3 m',
+  BIFURCADA_ABAIXO_DE_1_3M: 'Bifurcada abaixo de 1,3 m',
   INCLINADA: 'Inclinada',
   MORTA: 'Morta',
   FALHA: 'Falha',
