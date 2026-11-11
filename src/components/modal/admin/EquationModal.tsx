@@ -1,83 +1,76 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import type { CreateEquationDto } from '@/app/api/api';
 import { Input } from '@/components/core/Input';
 import Button from '@/components/core/Button';
-
-export interface EquationData {
-  id?: string;
-  name: string;
-  b0: number;
-  b1: number;
-  b2: number;
-  isActive: boolean;
-}
+import { EQUATION_MODELS } from '@/lib/equations';
+import type { EquationType, VolumetricEquation } from '@/types/equation';
 
 interface EquationModalProps {
-  isOpen: boolean;
   onClose: () => void;
-  onSave: (data: EquationData) => void;
-  editingEquation: EquationData | null;
+  onSave: (data: CreateEquationDto) => void;
+  editingEquation: VolumetricEquation | null;
   isLoading?: boolean;
+  error?: string | null;
 }
 
+const toText = (value?: number | null) => (value == null ? '' : String(value).replace('.', ','));
+
+// Aceita vírgula ou ponto; texto inválido vira null em vez de 0.
+const parseCoef = (value: string): number | null => {
+  const text = value.trim().replace(',', '.');
+  const parsed = Number(text);
+  return text !== '' && Number.isFinite(parsed) ? parsed : null;
+};
+
+// Montado só quando aberto (a página usa `key`), então o estado nasce das props.
 export default function EquationModal({
-  isOpen,
   onClose,
   onSave,
   editingEquation,
   isLoading = false,
+  error = null,
 }: EquationModalProps) {
-  const [name, setName] = useState<string>('');
-  const [b0, setB0] = useState<string>('');
-  const [b1, setB1] = useState<string>('');
-  const [b2, setB2] = useState<string>('');
-  const [isActive, setIsActive] = useState<boolean>(true);
+  const [name, setName] = useState(editingEquation?.name ?? '');
+  const [modelType, setModelType] = useState<EquationType>(
+    editingEquation?.modelType ?? 'SCHUMACHER_HALL',
+  );
+  const [b0, setB0] = useState(toText(editingEquation?.beta0));
+  const [b1, setB1] = useState(toText(editingEquation?.beta1));
+  const [b2, setB2] = useState(toText(editingEquation?.beta2));
 
-  useEffect(() => {
-    if (!isOpen) return;
+  const model = EQUATION_MODELS[modelType];
+  const beta0 = parseCoef(b0);
+  const beta1 = parseCoef(b1);
+  const beta2 = parseCoef(b2);
 
-    const timer = setTimeout(() => {
-      if (editingEquation) {
-        setName(editingEquation.name);
-        setB0(editingEquation.b0.toString().replace('.', ','));
-        setB1(editingEquation.b1.toString().replace('.', ','));
-        setB2(editingEquation.b2.toString().replace('.', ','));
-        setIsActive(editingEquation.isActive);
-      } else {
-        setName('');
-        setB0('');
-        setB1('');
-        setB2('');
-        setIsActive(true);
-      }
-    }, 0);
-
-    return () => clearTimeout(timer);
-  }, [isOpen, editingEquation]);
-
-  if (!isOpen) return null;
+  const isFormValid =
+    name.trim().length > 0 &&
+    beta0 !== null &&
+    beta1 !== null &&
+    (!model.usesBeta2 || beta2 !== null);
 
   const handleSave = () => {
-    const parseNumber = (val: string) => parseFloat(val.replace(',', '.')) || 0;
+    if (!isFormValid || beta0 === null || beta1 === null) return;
 
     onSave({
-      ...(editingEquation?.id ? { id: editingEquation.id } : {}),
-      name,
-      b0: parseNumber(b0),
-      b1: parseNumber(b1),
-      b2: parseNumber(b2),
-      isActive,
+      name: name.trim(),
+      modelType,
+      beta0,
+      beta1,
+      ...(model.usesBeta2 && beta2 !== null ? { beta2 } : {}),
     });
   };
 
-  const isFormValid = name.trim().length > 0 && b0 !== '' && b1 !== '' && b2 !== '';
+  const coefError = (raw: string, parsed: number | null) =>
+    raw !== '' && parsed === null ? 'Informe um número válido.' : undefined;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6 backdrop-blur-sm">
       <div className="w-full max-w-lg rounded-2xl bg-[#FAF8F3] p-8 shadow-xl">
         <header className="mb-6">
-          <h2 className="font-serif text-2xl font-bold text-[#2C5F2D]">
+          <h2 className="font-serif text-2xl font-bold text-verde-mata">
             {editingEquation ? 'Editar equação' : 'Nova equação'}
           </h2>
         </header>
@@ -88,46 +81,66 @@ export default function EquationModal({
             type="text"
             value={name}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
-            placeholder="ex. Schumacher & Hall"
+            placeholder="ex. Schumacher & Hall - Eucalipto"
           />
+        </div>
+
+        <div className="mb-4 flex flex-col gap-1.5">
+          <label htmlFor="equation-model" className="text-sm font-semibold text-verde-mata">
+            Modelo
+          </label>
+          <select
+            id="equation-model"
+            value={modelType}
+            onChange={(e) => setModelType(e.target.value as EquationType)}
+            className="h-11 w-full rounded-xl border border-[#D7D0C2] bg-white px-4 text-sm font-medium text-[#3B4439] outline-none transition-colors focus:border-verde-mata"
+          >
+            {(Object.keys(EQUATION_MODELS) as EquationType[]).map((type) => (
+              <option key={type} value={type}>
+                {EQUATION_MODELS[type].label}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-verde-mata/60">{model.formula}</p>
         </div>
 
         <div className="mb-6 flex gap-4">
           <Input
             label="β₀"
             type="text"
+            inputMode="decimal"
             value={b0}
+            error={coefError(b0, beta0)}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setB0(e.target.value)}
             placeholder="0,0"
           />
           <Input
             label="β₁"
             type="text"
+            inputMode="decimal"
             value={b1}
+            error={coefError(b1, beta1)}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setB1(e.target.value)}
             placeholder="0,0"
           />
-          <Input
-            label="β₂"
-            type="text"
-            value={b2}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setB2(e.target.value)}
-            placeholder="0,0"
-          />
+          {model.usesBeta2 && (
+            <Input
+              label="β₂"
+              type="text"
+              inputMode="decimal"
+              value={b2}
+              error={coefError(b2, beta2)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setB2(e.target.value)}
+              placeholder="0,0"
+            />
+          )}
         </div>
 
-        <div className="mb-8 flex items-center gap-3">
-          <input
-            type="checkbox"
-            id="status-checkbox"
-            checked={isActive}
-            onChange={(e) => setIsActive(e.target.checked)}
-            className="h-5 w-5 rounded border-[#D7D0C2] text-[#2C5F2D] focus:ring-[#2C5F2D]"
-          />
-          <label htmlFor="status-checkbox" className="text-sm font-medium text-[#3B4439]">
-            Disponível na tela de Processamento (ativa)
-          </label>
-        </div>
+        {error && (
+          <p role="alert" className="mb-4 text-sm font-medium text-coral-flor">
+            {error}
+          </p>
+        )}
 
         <footer className="flex items-center justify-between">
           <Button
@@ -135,14 +148,14 @@ export default function EquationModal({
             label="Cancelar"
             onClick={onClose}
             disabled={isLoading}
-            className="rounded-xl border-2 border-[#D7D0C2] bg-transparent px-6 py-2.5 text-sm font-bold text-[#2C5F2D] transition-colors hover:bg-[#E4EDE2]/50 disabled:opacity-60"
+            className="rounded-xl border-2 border-[#D7D0C2] bg-transparent px-6 py-2.5 text-sm font-bold text-verde-mata transition-colors hover:bg-[#E4EDE2]/50 disabled:opacity-60"
           />
           <Button
             type="button"
             label={isLoading ? 'Salvando...' : 'Salvar equação'}
             onClick={handleSave}
             disabled={!isFormValid || isLoading}
-            className="rounded-xl bg-[#2C5F2D] px-6 py-2.5 text-sm font-bold text-[#FAF8F3] transition-colors hover:bg-[#234B24] disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-xl bg-verde-mata px-6 py-2.5 text-sm font-bold text-[#FAF8F3] transition-colors hover:bg-[#234B24] disabled:cursor-not-allowed disabled:opacity-60"
           />
         </footer>
       </div>
