@@ -1,3 +1,47 @@
+# [1.1.0-rc.2](https://github.com/coleta-florestal/Front-End/compare/v1.1.0-rc.1...v1.1.0-rc.2) (2026-11-11)
+
+### Bug Fixes
+
+- ajustar sidebar e telas de perfil e projetos ([8a3cf93](https://github.com/coleta-florestal/Front-End/commit/8a3cf93e925732b1c88edeedd7ace0fb369494f1))
+- ajustar telas de validação e auditoria do admin ([6d28fa4](https://github.com/coleta-florestal/Front-End/commit/6d28fa44dd1ba54b1d2e34da97628a3c23ab2a7e))
+- atualizei a rota para as árvores de tree para trees ([0689469](https://github.com/coleta-florestal/Front-End/commit/06894693caf2af6797cd67930663c14be4883e6d))
+- consertei enum de qualidade de árvore ([ad7f5ff](https://github.com/coleta-florestal/Front-End/commit/ad7f5ff1e44f2b267f35b181a509f8c0e46138e2))
+- corrigir rótulos de bifurcada na qualidade da árvore ([fd4c9d4](https://github.com/coleta-florestal/Front-End/commit/fd4c9d4fb1b62cf88ea8170dcf26ead6c72b2c03))
+- deixar claro que a etapa hipsométrica é só prévia ([4a31f84](https://github.com/coleta-florestal/Front-End/commit/4a31f84bcf54f9e7a1c66be9f3c6b4c7288d421a))
+- ligar tela de equações do admin ao api.ts ([f9d66e0](https://github.com/coleta-florestal/Front-End/commit/f9d66e01caaf11fe0c7501bf7d9d2b2030a50f7a))
+- retirei alert nativo para cadastro de árvores ([2f37f5d](https://github.com/coleta-florestal/Front-End/commit/2f37f5d9d147fddbb06b20ab1ff7578ba623e5f6))
+- retirei verificação para nº da árvore receber texto ([4819972](https://github.com/coleta-florestal/Front-End/commit/48199721f753bc980646f32c1f599a5e8cc072a5))
+- tornar parcela concluída somente leitura e remover mocks da home ([5b96984](https://github.com/coleta-florestal/Front-End/commit/5b969848b8509c1486fc3255cc0a20c8e00a99e2))
+
+### Features
+
+- adiciona a tela de auditoria para admin ([e6c4e1a](https://github.com/coleta-florestal/Front-End/commit/e6c4e1a56afd827afd058bbb1708cac824b68af4))
+- adiciona os componentes da tela de equação do admin ([7acb4ff](https://github.com/coleta-florestal/Front-End/commit/7acb4ffb8818869cdbf5971e417679c93b9fd0ad))
+- adiciona os modais da tela de equação do admin ([f18f944](https://github.com/coleta-florestal/Front-End/commit/f18f9447eaf24b3050937da84f80a87a5826ccab))
+- adiciona tipagens e interfaces para o modulo de perfil do usuario ([2f0025e](https://github.com/coleta-florestal/Front-End/commit/2f0025e068118168efcff84c053632f37d568807))
+- adicionar tela de configurar processamento do talhao ([c7bca58](https://github.com/coleta-florestal/Front-End/commit/c7bca58c5827b9894d2ee12c858d013f5f83ff31)), closes [#21](https://github.com/coleta-florestal/Front-End/issues/21)
+- adicionei botoes de editar/deletar os talhoes ([58eb0c4](https://github.com/coleta-florestal/Front-End/commit/58eb0c414b84d34e712969a3690ba55145204696))
+- adicionei tela de dashboards ([3585f34](https://github.com/coleta-florestal/Front-End/commit/3585f344e560fa63fdfcde00aeca9329711d4a20))
+- adicionei tela de visao geral ([9f56954](https://github.com/coleta-florestal/Front-End/commit/9f56954cc89d4e537b0e6847bbbf0dc1123fae27))
+- alinhar tela de processamento ao prototipo ([09b0355](https://github.com/coleta-florestal/Front-End/commit/09b0355f750b0839e059adae5bc21b0404d2ac85))
+- baixar CSV do resultado do processamento ([9d296d9](https://github.com/coleta-florestal/Front-End/commit/9d296d9e71103f9bee8e666cdd9e46711e300270))
+- centralizar rotas das abas do admin e navegar pela visão geral ([6f8a0eb](https://github.com/coleta-florestal/Front-End/commit/6f8a0ebb1c77d64e180a30755371928dc355db5a))
+- **frontend:** adiciona a tela de projetos do admin ([2fccd32](https://github.com/coleta-florestal/Front-End/commit/2fccd323b6881764c71cad2d0ef637d02a64317c))
+- **frontend:** adiciona modais UserPermissionsModal e RemoveUserModal com prevencao de hidratacao ([1114088](https://github.com/coleta-florestal/Front-End/commit/11140882b0913916ee8bed22afc3a0c2ecb58389))
+- **frontend:** adiciona tela de equacoes volumétricas no painel admin com tipagem estrita ([238f763](https://github.com/coleta-florestal/Front-End/commit/238f7630a50d41f2f745c777ec5d853193aa5d82))
+- **frontend:** cria componente tipado AuditLogCard para listagem do historico ([ff3ae7c](https://github.com/coleta-florestal/Front-End/commit/ff3ae7cf8a52e0b12df4eb157cc3ba34c74c64e9))
+- **frontend:** cria componentes AdminProjectCard e AdminProjectUserRow com acoes dinamicas ([be414f8](https://github.com/coleta-florestal/Front-End/commit/be414f84360de316f977c2ad721294e071a4d623))
+- **frontend:** cria componentes utilizados na tela de validacao ([eafa5a3](https://github.com/coleta-florestal/Front-End/commit/eafa5a3cc98fdf8d1d963c1d4347e4caf64ee31b))
+- **frontend:** cria ProfileFormCard com validacoes e persistencia local mockada ([c5c0164](https://github.com/coleta-florestal/Front-End/commit/c5c016423fb26a4e4dbf74e8408117c6a60224a1))
+- **frontend:** cria ProfileFormCard com validacoes e persistencia local mockada ([50ff40f](https://github.com/coleta-florestal/Front-End/commit/50ff40f64f2ee02f9715598646566f55e8da601b))
+- **frontend:** implementa a rota e pagina de perfil de usuario ([9638940](https://github.com/coleta-florestal/Front-End/commit/96389404391b998f7b248576ac9e4cb734402acb))
+- **frontend:** implementa pagina de validacoes no painel administrativo com seguranca de hidratacao ([4742127](https://github.com/coleta-florestal/Front-End/commit/4742127f5f09d976d9e9233483d61443e1cf7a65))
+- **frontend:** integra perfil na sidebar com navegacao e sincronizacao reativa ([6f48c50](https://github.com/coleta-florestal/Front-End/commit/6f48c505598ed9c7d8b55936f0871ee69c410ec0))
+- mostrar detalhes do resultado do processamento ([f1b8ddb](https://github.com/coleta-florestal/Front-End/commit/f1b8ddbabc5601dd2912752f0a700d2002a321ed))
+- restringir o processamento a administradores ([4116b82](https://github.com/coleta-florestal/Front-End/commit/4116b82efcb0bc39cc51ad1746a109b0f351e372))
+- tipar resultado completo do processamento ([6c2972f](https://github.com/coleta-florestal/Front-End/commit/6c2972f0aeb5cf972efa3c9ad75543c13217dec7))
+- **types:** adiciona tipagens de projetos e papeis de usuarios para painel administrativo ([70fd54e](https://github.com/coleta-florestal/Front-End/commit/70fd54e681ee367ddaf10c41b443ee3deae230d2))
+
 # [1.1.0-rc.1](https://github.com/coleta-florestal/Front-End/compare/v1.0.0...v1.1.0-rc.1) (2026-11-04)
 
 ### Bug Fixes
