@@ -165,7 +165,7 @@ export default function AdminProjectsPage() {
       <section className="flex flex-col gap-8 p-6 md:p-10">
         <AdminTabsBar tabs={ADMIN_TABS} activeTab="projects" onSelectTab={handleTabChange} />
 
-        <p className="text-xs font-semibold text-[#6D786E]">
+        <p className="text-sm font-semibold text-[#6D786E]">
           Dados locais: esta tela ainda não tem backend e guarda tudo só neste navegador.
         </p>
 

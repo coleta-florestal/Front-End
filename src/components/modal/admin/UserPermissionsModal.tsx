@@ -74,7 +74,7 @@ export default function UserPermissionsModal({
         </header>
 
         <div className="mb-6 flex flex-col gap-1.5">
-          <label className="text-xs font-bold text-[#3B4439]">Usuário</label>
+          <label className="text-sm font-bold text-[#3B4439]">Usuário</label>
           <select
             value={selectedUser}
             disabled={!!editingUser}
@@ -90,7 +90,7 @@ export default function UserPermissionsModal({
         </div>
 
         <div className="mb-8 flex flex-col gap-2">
-          <label className="text-xs font-bold text-[#3B4439]">Regiões / talhões liberados</label>
+          <label className="text-sm font-bold text-[#3B4439]">Regiões / talhões liberados</label>
           <div className="flex flex-wrap gap-2">
             {AVAILABLE_PLOTS.map((plot) => {
               const isSelected = selectedPlots.includes(plot);
@@ -99,7 +99,7 @@ export default function UserPermissionsModal({
                   key={plot}
                   type="button"
                   onClick={() => togglePlot(plot)}
-                  className={`rounded-xl border px-3.5 py-1.5 text-xs font-bold transition-colors ${
+                  className={`rounded-xl border px-3.5 py-1.5 text-sm font-bold transition-colors ${
                     isSelected
                       ? 'border-[#2C5F2D] bg-[#E4EDE2] text-[#2C5F2D]'
                       : 'border-[#D7D0C2] bg-white text-[#6D786E] hover:border-[#2C5F2D] hover:text-[#2C5F2D]'

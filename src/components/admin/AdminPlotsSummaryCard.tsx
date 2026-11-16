@@ -26,8 +26,8 @@ export default function AdminPlotsSummaryCard({
         </div>
 
         <div className="flex flex-col">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#232922]">TALHÕES</span>
-          <span className="text-xs text-[#6E776B]">Registros coletados pela turma</span>
+          <span className="text-sm font-bold uppercase tracking-wider text-[#232922]">TALHÕES</span>
+          <span className="text-sm text-[#6E776B]">Registros coletados pela turma</span>
         </div>
       </div>
 
@@ -35,21 +35,21 @@ export default function AdminPlotsSummaryCard({
         <strong className="text-4xl font-bold text-[#2C5F2D]">
           {summary.totalRegisteredParcels}
         </strong>
-        <span className="mt-0.5 text-xs text-[#6E776B]">Parcelas cadastradas</span>
+        <span className="mt-0.5 text-sm text-[#6E776B]">Parcelas cadastradas</span>
       </div>
 
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-[#2C5F2D]" aria-hidden="true" />
-            <span className="text-xs font-bold text-[#2C5F2D]">
+            <span className="text-sm font-bold text-[#2C5F2D]">
               {summary.processedCount} processadas
             </span>
           </div>
 
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-[#D9822B]" aria-hidden="true" />
-            <span className="text-xs font-bold text-[#B86B19]">
+            <span className="text-sm font-bold text-[#B86B19]">
               {summary.pendingCount} pendentes
             </span>
           </div>
@@ -59,7 +59,7 @@ export default function AdminPlotsSummaryCard({
           type="button"
           label="Ver talhões"
           onClick={onViewPlots}
-          className="rounded-xl bg-[#2C5F2D] px-4 py-2.5 text-xs font-bold text-[#FAF8F3] shadow-none transition-colors hover:bg-[#234B24]"
+          className="rounded-xl bg-[#2C5F2D] px-4 py-2.5 text-sm font-bold text-[#FAF8F3] shadow-none transition-colors hover:bg-[#234B24]"
         />
       </div>
     </article>
