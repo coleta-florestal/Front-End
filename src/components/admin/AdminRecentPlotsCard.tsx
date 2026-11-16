@@ -22,7 +22,7 @@ export default function AdminRecentPlotsCard({
       <div>
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h3 className="text-lg font-bold text-[#2C5F2D]">Talhões recentes</h3>
+            <h3 className="text-lg font-bold text-verde-mata">Talhões recentes</h3>
             <p className="mt-0.5 text-xs text-[#6E776B]">Últimos registros adicionados à turma.</p>
           </div>
 
@@ -30,7 +30,7 @@ export default function AdminRecentPlotsCard({
             type="button"
             label="Ver todas"
             onClick={onViewAll}
-            className="rounded-xl border border-[#B8CDB9] bg-white px-4 py-1.5 text-xs font-bold text-[#2C5F2D] shadow-none transition-colors hover:bg-[#E4EDE2]"
+            className="rounded-xl border border-[#B8CDB9] bg-white px-4 py-1.5 text-xs font-bold text-verde-mata shadow-none transition-colors hover:bg-[#E4EDE2]"
           />
         </div>
 

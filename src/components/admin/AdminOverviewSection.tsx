@@ -102,8 +102,6 @@ export default function AdminOverviewSection({
             pendingRequest={pendingRequest}
             onApprove={handleApproveUser}
             onReject={handleRejectUser}
-            onInviteUser={() => setActiveTab('users')}
-            onNewSample={handleNavigateToFarms}
           />
         </div>
 

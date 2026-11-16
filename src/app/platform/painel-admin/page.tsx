@@ -42,7 +42,7 @@ function toAdminData(approved: User[], pending: User[], farms: PrismaFarmRecord[
 
   const recentPlots = [...subPlots]
     .sort((a, b) => b.subPlot.createdAt.localeCompare(a.subPlot.createdAt))
-    .slice(0, 3)
+    .slice(0, 2)
     .map(({ farm, plot, subPlot }) => ({
       id: subPlot.id,
       code: `Parcela ${subPlot.name}`,
@@ -87,7 +87,7 @@ export default function AdminDashboardPage() {
   }, [load]);
 
   return (
-    <section className="flex flex-col gap-6 bg-[#EFECE4] p-6 md:p-8">
+    <section className="flex flex-col gap-6">
       <Topbar
         title="Administração"
         description="Visão geral, usuários e amostras"
@@ -100,17 +100,19 @@ export default function AdminDashboardPage() {
         </p>
       )}
 
-      {!data && !error && <p className="text-sm text-[#6E776B]">Carregando painel...</p>}
+      {!data && !error && <p className="text-sm text-[#6E776B] px-4">Carregando painel...</p>}
 
       {data && (
-        <AdminOverviewSection
-          auditEntries={[]}
-          usersSummary={data.usersSummary}
-          plotsSummary={data.plotsSummary}
-          pendingRequest={data.pendingRequest}
-          recentPlots={data.recentPlots}
-          onChanged={load}
-        />
+        <div className="flex flex-col px-4 lg:px-6">
+          <AdminOverviewSection
+            auditEntries={[]}
+            usersSummary={data.usersSummary}
+            plotsSummary={data.plotsSummary}
+            pendingRequest={data.pendingRequest}
+            recentPlots={data.recentPlots}
+            onChanged={load}
+          />
+        </div>
       )}
     </section>
   );
