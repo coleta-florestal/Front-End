@@ -2,6 +2,7 @@ export interface FarmCardProps {
   nome: string;
   status: string;
   localizacao: string;
+  descricao: string;
   responsavel: string;
   talhoes: number;
   areaTotal: string;
@@ -14,6 +15,7 @@ export function FarmCard({
   nome,
   status,
   localizacao,
+  descricao,
   responsavel,
   talhoes,
   areaTotal,
@@ -24,7 +26,7 @@ export function FarmCard({
   return (
     <div className="bg-white rounded-[20px] border border-[#E3DCD0] p-6 w-full">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="flex flex-col gap-2.5">
+        <div className="flex flex-col gap-2.5 sm:w-auto lg:w-190">
           <div className="flex items-center gap-3">
             <h2 className="text-[#245225] font-semibold text-2xl md:text-3xl font-newsreader">
               {nome}
@@ -33,9 +35,12 @@ export function FarmCard({
               {status}
             </span>
           </div>
-          <p className="text-[#848079] text-sm font-medium">
-            {localizacao} · responsável {responsavel}
-          </p>
+          <div className="flex flex-col gap-2">
+            <p className="text-[#848079] text-sm font-medium">
+              {localizacao} · responsável {responsavel}
+            </p>
+            <p className="text-[#848079] text-md font-medium">{descricao}</p>
+          </div>
         </div>
 
         <div className="flex flex-wrap md:flex-nowrap gap-8 md:gap-12">

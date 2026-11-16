@@ -2,6 +2,7 @@ export interface TalhaoCardProps {
   nome: string;
   status: string;
   localizacao: string;
+  descricao: string;
   responsavel: string;
   inicio: string;
   parcelas: number;
@@ -14,6 +15,7 @@ export function TalhaoCard({
   nome,
   status,
   localizacao,
+  descricao,
   responsavel,
   inicio,
   parcelas,
@@ -24,7 +26,7 @@ export function TalhaoCard({
   return (
     <div className="bg-white rounded-3xl border border-[#D7D0C2] p-6">
       <div className="flex flex-col items-center lg:flex-row lg:justify-between gap-4">
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 sm:w-auto lg:w-170">
           <div className="flex items-center gap-3">
             <h2 className="text-verde-mata font-semibold text-2xl lg:text-4xl leading-tight font-newsreader">
               {nome}
@@ -33,9 +35,12 @@ export function TalhaoCard({
               {status}
             </span>
           </div>
-          <p className="text-verde-eucalipto text-sm leading-relaxed">
-            {localizacao} · {responsavel} · início {inicio}
-          </p>
+          <div className="flex flex-col gap-2">
+            <p className="text-verde-eucalipto text-sm leading-relaxed">
+              {localizacao} · {responsavel} · início {inicio}
+            </p>
+            <p className="text-[#848079] text-md font-medium">{descricao}</p>
+          </div>
         </div>
 
         <div className="lg:flex flex-wrap lg:justify-end justify-between gap-8 grid grid-cols-2 lg:gap-8 text-right lg:text-left">
