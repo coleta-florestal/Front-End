@@ -28,7 +28,7 @@ export default function AdminProjectUserRow({ user, onEdit, onRemove }: AdminPro
         {user.plots.map((plot) => (
           <span
             key={plot}
-            className="rounded-md bg-[#E4EDE2] px-2.5 py-1 text-xs font-semibold text-[#2C5F2D]"
+            className="rounded-md bg-[#E4EDE2] px-2.5 py-1 text-sm font-semibold text-[#2C5F2D]"
           >
             {plot}
           </span>
@@ -39,14 +39,14 @@ export default function AdminProjectUserRow({ user, onEdit, onRemove }: AdminPro
         <button
           type="button"
           onClick={() => onEdit(user)}
-          className="rounded-lg border border-[#D7D0C2] bg-transparent px-4 py-2 text-xs font-bold text-[#2C5F2D] transition-colors hover:bg-[#E4EDE2]/50"
+          className="rounded-lg border border-[#D7D0C2] bg-transparent px-4 py-2 text-sm font-bold text-[#2C5F2D] transition-colors hover:bg-[#E4EDE2]/50"
         >
           Editar permissões
         </button>
         <button
           type="button"
           onClick={() => onRemove(user)}
-          className="rounded-lg border border-[#F2B8AD] bg-transparent px-4 py-2 text-xs font-bold text-[#C85A46] transition-colors hover:bg-[#FDECE9]/50"
+          className="rounded-lg border border-[#F2B8AD] bg-transparent px-4 py-2 text-sm font-bold text-[#C85A46] transition-colors hover:bg-[#FDECE9]/50"
         >
           Remover
         </button>

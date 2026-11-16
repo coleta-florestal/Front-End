@@ -51,7 +51,7 @@ export default function AdminAuditPage() {
       <section className="flex flex-col gap-8 p-6 md:p-10">
         <AdminTabsBar tabs={ADMIN_TABS} activeTab="audit" onSelectTab={handleTabChange} />
 
-        <p className="text-xs font-semibold text-[#6D786E]">
+        <p className="text-sm font-semibold text-[#6D786E]">
           Exemplo: a auditoria ainda não tem backend e os registros abaixo são fictícios.
         </p>
 

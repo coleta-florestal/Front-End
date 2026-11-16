@@ -50,7 +50,7 @@ export default function RemoveUserModal({ isOpen, onClose, onConfirm }: RemoveUs
               <line x1="12" y1="17" x2="12.01" y2="17" />
             </svg>
           </div>
-          <p className="text-xs font-semibold leading-relaxed">
+          <p className="text-sm font-semibold leading-relaxed">
             Depois de removido, a conta será eliminada do sistema. Será necessária uma nova
             solicitação de cadastro para acessar o Glupta novamente
           </p>

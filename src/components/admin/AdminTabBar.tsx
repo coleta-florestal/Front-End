@@ -19,7 +19,7 @@ export default function AdminTabsBar({ tabs, activeTab, onSelectTab }: AdminTabs
             type="button"
             label={tab.label}
             onClick={() => onSelectTab(tab.key)}
-            className={`rounded-xl px-5 py-2.5 text-xs transition-colors ${
+            className={`rounded-xl px-5 py-2.5 text-sm transition-colors ${
               isActive
                 ? 'bg-verde-mata font-bold text-[#FAF8F3] shadow-sm'
                 : 'border border-[#DFDBD0] bg-[#FAF8F3] font-semibold text-[#3B4439] shadow-none hover:bg-[#E4EDE2] hover:text-verde-mata'

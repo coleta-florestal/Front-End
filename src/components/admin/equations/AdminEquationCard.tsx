@@ -25,7 +25,7 @@ export default function AdminEquationCard({
   return (
     <article className="flex w-full flex-col justify-between rounded-2xl border border-[#DFDBD0] bg-white p-5 shadow-sm transition-shadow hover:shadow-md sm:flex-row sm:items-center">
       <div className="mb-4 flex flex-col gap-1 sm:mb-0">
-        <h3 className="text-lg font-bold text-verde-mata">{equation.name}</h3>
+        <h3 className="text-xl font-bold text-verde-mata font-newsreader">{equation.name}</h3>
         <p className="text-sm font-medium text-[#6D786E]">
           {model?.label ?? equation.modelType} · β₀ {formatCoef(equation.beta0)} · β₁{' '}
           {formatCoef(equation.beta1)}
@@ -35,11 +35,11 @@ export default function AdminEquationCard({
 
       <div className="flex items-center gap-3">
         {equation.isActive ? (
-          <span className="rounded-full bg-[#E4EDE2] px-3 py-1 text-xs font-bold text-verde-mata">
+          <span className="rounded-full bg-[#E4EDE2] px-3 py-1 text-sm font-bold text-verde-mata">
             ATIVA
           </span>
         ) : (
-          <span className="rounded-full bg-[#EFECE4] px-3 py-1 text-xs font-bold text-[#6D786E]">
+          <span className="rounded-full bg-[#EFECE4] px-3 py-1 text-sm font-bold text-[#6D786E]">
             INATIVA
           </span>
         )}
