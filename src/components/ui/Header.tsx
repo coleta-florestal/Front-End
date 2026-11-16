@@ -6,6 +6,7 @@ import Link from 'next/link';
 import logo from '../../../public/assets/apenas_circulo.png';
 import { House, Farm, Dashboard, Admin } from '../core/Icons';
 import { ReactNode } from 'react';
+import { useProfileIdentity } from '@/lib/profile';
 
 type NavLink = {
   label: string;
@@ -42,6 +43,8 @@ const navLinks: NavLink[] = [
 
 export default function Header({ isAdmin }: { isAdmin: boolean }) {
   const pathname = usePathname();
+  const { initials } = useProfileIdentity();
+  const isProfileActive = pathname.startsWith('/platform/perfil');
 
   return (
     <header className="lg:hidden fixed top-0 left-0 right-0 z-40 h-16 bg-verde-mata border-b border-creme-flor/20">
@@ -57,6 +60,16 @@ export default function Header({ isAdmin }: { isAdmin: boolean }) {
             <h1 className="text-2xl font-semibold">Glupta</h1>
             <p className="text-xs font-bold text-verde-eucalipto">COLETA FLORESTAL</p>
           </div>
+        </Link>
+
+        <Link
+          href="/platform/perfil"
+          aria-label="Meu perfil"
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-serif text-sm font-bold text-creme-flor transition-colors ${
+            isProfileActive ? 'bg-coral-flor' : 'bg-creme-flor/20'
+          }`}
+        >
+          {initials}
         </Link>
       </div>
 
