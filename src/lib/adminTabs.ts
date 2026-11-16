@@ -3,8 +3,7 @@ import type { AdminTabKey, AdminTabOption } from '@/types/admin';
 export const ADMIN_TABS: AdminTabOption[] = [
   { key: 'overview', label: 'Visão Geral' },
   { key: 'users', label: 'Usuários' },
-  // Escondida: a aba é toda mockada e o back ainda não tem endpoint de projetos.
-  // { key: 'projects', label: 'Projetos' },
+  { key: 'projects', label: 'Projetos' },
   { key: 'equations', label: 'Equações' },
   { key: 'validations', label: 'Validações' },
   { key: 'audit', label: 'Auditoria' },

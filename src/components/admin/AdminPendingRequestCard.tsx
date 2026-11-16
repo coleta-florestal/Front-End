@@ -8,25 +8,21 @@ interface AdminPendingRequestCardProps {
   pendingRequest: AdminPendingUserRequest | null;
   onApprove: (userId: string, role: AdminUserRole) => void;
   onReject: (userId: string) => void;
-  onInviteUser: () => void;
-  onNewSample: () => void;
 }
 
 export default function AdminPendingRequestCard({
   pendingRequest,
   onApprove,
   onReject,
-  onInviteUser,
-  onNewSample,
 }: AdminPendingRequestCardProps) {
   const [selectedRole, setSelectedRole] = useState<AdminUserRole>('USER');
 
   return (
-    <article className="flex flex-col justify-between rounded-2xl border border-[#E2DDD2] bg-[#FAF8F3] p-6 shadow-sm">
+    <article className="flex flex-col justify-between rounded-2xl border border-[#E2DDD2] bg-[#FAF8F3] p-6 shadow-sm pb-11">
       <div>
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div>
-            <h3 className="text-lg font-bold text-[#2C5F2D]">Solicitação pendente</h3>
+            <h3 className="text-lg font-bold text-verde-mata">Solicitação pendente</h3>
             <p className="mt-0.5 text-xs text-[#6E776B]">
               Defina o papel de acesso antes de aprovar.
             </p>
@@ -42,7 +38,7 @@ export default function AdminPendingRequestCard({
         {pendingRequest ? (
           <div className="mt-4 rounded-xl border border-[#E2DDD2] bg-[#F4F1EA] p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#DCE8DA] text-xs font-bold text-[#2C5F2D]">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#DCE8DA] text-xs font-bold text-verde-mata">
                 {pendingRequest.initials}
               </div>
 
@@ -55,7 +51,7 @@ export default function AdminPendingRequestCard({
             <div className="mt-4">
               <label
                 htmlFor="pending-user-role"
-                className="mb-1.5 block text-xs font-bold text-[#2C5F2D]"
+                className="mb-1.5 block text-xs font-bold text-verde-mata"
               >
                 Papel de acesso
               </label>
@@ -65,10 +61,10 @@ export default function AdminPendingRequestCard({
                   id="pending-user-role"
                   value={selectedRole}
                   onChange={(event) => setSelectedRole(event.target.value as AdminUserRole)}
-                  className="h-10 flex-1 rounded-lg border border-[#D7D0C2] bg-white px-3 text-xs font-medium text-[#2C5F2D] focus:border-[#2C5F2D] focus:outline-none"
+                  className="h-10 flex-1 rounded-lg border border-[#D7D0C2] bg-white px-3 text-xs font-medium text-verde-mata focus:border-verde-mata focus:outline-none"
                 >
-                  <option value="USER">Coletor (USER)</option>
-                  <option value="ADMIN">Administrador (ADMIN)</option>
+                  <option value="USER">Coletor</option>
+                  <option value="ADMIN">Administrador</option>
                 </select>
 
                 <div className="flex items-center gap-2">
@@ -83,7 +79,7 @@ export default function AdminPendingRequestCard({
                     type="button"
                     label="Aprovar"
                     onClick={() => onApprove(pendingRequest.id, selectedRole)}
-                    className="h-10 rounded-lg bg-[#2C5F2D] px-5 text-xs font-bold text-[#FAF8F3] shadow-none transition-colors hover:bg-[#234B24]"
+                    className="h-10 rounded-lg bg-verde-mata px-5 text-xs font-bold text-[#FAF8F3] shadow-none transition-colors hover:bg-[#234B24]"
                   />
                 </div>
               </div>
@@ -96,24 +92,6 @@ export default function AdminPendingRequestCard({
             </span>
           </div>
         )}
-      </div>
-
-      <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-[#E5E0D5] pt-4">
-        <span className="text-xs font-bold text-[#232922]">Ações rápidas</span>
-
-        <Button
-          type="button"
-          label="+ Convidar usuário"
-          onClick={onInviteUser}
-          className="rounded-xl border border-[#B8CDB9] bg-white px-4 py-2 text-xs font-bold text-[#2C5F2D] shadow-none transition-colors hover:bg-[#E4EDE2]"
-        />
-
-        <Button
-          type="button"
-          label="+ Nova amostra"
-          onClick={onNewSample}
-          className="rounded-xl border border-[#B8CDB9] bg-white px-4 py-2 text-xs font-bold text-[#2C5F2D] shadow-none transition-colors hover:bg-[#E4EDE2]"
-        />
       </div>
     </article>
   );
