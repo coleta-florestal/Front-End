@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import { decodeJwt, getAccessToken } from '@/lib/auth';
+import { UserProfile } from '@/types/profile';
 
-const MOCK_STORAGE_KEY = 'glupta_mock_profile';
 const SEPARATOR = '\n';
 
 export function getInitialsFromName(name: string, fallback: string): string {
@@ -11,16 +11,11 @@ export function getInitialsFromName(name: string, fallback: string): string {
   return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
 }
 
+// useSyncExternalStore compara snapshots por valor: uma string evita re-render a cada leitura.
 function getSnapshot(): string {
-  let name = '';
-  try {
-    const saved = localStorage.getItem(MOCK_STORAGE_KEY);
-    if (saved) name = (JSON.parse(saved).name ?? '').trim();
-  } catch {}
-
   const token = getAccessToken();
-  const email = (token && decodeJwt<{ email?: string }>(token)?.email) || '';
-  return `${name}${SEPARATOR}${email}`;
+  const payload = token ? decodeJwt<{ name?: string; email?: string }>(token) : null;
+  return `${(payload?.name ?? '').trim()}${SEPARATOR}${payload?.email ?? ''}`;
 }
 
 function subscribe(onChange: () => void) {
@@ -28,16 +23,16 @@ function subscribe(onChange: () => void) {
   return () => window.removeEventListener('profile-updated', onChange);
 }
 
-export function useProfileIdentity(): { name: string; initials: string } {
+export function useProfileIdentity(): UserProfile {
   const snapshot = useSyncExternalStore(subscribe, getSnapshot, () => SEPARATOR);
   const [name, email] = snapshot.split(SEPARATOR);
 
-  if (name) return { name, initials: getInitialsFromName(name, '?') };
+  if (name) return { name, email, initials: getInitialsFromName(name, '?') };
 
+  // Tokens emitidos antes do back incluir o nome no JWT só trazem o email.
   const emailName = email
     .split('@')[0]
     .split(/[._-]+/)
     .join(' ');
-  // return { name: email || 'Meu perfil', initials: getInitialsFromName(emailName, '?') };
-  return { name: email || 'Meu perfil', initials: getInitialsFromName(emailName, '?') };
+  return { name: email || 'Meu perfil', email, initials: getInitialsFromName(emailName, '?') };
 }
