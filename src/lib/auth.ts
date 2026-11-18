@@ -13,8 +13,10 @@ interface JwtPayload {
 export function decodeJwt<T = JwtPayload>(token: string): T | null {
   try {
     const payload = token.split('.')[1];
-    const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
-    return JSON.parse(json) as T;
+    // atob devolve bytes soltos: sem o TextDecoder, acentos do nome ("João") viram "JoÃ£o".
+    const binary = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+    return JSON.parse(new TextDecoder().decode(bytes)) as T;
   } catch {
     return null;
   }
