@@ -1,7 +1,6 @@
 import { EquationType } from './equation';
 import { TreeQuality } from './farm';
 
-// O back-end (PR #38) só calcula Amostragem Aleatória Simples
 export type SamplingMethod = 'AAS';
 
 export interface CustomEquationDto {
@@ -17,12 +16,17 @@ export interface ProcessInventoryDto {
   equation?: CustomEquationDto;
   confidenceLevel?: number;
   errorThresholdPercent?: number;
+  defaultParcelaAreaM2?: number;
   finitePopulation?: boolean;
-  // Sem isso o back não devolve as árvores de cada parcela, e o CSV por árvore fica vazio.
+  validationLimits?: {
+    minDapCm?: number;
+    maxDapCm?: number;
+    minHeightM?: number;
+    maxHeightM?: number;
+  };
   includeTreesInResult?: boolean;
 }
 
-// Espelha processing.types.ts do back-end (feat/56-processing-pipeline).
 export interface TreeProcessingResult {
   id?: string;
   name?: string;
@@ -49,6 +53,17 @@ export interface SubPlotProcessingResult {
   meanDapCm: number;
   meanHeightM: number | null;
   trees?: TreeProcessingResult[];
+  plotId?: string;
+  plotName?: string;
+}
+
+export interface PlotProcessingResult {
+  plotId: string;
+  plotName: string;
+  plotAreaHa: number;
+  totalSubPlotsSampled: number;
+  meanVolumePerHaM3: number;
+  estimatedTotalVolumeM3: number;
 }
 
 export interface StatisticalMetricResult {
@@ -87,7 +102,6 @@ export interface ProcessingContext {
   plotName: string;
   plotAreaHa?: number | null;
   equationUsed: ProcessingEquationContext;
-  // Date no back; no JSON chega como string ISO
   processedAt: string;
 }
 
@@ -134,5 +148,6 @@ export interface InventoryProcessingResult {
   };
   qualityDistribution: QualityClassResult[];
   diameterClasses: DiameterClassResult[];
+  plots?: PlotProcessingResult[];
   subPlots: SubPlotProcessingResult[];
 }

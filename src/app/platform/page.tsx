@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { getFarmsWithDetails, toFarm } from '@/app/api/api';
+import { isCurrentUserAdmin } from '@/lib/auth';
 import type { Farm } from '@/types/farm';
 
 import FarmOverviewSection from '@/components/farm/FarmOverviewSection';
@@ -11,6 +12,7 @@ import { useRouter } from 'next/navigation';
 export default function VisaoGeralPage() {
   const [farms, setFarms] = useState<Farm[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
 
   const fetchFarms = useCallback(
@@ -18,6 +20,7 @@ export default function VisaoGeralPage() {
       getFarmsWithDetails()
         .then((data) => {
           setFarms(data.map(toFarm));
+          setIsAdmin(isCurrentUserAdmin());
         })
         .catch((error) => {
           console.error('Erro ao carregar fazendas:', error);
@@ -123,7 +126,7 @@ export default function VisaoGeralPage() {
           </div>
         </div>
 
-        <FarmOverviewSection initialFarms={farms} isAdmin={true} onFarmsChanged={fetchFarms} />
+        <FarmOverviewSection initialFarms={farms} isAdmin={isAdmin} onFarmsChanged={fetchFarms} />
       </main>
     </div>
   );
