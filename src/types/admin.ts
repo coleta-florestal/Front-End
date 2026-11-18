@@ -13,6 +13,22 @@ export interface AdminAuditEntry {
   targetText: string;
 }
 
+export type AuditAction =
+  'CREATE' | 'UPDATE' | 'DELETE' | 'COMPLETE' | 'REOPEN' | 'APPROVE' | 'REJECT';
+
+export type AuditEntity =
+  'USER' | 'FARM' | 'PLOT' | 'SUBPLOT' | 'TREE' | 'EQUATION' | 'VALIDATION_SETTINGS';
+
+export interface AuditLog {
+  id: string;
+  action: AuditAction;
+  entity: AuditEntity;
+  userId: string | null;
+  metadata: Record<string, unknown> | null;
+  createdAt: string;
+  user: { id: string; name: string; email: string } | null;
+}
+
 export interface ValidationSettings {
   minDapCm: number;
   maxDapCm: number;
@@ -48,17 +64,12 @@ export interface AdminRecentPlotItem {
   status: RecentPlotStatus;
 }
 
-// Tipo de papel definido localmente para evitar importação externa da branch dev
 export type AdminUserRole = 'USER' | 'ADMIN' | 'SUPER_ADMIN';
 
 export interface ApproveUserPayload {
   userId: string;
   role: AdminUserRole;
 }
-
-// ----------------------------------------------------
-// Tipagens adicionadas para a aba de Projetos (Fazendas)
-// ----------------------------------------------------
 
 export type ProjectUserRoleType = 'SuperAdmin' | 'Admin' | 'User';
 
@@ -67,7 +78,6 @@ export interface ProjectUser {
   name: string;
   roleTitle: string;
   roleType: ProjectUserRoleType;
-  plots: string[];
 }
 
 export interface AdminProjectItem {
@@ -75,4 +85,13 @@ export interface AdminProjectItem {
   title: string;
   description: string;
   users: ProjectUser[];
+}
+
+export interface AdminProjectRecord {
+  id: string;
+  name: string;
+  address: string;
+  description: string | null;
+  owner: { id: string; name: string };
+  users: { id: string; name: string; email: string; role: AdminUserRole }[];
 }

@@ -1,6 +1,6 @@
 import type { TreeData } from '@/components/trees/TreeForm';
 import { clearAuthCookies, getAccessToken } from '@/lib/auth';
-import { ValidationSettings } from '@/types/admin';
+import { AdminProjectRecord, AuditLog, ValidationSettings } from '@/types/admin';
 import type { FarmDashboardSummary } from '@/types/dashboard';
 import { EquationType, VolumetricEquation } from '@/types/equation';
 import { InventoryProcessingResult, ProcessInventoryDto } from '@/types/processing';
@@ -215,7 +215,7 @@ export function updateFarm(farmId: string, dto: Partial<CreateFarmDto>): Promise
   return authFetch(farmPath(farmId), jsonBody('PATCH', dto));
 }
 
-export function deleteFarm(farmId: string): Promise<null> {
+export function deleteFarm(farmId: string): Promise<{ message: string } | null> {
   return authFetch(farmPath(farmId), { method: 'DELETE' });
 }
 
@@ -394,7 +394,7 @@ export function deactivateUser(id: string): Promise<User> {
   return authFetch(`${adminUserPath(id)}/deactivate`, { method: 'PATCH' });
 }
 
-export function deleteUser(id: string): Promise<null> {
+export function deleteUser(id: string): Promise<{ message: string } | null> {
   return authFetch(adminUserPath(id), { method: 'DELETE' });
 }
 
@@ -433,6 +433,25 @@ export function updateValidationSettings(dto: ValidationSettings): Promise<Valid
   return authFetch('/admin/validations', jsonBody('PUT', dto));
 }
 
+export function getAuditLogs(): Promise<AuditLog[]> {
+  return authFetch('/admin/audit');
+}
+
+export function getAdminProjects(): Promise<AdminProjectRecord[]> {
+  return authFetch('/admin/projects');
+}
+
+const projectUserPath = (farmId: string, userId: string) =>
+  `/admin/projects/${encodeURIComponent(farmId)}/users/${encodeURIComponent(userId)}`;
+
+export function addProjectUser(farmId: string, userId: string): Promise<{ message: string }> {
+  return authFetch(projectUserPath(farmId, userId), { method: 'POST' });
+}
+
+export function removeProjectUser(farmId: string, userId: string): Promise<{ message: string }> {
+  return authFetch(projectUserPath(farmId, userId), { method: 'DELETE' });
+}
+
 export function getFarmDashboardSummary(farmId: string): Promise<FarmDashboardSummary> {
   return authFetch(`/dashboard/${encodeURIComponent(farmId)}`);
 }
@@ -446,6 +465,13 @@ export function processPlot(
     `/processing/farms/${encodeURIComponent(farmId)}/plots/${encodeURIComponent(plotId)}`,
     jsonBody('POST', dto),
   );
+}
+
+export function processFarm(
+  farmId: string,
+  dto: ProcessInventoryDto,
+): Promise<InventoryProcessingResult> {
+  return authFetch(`/processing/farms/${encodeURIComponent(farmId)}`, jsonBody('POST', dto));
 }
 
 export const FARM_STATUS_LABELS: Record<FarmStatus, string> = {
