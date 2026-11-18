@@ -52,6 +52,12 @@ export function isCurrentUserAdmin(): boolean {
   return isAdminToken(getAccessToken());
 }
 
+// O back só deixa SUPER_ADMIN atribuir o papel ADMIN
+export function isCurrentUserSuperAdmin(): boolean {
+  const token = getAccessToken();
+  return (token ? decodeJwt(token)?.role : undefined) === 'SUPER_ADMIN';
+}
+
 export function getRefreshToken(): string | null {
   return readCookie(REFRESH_TOKEN_COOKIE);
 }

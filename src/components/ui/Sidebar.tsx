@@ -4,9 +4,10 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import logo from '../../../public/assets/apenas_circulo.png';
-import { clearAuthCookies } from '@/lib/auth';
+import { LogoutModal } from '@/components/modal/LogoutModal';
+import { useProfileIdentity } from '@/lib/profile';
 import { House, Farm, Admin, Dashboard, Close } from '../core/Icons';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useState } from 'react';
 
 type NavLink = {
   label: string;
@@ -45,47 +46,12 @@ const navLinks: NavLink[] = [
   },
 ];
 
-function getInitialsFromName(name: string, fallback: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return fallback;
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
-}
-
 export default function Sidebar({ isAdmin }: { isAdmin: boolean }) {
   const pathname = usePathname();
   const isProfileActive = pathname.startsWith('/platform/perfil');
 
-  const [userName, setUserName] = useState('Meu perfil');
-  const [userInitials, setUserInitials] = useState('U');
-
-  useEffect(() => {
-    const updateProfileFromStorage = () => {
-      const savedData = localStorage.getItem('glupta_mock_profile');
-      if (savedData) {
-        try {
-          const parsed = JSON.parse(savedData);
-          if (parsed.name) {
-            setUserName(parsed.name.trim());
-            setUserInitials(getInitialsFromName(parsed.name, 'U'));
-          }
-        } catch (error) {
-          console.error('Erro ao ler mock do perfil:', error);
-        }
-      }
-    };
-
-    // Carrega os dados iniciais ao montar o componente
-    updateProfileFromStorage();
-
-    // Escuta o evento global disparado pelo ProfileFormCard
-    window.addEventListener('profile-updated', updateProfileFromStorage);
-
-    // Limpa o listener quando o componente for desmontado
-    return () => {
-      window.removeEventListener('profile-updated', updateProfileFromStorage);
-    };
-  }, []);
+  const { name: userName, initials: userInitials } = useProfileIdentity();
+  const [isLogoutOpen, setIsLogoutOpen] = useState(false);
 
   return (
     <aside className="hidden lg:flex lg:w-80 min-h-screen bg-verde-mata px-4 py-8 flex-col justify-between">
@@ -152,16 +118,14 @@ export default function Sidebar({ isAdmin }: { isAdmin: boolean }) {
 
         <button
           type="button"
-          onClick={() => {
-            clearAuthCookies();
-            window.location.href = '/';
-          }}
+          onClick={() => setIsLogoutOpen(true)}
           className="flex items-center gap-1.5 rounded-xl bg-coral-flor px-3.5 py-2 text-xs font-bold text-creme-flor transition-opacity hover:opacity-90 shrink-0"
         >
           <Close size={16} color="#FAF8F3" />
           <span>Sair</span>
         </button>
       </div>
+      <LogoutModal isOpen={isLogoutOpen} onClose={() => setIsLogoutOpen(false)} />
     </aside>
   );
 }

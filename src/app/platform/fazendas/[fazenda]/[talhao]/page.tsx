@@ -153,6 +153,7 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
               nome={plot.name}
               status={FARM_STATUS_LABELS[resumo.status]}
               localizacao={farm.address ?? 'Local não informado'}
+              descricao={plot.description ?? '—'}
               responsavel={farm.owner?.name ?? 'Responsável técnico'}
               inicio={new Date(plot.createdAt).toLocaleDateString('pt-BR')}
               parcelas={resumo.totalParcels}

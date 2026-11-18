@@ -101,7 +101,7 @@ export default function EquationModal({
               </option>
             ))}
           </select>
-          <p className="text-xs text-verde-mata/60">{model.formula}</p>
+          <p className="text-sm text-verde-mata/60">{model.formula}</p>
         </div>
 
         <div className="mb-6 flex gap-4">

@@ -1,6 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { LogoutModal } from '@/components/modal/LogoutModal';
 import ProfileFormCard from '@/components/profile/ProfileFormCard';
 import Topbar from '@/components/ui/Topbar';
 import { UserProfile } from '@/types/profile';
@@ -18,6 +20,7 @@ const MOCK_USER_PROFILE: UserProfile = {
 
 export default function ProfilePage() {
   const router = useRouter();
+  const [isLogoutOpen, setIsLogoutOpen] = useState(false);
 
   return (
     <div className="flex min-h-full flex-col bg-[#EFECE4]">
@@ -33,7 +36,17 @@ export default function ProfilePage() {
           você salvar fica só neste navegador.
         </p>
         <ProfileFormCard initialProfile={MOCK_USER_PROFILE} />
+
+        <button
+          type="button"
+          onClick={() => setIsLogoutOpen(true)}
+          className="w-full max-w-3xl rounded-xl border border-[#E5B8AD] bg-white px-6 py-3 text-sm font-bold text-[#B8543E] transition-colors hover:bg-[#FDECE9]"
+        >
+          Sair da conta
+        </button>
       </section>
+
+      <LogoutModal isOpen={isLogoutOpen} onClose={() => setIsLogoutOpen(false)} />
     </div>
   );
 }

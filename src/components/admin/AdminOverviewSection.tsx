@@ -77,7 +77,7 @@ export default function AdminOverviewSection({
 
       <div>
         <h2 className="text-xl font-bold text-verde-mata">Visão geral</h2>
-        <p className="mt-0.5 text-xs text-[#6E776B]">
+        <p className="mt-0.5 text-sm text-[#6E776B]">
           Acompanhe os dados principais da turma e acesse rapidamente cada área.
         </p>
       </div>
@@ -91,7 +91,10 @@ export default function AdminOverviewSection({
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         <AdminAuditCard entries={auditEntries} />
 
-        <AdminUsersSummaryCard summary={usersSummary} onManageUsers={() => setActiveTab('users')} />
+        <AdminUsersSummaryCard
+          summary={usersSummary}
+          onManageUsers={() => router.push(ADMIN_TAB_PATHS.users)}
+        />
 
         <AdminPlotsSummaryCard summary={plotsSummary} onViewPlots={handleNavigateToFarms} />
       </div>
@@ -102,8 +105,6 @@ export default function AdminOverviewSection({
             pendingRequest={pendingRequest}
             onApprove={handleApproveUser}
             onReject={handleRejectUser}
-            onInviteUser={() => setActiveTab('users')}
-            onNewSample={handleNavigateToFarms}
           />
         </div>
 

@@ -3,6 +3,7 @@
 import { ChangeEvent, FormEvent, useState, useEffect } from 'react';
 import Button from '@/components/core/Button';
 import { Input } from '@/components/core/Input';
+import { getInitialsFromName } from '@/lib/profile';
 import { ProfileFormErrors, ProfileFormValues, UserProfile } from '@/types/profile';
 
 interface ProfileFormCardProps {
@@ -23,13 +24,6 @@ function formatPhoneMask(rawValue: string): string {
   }
 
   return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
-}
-
-function getInitialsFromName(name: string, fallback: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return fallback;
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
 }
 
 function validateProfileForm(values: ProfileFormValues): ProfileFormErrors {
@@ -108,8 +102,6 @@ export default function ProfileFormCard({ initialProfile }: ProfileFormCardProps
   const [isSaving, setIsSaving] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Solução para o ESLint e Hidratação:
-  // Usa setTimeout para tirar o setState do fluxo síncrono do useEffect
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsMounted(true);
@@ -190,13 +182,13 @@ export default function ProfileFormCard({ initialProfile }: ProfileFormCardProps
       <header className="flex items-center gap-4">
         <div
           aria-hidden="true"
-          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#E4EDE2] font-serif text-lg font-bold text-[#2C5F2D]"
+          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#E4EDE2] font-serif text-lg font-bold text-verde-mata"
         >
           {displayHeader.initials}
         </div>
 
         <div className="flex flex-col">
-          <h2 className="font-serif text-xl font-bold text-[#2C5F2D]">
+          <h2 className="font-serif text-xl font-bold text-verde-mata">
             {displayHeader.displayName}
           </h2>
           <p className="mt-0.5 text-xs text-[#6E776B]">{displayHeader.roleTitle}</p>
@@ -257,7 +249,7 @@ export default function ProfileFormCard({ initialProfile }: ProfileFormCardProps
         {successMessage && (
           <p
             role="status"
-            className="w-fit rounded-lg border border-[#B8D8BE] bg-[#E4F0E6] px-3.5 py-2 text-xs font-semibold text-[#2C5F2D]"
+            className="w-fit rounded-lg border border-[#B8D8BE] bg-[#E4F0E6] px-3.5 py-2 text-xs font-semibold text-verde-mata"
           >
             {successMessage}
           </p>
@@ -268,7 +260,7 @@ export default function ProfileFormCard({ initialProfile }: ProfileFormCardProps
             type="submit"
             label={isSaving ? 'Salvando...' : 'Salvar alterações'}
             disabled={isSaving}
-            className="rounded-xl bg-[#2C5F2D] px-6 py-3 text-sm font-bold text-[#FAF8F3] shadow-none transition-colors hover:bg-[#234B24]"
+            className="rounded-xl bg-verde-mata px-6 py-3 text-sm font-bold text-[#FAF8F3] shadow-none transition-colors hover:bg-[#234B24]"
           />
         </div>
       </form>

@@ -134,6 +134,7 @@ export default function FazendaTalhoesPage({ params }: FazendaTalhoesPageProps) 
               nome={farm.name}
               status={FARM_STATUS_LABELS[farm.status]}
               localizacao={farm.location}
+              descricao={farm.description || '—'}
               responsavel={farm.responsible}
               talhoes={farm.totalPlots}
               areaTotal={`${formatArea(farm.areaHa)} ha`}

@@ -10,6 +10,10 @@ const nextConfig: NextConfig = {
 
   output: 'standalone',
   reactCompiler: true,
+
+  experimental: {
+    agentUpgrade: 'security',
+  },
 };
 
 export default nextConfig;

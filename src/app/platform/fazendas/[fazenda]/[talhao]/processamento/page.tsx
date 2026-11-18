@@ -135,8 +135,6 @@ export default function ProcessamentoPage({ params }: ProcessamentoPageProps) {
 
   // A etapa hipsométrica não é enviada: o back recusa campos que não conhece
   const buildRequest = (equation: VolumetricEquation): ProcessInventoryDto | null => {
-    if (!isAdmin) return { equationId: equation.id };
-
     const usesBeta2 = EQUATION_MODELS[equation.modelType].usesBeta2;
     const keys: CoefficientKey[] = usesBeta2 ? ['beta0', 'beta1', 'beta2'] : ['beta0', 'beta1'];
     const parsed = Object.fromEntries(
