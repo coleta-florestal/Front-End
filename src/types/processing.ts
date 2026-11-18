@@ -16,7 +16,14 @@ export interface ProcessInventoryDto {
   equation?: CustomEquationDto;
   confidenceLevel?: number;
   errorThresholdPercent?: number;
+  defaultParcelaAreaM2?: number;
   finitePopulation?: boolean;
+  validationLimits?: {
+    minDapCm?: number;
+    maxDapCm?: number;
+    minHeightM?: number;
+    maxHeightM?: number;
+  };
   includeTreesInResult?: boolean;
 }
 

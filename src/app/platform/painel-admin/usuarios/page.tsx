@@ -21,7 +21,7 @@ import AdminUserRow from '@/components/admin/users/AdminUserRow';
 import RejectRequestModal from '@/components/modal/admin/RejectRequestModal';
 import RemoveUserModal from '@/components/modal/admin/RemoveUserModal';
 import { ADMIN_TAB_PATHS, ADMIN_TABS } from '@/lib/adminTabs';
-import { decodeJwt, getAccessToken } from '@/lib/auth';
+import { decodeJwt, getAccessToken, isCurrentUserSuperAdmin } from '@/lib/auth';
 import type { AdminTabKey } from '@/types/admin';
 
 const errorMessage = (err: unknown, fallback: string) =>
@@ -54,6 +54,7 @@ export default function AdminUsersPage() {
 
   // Quem está logado: o JWT só existe no cookie (navegador), então lê junto do primeiro load
   const [meId, setMeId] = useState<string>();
+  const [canPromote, setCanPromote] = useState(false);
 
   const load = useCallback(
     () =>
@@ -62,6 +63,7 @@ export default function AdminUsersPage() {
           const token = getAccessToken();
           const payload = token ? decodeJwt(token) : null;
           setMeId(payload?.sub);
+          setCanPromote(isCurrentUserSuperAdmin());
           setUsers(approved);
           setPending(pendingUsers);
         })
@@ -160,6 +162,7 @@ export default function AdminUsersPage() {
                 user={user}
                 isProtected={user.role === 'SUPER_ADMIN' || user.id === meId}
                 isBusy={isActionLoading}
+                canPromote={canPromote}
                 onToggleRole={(target: User) =>
                   runAction(
                     () => updateUserRole(target.id, target.role === 'ADMIN' ? 'USER' : 'ADMIN'),

@@ -4,6 +4,7 @@ interface AdminUserRowProps {
   user: User;
   isProtected: boolean;
   isBusy: boolean;
+  canPromote: boolean;
   onToggleRole: (user: User) => void;
   onToggleActive: (user: User) => void;
   onRemove: (user: User) => void;
@@ -24,6 +25,7 @@ export default function AdminUserRow({
   user,
   isProtected,
   isBusy,
+  canPromote,
   onToggleRole,
   onToggleActive,
   onRemove,
@@ -54,14 +56,16 @@ export default function AdminUserRow({
 
       {!isProtected && (
         <div className="flex flex-wrap items-center gap-2 pt-2 sm:pt-0">
-          <button
-            type="button"
-            disabled={isBusy}
-            onClick={() => onToggleRole(user)}
-            className={`${actionButton} border-[#D7D0C2] text-verde-mata hover:bg-[#E4EDE2]/50`}
-          >
-            {user.role === 'ADMIN' ? 'Tornar coletor' : 'Tornar administrador'}
-          </button>
+          {(user.role === 'ADMIN' || canPromote) && (
+            <button
+              type="button"
+              disabled={isBusy}
+              onClick={() => onToggleRole(user)}
+              className={`${actionButton} border-[#D7D0C2] text-verde-mata hover:bg-[#E4EDE2]/50`}
+            >
+              {user.role === 'ADMIN' ? 'Tornar coletor' : 'Tornar administrador'}
+            </button>
+          )}
           <button
             type="button"
             disabled={isBusy}
