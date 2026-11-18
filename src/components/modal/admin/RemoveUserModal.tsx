@@ -4,14 +4,24 @@ interface RemoveUserModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  title?: string;
+  warning?: string;
+  confirmLabel?: string;
 }
 
-export default function RemoveUserModal({ isOpen, onClose, onConfirm }: RemoveUserModalProps) {
+export default function RemoveUserModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  title = 'Tem certeza que deseja remover o usuário?',
+  warning = 'Depois de removido, a conta será eliminada do sistema. Será necessária uma nova solicitação de cadastro para acessar o Glupta novamente',
+  confirmLabel = 'Sim, remover conta',
+}: RemoveUserModalProps) {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 py-6 backdrop-blur-sm">
-      <div className="w-full max-w-[500px] rounded-2xl bg-[#FAF8F3] p-8 shadow-xl">
+      <div className="w-full max-w-125 rounded-2xl bg-[#FAF8F3] p-8 shadow-xl">
         <header className="mb-6 flex items-center gap-4">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#FDECE9] text-[#C85A46]">
             <svg
@@ -28,9 +38,7 @@ export default function RemoveUserModal({ isOpen, onClose, onConfirm }: RemoveUs
               <line x1="4" y1="22" x2="4" y2="15" />
             </svg>
           </div>
-          <h2 className="font-serif text-xl font-bold text-[#2C5F2D]">
-            Tem certeza que deseja remover o usuário?
-          </h2>
+          <h2 className="font-serif text-xl font-bold text-verde-mata">{title}</h2>
         </header>
 
         <div className="mb-8 rounded-xl border border-[#F2C994] bg-[#FFF8E7] p-4 text-[#996A27] flex gap-3">
@@ -50,17 +58,14 @@ export default function RemoveUserModal({ isOpen, onClose, onConfirm }: RemoveUs
               <line x1="12" y1="17" x2="12.01" y2="17" />
             </svg>
           </div>
-          <p className="text-sm font-semibold leading-relaxed">
-            Depois de removido, a conta será eliminada do sistema. Será necessária uma nova
-            solicitação de cadastro para acessar o Glupta novamente
-          </p>
+          <p className="text-sm font-semibold leading-relaxed">{warning}</p>
         </div>
 
         <footer className="flex items-center justify-between">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl border-2 border-[#D7D0C2] bg-transparent px-6 py-2.5 text-sm font-bold text-[#2C5F2D] transition-colors hover:bg-[#E4EDE2]/50"
+            className="rounded-xl border-2 border-[#D7D0C2] bg-transparent px-6 py-2.5 text-sm font-bold text-verde-mata transition-colors hover:bg-[#E4EDE2]/50"
           >
             Cancelar
           </button>
@@ -72,7 +77,7 @@ export default function RemoveUserModal({ isOpen, onClose, onConfirm }: RemoveUs
             }}
             className="rounded-xl bg-[#A55F4D] px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#8B4C3C]"
           >
-            Sim, remover conta
+            {confirmLabel}
           </button>
         </footer>
       </div>
