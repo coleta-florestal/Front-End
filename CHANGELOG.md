@@ -1,3 +1,13 @@
+# [1.1.0-rc.5](https://github.com/coleta-florestal/Front-End/compare/v1.1.0-rc.4...v1.1.0-rc.5) (2026-11-19)
+
+### Bug Fixes
+
+- ajusta card de auditoria na pagina inicial para refletir os logs ([385524f](https://github.com/coleta-florestal/Front-End/commit/385524f7ff57a8024c9af12f0e0ba1efcd8e5904))
+
+### Features
+
+- integrei o perfil do usuario ([40034b0](https://github.com/coleta-florestal/Front-End/commit/40034b011dad1c6b14c001db77636612bb5f4ce3))
+
 # [1.1.0-rc.4](https://github.com/coleta-florestal/Front-End/compare/v1.1.0-rc.3...v1.1.0-rc.4) (2026-11-18)
 
 ### Bug Fixes
