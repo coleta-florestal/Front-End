@@ -9,7 +9,7 @@ export default function AdminAuditCard({ entries }: AdminAuditCardProps) {
     <article className="flex flex-col rounded-2xl border border-[#E2DDD2] bg-[#FAF8F3] p-6 shadow-sm">
       <h3 className="font-serif text-xl font-bold text-verde-mata">Auditoria</h3>
 
-      <div className="mt-4 flex max-h-96 flex-col divide-y divide-[#E5E0D5] overflow-y-auto pr-2">
+      <div className="mt-4 flex max-h-40 flex-col divide-y divide-[#E5E0D5] overflow-y-auto pr-2">
         {entries.length === 0 && (
           <span className="py-3.5 text-sm text-[#6E776B]">Auditoria ainda não disponível.</span>
         )}
