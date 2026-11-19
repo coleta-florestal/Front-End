@@ -1,3 +1,18 @@
+# [1.1.0-rc.4](https://github.com/coleta-florestal/Front-End/compare/v1.1.0-rc.3...v1.1.0-rc.4) (2026-11-18)
+
+### Bug Fixes
+
+- adicionei descrição nos cards de fazenda e talhao ([5230ab8](https://github.com/coleta-florestal/Front-End/commit/5230ab8a613ed0d0cbd0b4e14fa07229528b2fc0))
+- ajustes na exibição do perfil ([b0fe503](https://github.com/coleta-florestal/Front-End/commit/b0fe503f2b3e5bc94d6e83a5d8c74ed480cfa570))
+- alinha o stage do back ao front integrado ([d276cca](https://github.com/coleta-florestal/Front-End/commit/d276ccaa23c0e0759a129196f5d3a1b70dab2d7d))
+
+### Features
+
+- adiciona processamento da fazenda inteira ([f67563b](https://github.com/coleta-florestal/Front-End/commit/f67563b78500dd050dd2fd0e1ee2cb7c04e6a694))
+- adicionei tela de gestão de usuários ([a047325](https://github.com/coleta-florestal/Front-End/commit/a047325631955aef46207d7092d9504a705621f1))
+- implementa auditoria no painel admin ([2fd9518](https://github.com/coleta-florestal/Front-End/commit/2fd95180b33212e7b69a132e68ade47385bfb47e))
+- impolementa tela de projetos com associaçao de usuário às fazendas ([d027c74](https://github.com/coleta-florestal/Front-End/commit/d027c7486cc787db5f07b52cfb05c435612894ce))
+
 # [1.1.0-rc.3](https://github.com/coleta-florestal/Front-End/compare/v1.1.0-rc.2...v1.1.0-rc.3) (2026-11-11)
 
 ### Bug Fixes
