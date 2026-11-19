@@ -5,21 +5,11 @@ import { useRouter } from 'next/navigation';
 import { LogoutModal } from '@/components/modal/LogoutModal';
 import ProfileFormCard from '@/components/profile/ProfileFormCard';
 import Topbar from '@/components/ui/Topbar';
-import { UserProfile } from '@/types/profile';
-
-const MOCK_USER_PROFILE: UserProfile = {
-  id: 'user-amanda-rocha',
-  displayName: 'Eng. Amanda',
-  roleTitle: 'Inventário Campo · coletora',
-  initials: 'EA',
-  name: 'Amanda Rocha',
-  email: 'amanda@lyptus.com.br',
-  organization: 'Lyptus',
-  phone: '(81) 99999-0000',
-};
+import { useProfileIdentity } from '@/lib/profile';
 
 export default function ProfilePage() {
   const router = useRouter();
+  const profile = useProfileIdentity();
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
 
   return (
@@ -31,11 +21,9 @@ export default function ProfilePage() {
       />
 
       <section className="flex flex-1 flex-col items-center gap-4 p-6 md:p-10">
-        <p className="text-xs font-semibold text-[#6D786E]">
-          Dados locais: esta tela ainda não tem backend, os valores iniciais são fictícios e o que
-          você salvar fica só neste navegador.
-        </p>
-        <ProfileFormCard initialProfile={MOCK_USER_PROFILE} />
+        {/* O snapshot do servidor vem vazio: o key remonta o form uma vez, quando o token é lido no
+            cliente. Não usa o nome no key para não apagar a mensagem de sucesso depois de salvar. */}
+        <ProfileFormCard key={profile.email ? 'loaded' : 'loading'} initialProfile={profile} />
 
         <button
           type="button"

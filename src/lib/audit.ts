@@ -1,4 +1,4 @@
-import type { AuditAction, AuditEntity, AuditLog } from '@/types/admin';
+import type { AdminAuditEntry, AuditAction, AuditEntity, AuditLog } from '@/types/admin';
 import type { AuditLogEntry } from '@/components/admin/audit/AuditLogCard';
 
 const ACTION_LABELS: Record<AuditAction, string> = {
@@ -43,14 +43,22 @@ const dateFormat = new Intl.DateTimeFormat('pt-BR', {
   minute: '2-digit',
 });
 
-export function toAuditEntry(log: AuditLog, usersById: Map<string, string>): AuditLogEntry {
-  const actor = log.user?.name ?? 'Usuário removido';
-  const target = targetName(log, usersById);
-  const date = dateFormat.format(new Date(log.createdAt)).replace(',', '');
-
+export function toAdminAuditEntry(log: AuditLog, usersById: Map<string, string>): AdminAuditEntry {
   return {
     id: log.id,
-    date,
-    description: `${actor} ${ACTION_LABELS[log.action]} ${ENTITY_LABELS[log.entity]}${target ? ` · ${target}` : ''}`,
+    timestamp: dateFormat.format(new Date(log.createdAt)).replace(',', ''),
+    actorName: log.user?.name ?? 'Usuário removido',
+    actionText: `${ACTION_LABELS[log.action]} ${ENTITY_LABELS[log.entity]}`,
+    targetText: targetName(log, usersById) ?? '',
+  };
+}
+
+export function toAuditEntry(log: AuditLog, usersById: Map<string, string>): AuditLogEntry {
+  const entry = toAdminAuditEntry(log, usersById);
+
+  return {
+    id: entry.id,
+    date: entry.timestamp,
+    description: `${entry.actorName} ${entry.actionText}${entry.targetText ? ` · ${entry.targetText}` : ''}`,
   };
 }

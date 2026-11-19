@@ -1,8 +1,10 @@
 'use client';
 
-import { ChangeEvent, FormEvent, useState, useEffect } from 'react';
+import { ChangeEvent, FormEvent, useState } from 'react';
+import { updateMyProfile } from '@/app/api/api';
 import Button from '@/components/core/Button';
 import { Input } from '@/components/core/Input';
+import { setAuthCookies } from '@/lib/auth';
 import { getInitialsFromName } from '@/lib/profile';
 import { ProfileFormErrors, ProfileFormValues, UserProfile } from '@/types/profile';
 
@@ -11,27 +13,11 @@ interface ProfileFormCardProps {
 }
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const MOCK_STORAGE_KEY = 'glupta_mock_profile';
-
-function formatPhoneMask(rawValue: string): string {
-  const digits = rawValue.replace(/\D/g, '').slice(0, 11);
-
-  if (digits.length === 0) return '';
-  if (digits.length <= 2) return `(${digits}`;
-  if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
-  if (digits.length <= 10) {
-    return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
-  }
-
-  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
-}
 
 function validateProfileForm(values: ProfileFormValues): ProfileFormErrors {
   const errors: ProfileFormErrors = {};
   const trimmedName = values.name.trim();
   const trimmedEmail = values.email.trim();
-  const trimmedOrg = values.organization.trim();
-  const phoneDigits = values.phone.replace(/\D/g, '');
 
   if (!trimmedName) errors.name = 'O nome é obrigatório.';
   else if (trimmedName.length < 3) errors.name = 'O nome deve ter pelo menos 3 caracteres.';
@@ -39,76 +25,20 @@ function validateProfileForm(values: ProfileFormValues): ProfileFormErrors {
   if (!trimmedEmail) errors.email = 'O email é obrigatório.';
   else if (!EMAIL_REGEX.test(trimmedEmail)) errors.email = 'Informe um endereço de email válido.';
 
-  if (!trimmedOrg) errors.organization = 'A organização é obrigatória.';
-  else if (trimmedOrg.length < 2)
-    errors.organization = 'A organização deve ter pelo menos 2 caracteres.';
-
-  if (!phoneDigits) errors.phone = 'O telefone é obrigatório.';
-  else if (phoneDigits.length < 10 || phoneDigits.length > 11)
-    errors.phone = 'Informe um telefone válido com DDD.';
-
   return errors;
 }
 
 export default function ProfileFormCard({ initialProfile }: ProfileFormCardProps) {
-  const [isMounted, setIsMounted] = useState(false);
-
-  const [values, setValues] = useState<ProfileFormValues>(() => {
-    if (typeof window !== 'undefined') {
-      const savedData = localStorage.getItem(MOCK_STORAGE_KEY);
-      if (savedData) {
-        try {
-          return JSON.parse(savedData) as ProfileFormValues;
-        } catch (error) {
-          console.error('Erro ao ler mock do perfil:', error);
-        }
-      }
-    }
-    return {
-      name: initialProfile.name,
-      email: initialProfile.email,
-      organization: initialProfile.organization,
-      phone: initialProfile.phone,
-    };
+  const [values, setValues] = useState<ProfileFormValues>({
+    name: initialProfile.name,
+    email: initialProfile.email,
   });
-
-  const [profileHeader, setProfileHeader] = useState(() => {
-    let name = initialProfile.displayName;
-    let initials = initialProfile.initials;
-
-    if (typeof window !== 'undefined') {
-      const savedData = localStorage.getItem(MOCK_STORAGE_KEY);
-      if (savedData) {
-        try {
-          const parsed = JSON.parse(savedData) as ProfileFormValues;
-          if (parsed.name) {
-            name = parsed.name.trim();
-            initials = getInitialsFromName(name, initialProfile.initials);
-          }
-        } catch (error) {
-          console.error('Erro ao ler cabeçalho do mock:', error);
-        }
-      }
-    }
-
-    return {
-      displayName: name,
-      roleTitle: initialProfile.roleTitle,
-      initials,
-    };
-  });
-
+  // O cabeçalho só muda depois de salvar, não a cada tecla digitada no campo de nome.
+  const [savedName, setSavedName] = useState(initialProfile.name);
   const [errors, setErrors] = useState<ProfileFormErrors>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsMounted(true);
-    }, 0);
-
-    return () => clearTimeout(timer);
-  }, []);
 
   const handleFieldChange = (
     field: keyof ProfileFormValues,
@@ -116,11 +46,10 @@ export default function ProfileFormCard({ initialProfile }: ProfileFormCardProps
   ) => {
     setSuccessMessage(null);
     const rawValue = event.target.value;
-    const formattedValue = field === 'phone' ? formatPhoneMask(rawValue) : rawValue;
 
     setValues((prev) => ({
       ...prev,
-      [field]: formattedValue,
+      [field]: rawValue,
     }));
 
     if (errors[field]) {
@@ -128,9 +57,10 @@ export default function ProfileFormCard({ initialProfile }: ProfileFormCardProps
     }
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSuccessMessage(null);
+    setSubmitError(null);
 
     const validationErrors = validateProfileForm(values);
 
@@ -142,40 +72,19 @@ export default function ProfileFormCard({ initialProfile }: ProfileFormCardProps
     setIsSaving(true);
     setErrors({});
 
-    setTimeout(() => {
-      const newName = values.name.trim();
-      const newInitials = getInitialsFromName(newName, profileHeader.initials);
+    const payload = { name: values.name.trim(), email: values.email.trim() };
 
-      setProfileHeader((prev) => ({
-        ...prev,
-        initials: newInitials,
-        displayName: newName,
-      }));
-
-      localStorage.setItem(MOCK_STORAGE_KEY, JSON.stringify(values));
+    try {
+      setAuthCookies(await updateMyProfile(payload));
+      setSavedName(payload.name);
       window.dispatchEvent(new Event('profile-updated'));
-
-      setIsSaving(false);
       setSuccessMessage('Alterações salvas com sucesso.');
-    }, 600);
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'Não foi possível salvar as alterações');
+    } finally {
+      setIsSaving(false);
+    }
   };
-
-  const displayHeader = isMounted
-    ? profileHeader
-    : {
-        initials: initialProfile.initials,
-        displayName: initialProfile.displayName,
-        roleTitle: initialProfile.roleTitle,
-      };
-
-  const displayValues = isMounted
-    ? values
-    : {
-        name: initialProfile.name,
-        email: initialProfile.email,
-        organization: initialProfile.organization,
-        phone: initialProfile.phone,
-      };
 
   return (
     <article className="mx-auto w-full max-w-3xl rounded-2xl border border-[#DFDBD0] bg-[#FAF8F3] p-6 shadow-sm sm:p-10">
@@ -184,15 +93,10 @@ export default function ProfileFormCard({ initialProfile }: ProfileFormCardProps
           aria-hidden="true"
           className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#E4EDE2] font-serif text-lg font-bold text-verde-mata"
         >
-          {displayHeader.initials}
+          {getInitialsFromName(savedName, initialProfile.initials)}
         </div>
 
-        <div className="flex flex-col">
-          <h2 className="font-serif text-xl font-bold text-verde-mata">
-            {displayHeader.displayName}
-          </h2>
-          <p className="mt-0.5 text-xs text-[#6E776B]">{displayHeader.roleTitle}</p>
-        </div>
+        <h2 className="font-serif text-xl font-bold text-verde-mata">{savedName}</h2>
       </header>
 
       <div className="my-6 h-px w-48 bg-[#E8E4DA]" />
@@ -202,11 +106,11 @@ export default function ProfileFormCard({ initialProfile }: ProfileFormCardProps
           <Input
             id="profile-name"
             label="Nome"
-            value={displayValues.name}
+            value={values.name}
             placeholder="Digite seu nome completo"
             error={errors.name}
             disabled={isSaving}
-            maxLength={100}
+            maxLength={50}
             onChange={(e) => handleFieldChange('name', e)}
           />
 
@@ -214,35 +118,12 @@ export default function ProfileFormCard({ initialProfile }: ProfileFormCardProps
             id="profile-email"
             label="Email"
             type="email"
-            value={displayValues.email}
+            value={values.email}
             placeholder="seu.email@dominio.com.br"
             error={errors.email}
             disabled={isSaving}
             maxLength={120}
             onChange={(e) => handleFieldChange('email', e)}
-          />
-
-          <Input
-            id="profile-organization"
-            label="Organização"
-            value={displayValues.organization}
-            placeholder="Nome da organização"
-            error={errors.organization}
-            disabled={isSaving}
-            maxLength={80}
-            onChange={(e) => handleFieldChange('organization', e)}
-          />
-
-          <Input
-            id="profile-phone"
-            label="Telefone"
-            type="tel"
-            value={displayValues.phone}
-            placeholder="(00) 00000-0000"
-            error={errors.phone}
-            disabled={isSaving}
-            maxLength={15}
-            onChange={(e) => handleFieldChange('phone', e)}
           />
         </div>
 
@@ -252,6 +133,15 @@ export default function ProfileFormCard({ initialProfile }: ProfileFormCardProps
             className="w-fit rounded-lg border border-[#B8D8BE] bg-[#E4F0E6] px-3.5 py-2 text-xs font-semibold text-verde-mata"
           >
             {successMessage}
+          </p>
+        )}
+
+        {submitError && (
+          <p
+            role="alert"
+            className="w-fit rounded-lg border border-[#E5B8AD] bg-[#FDECE9] px-3.5 py-2 text-xs font-semibold text-[#B8543E]"
+          >
+            {submitError}
           </p>
         )}
 

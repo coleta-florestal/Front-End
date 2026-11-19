@@ -4,6 +4,7 @@ import { AdminProjectRecord, AuditLog, ValidationSettings } from '@/types/admin'
 import type { FarmDashboardSummary } from '@/types/dashboard';
 import { EquationType, VolumetricEquation } from '@/types/equation';
 import { InventoryProcessingResult, ProcessInventoryDto } from '@/types/processing';
+import type { ProfileFormValues } from '@/types/profile';
 import {
   Farm,
   FarmStatus,
@@ -396,6 +397,11 @@ export function deactivateUser(id: string): Promise<User> {
 
 export function deleteUser(id: string): Promise<{ message: string } | null> {
   return authFetch(adminUserPath(id), { method: 'DELETE' });
+}
+
+// O back devolve um token novo para o nome/email atualizados já virem no JWT.
+export async function updateMyProfile(dto: ProfileFormValues): Promise<AuthToken> {
+  return toAuthToken(await authFetch('/profile/update', jsonBody('PATCH', dto)));
 }
 
 export function getEquations(): Promise<VolumetricEquation[]> {
