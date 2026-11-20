@@ -11,6 +11,7 @@ import {
   getSubPlotStatusLabel,
   getSubPlotsWithTrees,
   summarizeSubPlots,
+  updateSubPlot,
   updateSubPlotStatus,
 } from '@/app/api/api';
 import { isCurrentUserAdmin } from '@/lib/auth';
@@ -18,6 +19,7 @@ import Topbar from '@/components/ui/Topbar';
 import { TalhaoCard } from '@/components/talhoes/TalhaoCard';
 import { ParcelRow } from '@/components/parcels/ParcelRow';
 import { CreateParcelModal } from '@/components/modal/CreateParcelModal';
+import { EditParcelModal } from '@/components/modal/EditParcelModal';
 import { ReopenParcelModal } from '@/components/modal/ReopenParcelModal';
 import { CompleteParcelModal } from '@/components/modal/CompleteParcelModal';
 import Button from '@/components/core/Button';
@@ -40,6 +42,7 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
   const [isAdmin, setIsAdmin] = useState(false);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [parcelaToEdit, setParcelaToEdit] = useState<PrismaSubPlotRecord | null>(null);
   const [isReopenModalOpen, setIsReopenModalOpen] = useState(false);
   const [parcelaReabrir, setParcelaReabrir] = useState('');
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
@@ -75,6 +78,7 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
 
   const parcelas = subPlots.map((subPlot) => ({
     id: subPlot.id,
+    record: subPlot,
     nome: subPlot.name,
     numero: `Parcela ${subPlot.name}`,
     status: getSubPlotStatusLabel(subPlot),
@@ -106,6 +110,18 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
     });
 
     setIsCreateModalOpen(false);
+    await load();
+  };
+
+  const handleUpdateParcela = async (data: { area: string; metaArvores: string }) => {
+    if (!parcelaToEdit) return;
+
+    await updateSubPlot(fazenda, talhao, parcelaToEdit.id, {
+      areaM2: Number(data.area),
+      targetTrees: Number(data.metaArvores),
+    });
+
+    setParcelaToEdit(null);
     await load();
   };
 
@@ -202,6 +218,7 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
                     area={parcela.area}
                     arvoresMedidas={parcela.arvoresMedidas}
                     metaReferencia={parcela.metaReferencia}
+                    onEdit={!parcela.concluido ? () => setParcelaToEdit(parcela.record) : undefined}
                     onReabrir={
                       parcela.concluido
                         ? () => {
@@ -256,6 +273,16 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
           isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
           onSave={handleCreateParcela}
+        />
+      )}
+
+      {parcelaToEdit && (
+        <EditParcelModal
+          key={parcelaToEdit.id}
+          isOpen={Boolean(parcelaToEdit)}
+          parcela={parcelaToEdit}
+          onClose={() => setParcelaToEdit(null)}
+          onSave={handleUpdateParcela}
         />
       )}
 
