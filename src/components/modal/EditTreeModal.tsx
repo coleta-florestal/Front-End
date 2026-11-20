@@ -8,6 +8,30 @@ import { Textarea } from '../core/Textarea';
 import Button from '../core/Button';
 import { Close } from '../core/Icons';
 
+type TreeField = 'altura' | 'dap';
+type FieldErrors = Partial<Record<TreeField, string>>;
+
+// Aceita "14,2" e "14.2"
+function validateMeasure(value: string, requiredMessage: string, positiveMessage: string) {
+  if (!value.trim()) return requiredMessage;
+  const parsed = parseFloat(value.replace(',', '.'));
+  if (isNaN(parsed) || parsed <= 0) return positiveMessage;
+  return undefined;
+}
+
+function validateTreeFields(altura: string, dap: string): FieldErrors {
+  const errors: FieldErrors = {};
+  const alturaError = validateMeasure(
+    altura,
+    'Altura é obrigatória',
+    'Altura deve ser um número positivo',
+  );
+  const dapError = validateMeasure(dap, 'DAP é obrigatório', 'DAP deve ser um número positivo');
+  if (alturaError) errors.altura = alturaError;
+  if (dapError) errors.dap = dapError;
+  return errors;
+}
+
 export interface EditTreeModalProps {
   isOpen: boolean;
   tree: TreeData | null;
@@ -39,6 +63,7 @@ export function EditTreeModal({
   const [qualidade, setQualidade] = useState(tree?.qualidade ?? 'NORMAL');
   const [observacoes, setObservacoes] = useState(tree?.observacoes ?? '');
 
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -49,6 +74,7 @@ export function EditTreeModal({
     setAltura(tree?.altura ?? '');
     setQualidade(tree?.qualidade ?? 'NORMAL');
     setObservacoes(tree?.observacoes ?? '');
+    setFieldErrors({});
     setError(null);
   }
 
@@ -64,28 +90,16 @@ export function EditTreeModal({
   if (!isOpen) return null;
 
   const validate = (): boolean => {
-    if (!altura.trim()) {
-      setError('Altura é obrigatória');
-      return false;
-    }
-    const alturaVal = parseFloat(altura.replace(',', '.'));
-    if (isNaN(alturaVal) || alturaVal <= 0) {
-      setError('Altura deve ser um número positivo');
-      return false;
-    }
-
-    if (!dap.trim()) {
-      setError('DAP é obrigatório');
-      return false;
-    }
-    const dapVal = parseFloat(dap.replace(',', '.'));
-    if (isNaN(dapVal) || dapVal <= 0) {
-      setError('DAP deve ser um número positivo');
-      return false;
-    }
-
+    const errors = validateTreeFields(altura, dap);
+    setFieldErrors(errors);
     setError(null);
-    return true;
+    return Object.keys(errors).length === 0;
+  };
+
+  // Ao sair do campo, mostra só o erro dele
+  const validateField = (field: TreeField) => {
+    const errors = validateTreeFields(altura, dap);
+    setFieldErrors((current) => ({ ...current, [field]: errors[field] }));
   };
 
   const handleSave = async () => {
@@ -110,15 +124,6 @@ export function EditTreeModal({
       setLoading(false);
     }
   };
-
-  const isFormValid = Boolean(
-    dap.trim() &&
-    altura.trim() &&
-    !isNaN(parseFloat(dap.replace(',', '.'))) &&
-    parseFloat(dap.replace(',', '.')) > 0 &&
-    !isNaN(parseFloat(altura.replace(',', '.'))) &&
-    parseFloat(altura.replace(',', '.')) > 0,
-  );
 
   return (
     <div
@@ -166,8 +171,12 @@ export function EditTreeModal({
               value={altura}
               onChange={(event) => {
                 setAltura(event.target.value);
+                setFieldErrors((current) => ({ ...current, altura: undefined }));
                 if (error) setError(null);
               }}
+              onBlur={() => validateField('altura')}
+              error={fieldErrors.altura}
+              aria-invalid={Boolean(fieldErrors.altura)}
               placeholder="ex. 14,2"
               disabled={loading}
             />
@@ -178,8 +187,12 @@ export function EditTreeModal({
               value={dap}
               onChange={(event) => {
                 setDap(event.target.value);
+                setFieldErrors((current) => ({ ...current, dap: undefined }));
                 if (error) setError(null);
               }}
+              onBlur={() => validateField('dap')}
+              error={fieldErrors.dap}
+              aria-invalid={Boolean(fieldErrors.dap)}
               placeholder="ex. 26,5"
               disabled={loading}
             />
@@ -235,7 +248,7 @@ export function EditTreeModal({
             <Button
               label={loading ? 'Salvando...' : 'Salvar'}
               onClick={handleSave}
-              disabled={!isFormValid || loading}
+              disabled={loading}
               className="bg-verde-mata text-creme-flor hover:bg-[#245225]"
             />
           </div>
