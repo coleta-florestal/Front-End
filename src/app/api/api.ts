@@ -264,6 +264,18 @@ export function createSubPlot(
   return authFetch(subPlotsPath(farmId, plotId), jsonBody('POST', dto));
 }
 
+export function updateSubPlot(
+  farmId: string,
+  plotId: string,
+  subPlotId: string,
+  dto: Partial<CreateSubPlotDto>,
+): Promise<PrismaSubPlotRecord> {
+  return authFetch(
+    `${subPlotsPath(farmId, plotId)}/${encodeURIComponent(subPlotId)}`,
+    jsonBody('PATCH', dto),
+  );
+}
+
 export function updateSubPlotStatus(
   farmId: string,
   plotId: string,
