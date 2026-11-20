@@ -15,30 +15,95 @@ export interface CreateParcelModalProps {
   }) => void | Promise<void>;
 }
 
+interface FieldErrors {
+  identificacao?: string;
+  area?: string;
+  metaArvores?: string;
+}
+
+function parseDecimal(raw: string): number {
+  return Number(raw.trim().replace(',', '.'));
+}
+
+function validateParcelFields(
+  identificacao: string,
+  area: string,
+  metaArvores: string,
+): FieldErrors {
+  const errors: FieldErrors = {};
+
+  if (!identificacao.trim()) {
+    errors.identificacao = 'Informe a identificação da parcela.';
+  }
+
+  const parsedArea = parseDecimal(area);
+  if (!area.trim() || Number.isNaN(parsedArea) || parsedArea <= 0) {
+    errors.area = 'A área deve ser maior que zero.';
+  }
+
+  const rawMeta = metaArvores.trim();
+  const parsedMeta = parseDecimal(rawMeta);
+  const hasDecimalSeparator = rawMeta.includes('.') || rawMeta.includes(',');
+
+  if (
+    !rawMeta ||
+    Number.isNaN(parsedMeta) ||
+    hasDecimalSeparator ||
+    !Number.isInteger(parsedMeta) ||
+    parsedMeta <= 0
+  ) {
+    errors.metaArvores = 'A meta deve ser um número inteiro maior que zero.';
+  }
+
+  return errors;
+}
+
 export function CreateParcelModal({ isOpen, onClose, onSave }: CreateParcelModalProps) {
   const [identificacao, setIdentificacao] = useState('');
   const [area, setArea] = useState('');
   const [metaArvores, setMetaArvores] = useState('');
 
+  const [touched, setTouched] = useState<{
+    identificacao?: boolean;
+    area?: boolean;
+    metaArvores?: boolean;
+  }>({});
+  const [submitted, setSubmitted] = useState(false);
+
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const fieldErrors = validateParcelFields(identificacao, area, metaArvores);
+
+  const showIdentificacaoError = Boolean(
+    (submitted || touched.identificacao) && fieldErrors.identificacao,
+  );
+  const showAreaError = Boolean((submitted || touched.area) && fieldErrors.area);
+  const showMetaError = Boolean((submitted || touched.metaArvores) && fieldErrors.metaArvores);
+
   const handleSave = async () => {
-    setLoading(true);
+    setSubmitted(true);
     setError(null);
 
+    const currentErrors = validateParcelFields(identificacao, area, metaArvores);
+    if (Object.keys(currentErrors).length > 0) {
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      await onSave({ identificacao, area, metaArvores });
+      await onSave({
+        identificacao: identificacao.trim(),
+        area: area.trim().replace(',', '.'),
+        metaArvores: metaArvores.trim(),
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Não foi possível criar a parcela');
     } finally {
       setLoading(false);
     }
   };
-
-  const meta = Number(metaArvores);
-  const isFormValid =
-    identificacao.trim() && Number(area) > 0 && Number.isInteger(meta) && meta > 0;
 
   if (!isOpen) return null;
 
@@ -71,27 +136,61 @@ export function CreateParcelModal({ isOpen, onClose, onSave }: CreateParcelModal
             inicia a coleta quando estiver em campo.
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <Input
-              label="Identificação da parcela"
-              value={identificacao}
-              onChange={(e) => setIdentificacao(e.target.value)}
-              placeholder="ex. P03"
-            />
-            <Input
-              label="Área (m²)"
-              type="number"
-              value={area}
-              onChange={(e) => setArea(e.target.value)}
-              placeholder="ex. 500"
-            />
-            <Input
-              label="Meta de Árvores"
-              type="number"
-              value={metaArvores}
-              onChange={(e) => setMetaArvores(e.target.value)}
-              placeholder="ex. 5"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 items-start">
+            <div className="flex flex-col gap-1.5">
+              <Input
+                label="Identificação da parcela"
+                value={identificacao}
+                onChange={(e) => setIdentificacao(e.target.value)}
+                onBlur={() => setTouched((prev) => ({ ...prev, identificacao: true }))}
+                placeholder="ex. P03"
+                aria-invalid={showIdentificacaoError}
+                className={
+                  showIdentificacaoError ? 'border-coral-flor focus:border-coral-flor' : ''
+                }
+              />
+              {showIdentificacaoError && (
+                <p role="alert" className="text-xs text-coral-flor">
+                  {fieldErrors.identificacao}
+                </p>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <Input
+                label="Área (m²)"
+                type="number"
+                value={area}
+                onChange={(e) => setArea(e.target.value)}
+                onBlur={() => setTouched((prev) => ({ ...prev, area: true }))}
+                placeholder="ex. 500"
+                aria-invalid={showAreaError}
+                className={showAreaError ? 'border-coral-flor focus:border-coral-flor' : ''}
+              />
+              {showAreaError && (
+                <p role="alert" className="text-xs text-coral-flor">
+                  {fieldErrors.area}
+                </p>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <Input
+                label="Meta de Árvores"
+                type="number"
+                value={metaArvores}
+                onChange={(e) => setMetaArvores(e.target.value)}
+                onBlur={() => setTouched((prev) => ({ ...prev, metaArvores: true }))}
+                placeholder="ex. 5"
+                aria-invalid={showMetaError}
+                className={showMetaError ? 'border-coral-flor focus:border-coral-flor' : ''}
+              />
+              {showMetaError && (
+                <p role="alert" className="text-xs text-coral-flor">
+                  {fieldErrors.metaArvores}
+                </p>
+              )}
+            </div>
           </div>
 
           {error && (
@@ -109,7 +208,7 @@ export function CreateParcelModal({ isOpen, onClose, onSave }: CreateParcelModal
             <Button
               label={loading ? 'Criando...' : 'Criar parcela'}
               onClick={handleSave}
-              disabled={!isFormValid || loading}
+              disabled={loading}
               className="bg-verde-mata text-creme-flor hover:bg-[#245225] rounded-xl px-6 py-3 font-semibold"
             />
           </div>
