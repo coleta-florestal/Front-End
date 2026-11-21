@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist_Mono, Newsreader, Source_Sans_3 } from 'next/font/google';
+import { ToastProvider } from '@/components/ui/ToastProvider';
 import './globals.css';
 
 const newsreader = Newsreader({
@@ -29,7 +30,9 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
       lang="pt-br"
       className={`${newsreader.variable} ${geistMono.variable} ${sourceSans3.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <ToastProvider>{children}</ToastProvider>
+      </body>
     </html>
   );
 }

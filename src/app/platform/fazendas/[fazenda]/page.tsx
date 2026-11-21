@@ -12,6 +12,7 @@ import {
   deletePlot,
   updatePlot,
 } from '@/app/api/api';
+import { useToast } from '@/components/ui/ToastProvider';
 import { isCurrentUserAdmin } from '@/lib/auth';
 import Topbar from '@/components/ui/Topbar';
 import { FarmCard } from '@/components/farm/FarmCard';
@@ -27,6 +28,7 @@ interface FazendaTalhoesPageProps {
 
 export default function FazendaTalhoesPage({ params }: FazendaTalhoesPageProps) {
   const router = useRouter();
+  const { showToast } = useToast();
 
   const { fazenda } = use(params);
 
@@ -41,24 +43,79 @@ export default function FazendaTalhoesPage({ params }: FazendaTalhoesPageProps) 
   const [talhaoToEdit, setTalhaoToEdit] = useState<PrismaPlotRecord | null>(null);
   const [talhaoToDelete, setTalhaoToDelete] = useState<PrismaPlotRecord | null>(null);
 
-  const load = useCallback(
-    () =>
-      getFarmWithDetails(fazenda)
-        .then((record) => {
-          setFarmRecord(record);
-          setIsAdmin(isCurrentUserAdmin());
-          setError(null);
-        })
-        .catch((err) => {
-          setError(err instanceof Error ? err.message : 'Não foi possível carregar a fazenda');
-        })
-        .finally(() => setLoading(false)),
-    [fazenda],
-  );
+  const load = useCallback(async () => {
+    try {
+      const record = await getFarmWithDetails(fazenda);
+      setFarmRecord(record);
+      setIsAdmin(isCurrentUserAdmin());
+      setError(null);
+      setLoading(false);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : '';
+      const isNotFound =
+        message.toLowerCase().includes('fazenda não encontrada') ||
+        message.toLowerCase().includes('not found');
+
+      if (isNotFound) {
+        showToast({
+          id: `farm-not-found-${fazenda}`,
+          variant: 'error',
+          title: 'Fazenda não encontrada',
+          message:
+            'Esta fazenda foi excluída recentemente ou não está mais disponível. A listagem foi atualizada.',
+        });
+        router.replace('/platform/fazendas');
+        return;
+      }
+
+      setError(message || 'Não foi possível carregar a fazenda');
+      setLoading(false);
+    }
+  }, [fazenda, router, showToast]);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    let active = true;
+
+    async function fetchFarmDetails() {
+      try {
+        const record = await getFarmWithDetails(fazenda);
+        if (!active) return;
+
+        setFarmRecord(record);
+        setIsAdmin(isCurrentUserAdmin());
+        setError(null);
+        setLoading(false);
+      } catch (err) {
+        if (!active) return;
+
+        const message = err instanceof Error ? err.message : '';
+        const isNotFound =
+          message.toLowerCase().includes('fazenda não encontrada') ||
+          message.toLowerCase().includes('not found');
+
+        if (isNotFound) {
+          showToast({
+            id: `farm-not-found-${fazenda}`,
+            variant: 'error',
+            title: 'Fazenda não encontrada',
+            message:
+              'Esta fazenda foi excluída recentemente ou não está mais disponível. A listagem foi atualizada.',
+          });
+          router.replace('/platform/fazendas');
+          return;
+        }
+
+        setError(message || 'Não foi possível carregar a fazenda');
+        setLoading(false);
+      }
+    }
+
+    void fetchFarmDetails();
+
+    return () => {
+      active = false;
+    };
+  }, [fazenda, router, showToast]);
 
   const farm = farmRecord ? toFarm(farmRecord) : null;
 

@@ -121,6 +121,14 @@ export async function login(dto: LoginDto): Promise<AuthToken> {
   return toAuthToken(response);
 }
 
+// Falha antes de a resposta chegar (internet caiu, API fora do ar): as telas tratam diferente de um erro do back.
+export class NetworkError extends Error {
+  constructor(message = 'Não foi possível conectar à API.') {
+    super(message);
+    this.name = 'NetworkError';
+  }
+}
+
 export async function apiFetch(
   path: string,
   options: RequestInit & { accessToken?: string; _retried?: boolean } = {},
@@ -144,7 +152,7 @@ export async function apiFetch(
       },
     });
   } catch {
-    throw new Error('Não foi possível conectar à API.');
+    throw new NetworkError();
   }
 
   if (response.status === 401 && refreshToken && !_retried) {
@@ -264,6 +272,18 @@ export function createSubPlot(
   return authFetch(subPlotsPath(farmId, plotId), jsonBody('POST', dto));
 }
 
+export function updateSubPlot(
+  farmId: string,
+  plotId: string,
+  subPlotId: string,
+  dto: Partial<CreateSubPlotDto>,
+): Promise<PrismaSubPlotRecord> {
+  return authFetch(
+    `${subPlotsPath(farmId, plotId)}/${encodeURIComponent(subPlotId)}`,
+    jsonBody('PATCH', dto),
+  );
+}
+
 export function updateSubPlotStatus(
   farmId: string,
   plotId: string,
@@ -358,9 +378,21 @@ export async function getFarmWithDetails(farmId: string): Promise<PrismaFarmReco
 export async function getFarmsWithDetails(): Promise<PrismaFarmRecord[]> {
   const farms = await getFarms();
 
-  return Promise.all(
-    farms.map(async (farm) => ({ ...farm, plots: await getPlotsWithDetails(farm.id) })),
+  const results = await Promise.all(
+    farms.map(async (farm): Promise<PrismaFarmRecord | null> => {
+      try {
+        return { ...farm, plots: await getPlotsWithDetails(farm.id) };
+      } catch (error) {
+        const message = error instanceof Error ? error.message.toLowerCase() : '';
+        if (message.includes('não encontrada') || message.includes('not found')) {
+          return null;
+        }
+        throw error;
+      }
+    }),
   );
+
+  return results.filter((farm): farm is PrismaFarmRecord => farm !== null);
 }
 
 export function getApprovedUsers(): Promise<User[]> {
@@ -486,7 +518,7 @@ export const FARM_STATUS_LABELS: Record<FarmStatus, string> = {
   SEM_MEDICAO: 'SEM MEDIÇÃO',
 };
 
-// O status de talhão no back nunca muda depois de criado, então fazenda e talhão usam o das parcelas.
+// O back só muda o status do talhão para FINISHED ao processar; antes disso, fazenda e talhão usam o das parcelas.
 export function summarizeSubPlots(subPlots: PrismaSubPlotRecord[]) {
   const totalParcels = subPlots.length;
   const completedParcels = subPlots.filter((subPlot) => subPlot.status === 'COMPLETED').length;

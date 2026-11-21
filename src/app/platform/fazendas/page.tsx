@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { formatArea, getFarmsWithDetails, toFarm } from '@/app/api/api';
 import Topbar from '@/components/ui/Topbar';
 import FarmSummaryCard from '@/components/farm/FarmSummaryCard';
@@ -11,6 +11,7 @@ import { Farm } from '@/types/farm';
 
 export default function FarmsPage() {
   const router = useRouter();
+  const pathname = usePathname();
 
   const [farms, setFarms] = useState<Farm[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -33,8 +34,9 @@ export default function FarmsPage() {
   );
 
   useEffect(() => {
+    void pathname;
     load();
-  }, [load]);
+  }, [load, pathname]);
 
   const totalPlots = farms.reduce((acc, farm) => acc + farm.totalPlots, 0);
   const totalAreaHa = farms.reduce((acc, farm) => acc + farm.areaHa, 0);
