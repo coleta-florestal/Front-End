@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   createSubPlot,
+  deleteSubPlot,
   FARM_STATUS_LABELS,
   formatArea,
   getFarm,
@@ -18,6 +19,7 @@ import Topbar from '@/components/ui/Topbar';
 import { TalhaoCard } from '@/components/talhoes/TalhaoCard';
 import { ParcelRow } from '@/components/parcels/ParcelRow';
 import { CreateParcelModal } from '@/components/modal/CreateParcelModal';
+import { DeleteParcelModal } from '@/components/modal/DeleteParcelModal';
 import { ReopenParcelModal } from '@/components/modal/ReopenParcelModal';
 import { CompleteParcelModal } from '@/components/modal/CompleteParcelModal';
 import Button from '@/components/core/Button';
@@ -40,6 +42,7 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
   const [isAdmin, setIsAdmin] = useState(false);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [parcelaToDelete, setParcelaToDelete] = useState<PrismaSubPlotRecord | null>(null);
   const [isReopenModalOpen, setIsReopenModalOpen] = useState(false);
   const [parcelaReabrir, setParcelaReabrir] = useState('');
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
@@ -75,6 +78,7 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
 
   const parcelas = subPlots.map((subPlot) => ({
     id: subPlot.id,
+    record: subPlot,
     nome: subPlot.name,
     numero: `${subPlot.name}`,
     status: getSubPlotStatusLabel(subPlot),
@@ -106,6 +110,12 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
     });
 
     setIsCreateModalOpen(false);
+    await load();
+  };
+
+  const handleConfirmDeleteParcela = async (subPlotRecord: PrismaSubPlotRecord) => {
+    await deleteSubPlot(fazenda, talhao, subPlotRecord.id);
+    setParcelaToDelete(null);
     await load();
   };
 
@@ -202,6 +212,8 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
                     area={parcela.area}
                     arvoresMedidas={parcela.arvoresMedidas}
                     metaReferencia={parcela.metaReferencia}
+                    isAdmin={isAdmin}
+                    onDelete={() => setParcelaToDelete(parcela.record)}
                     onReabrir={
                       parcela.concluido
                         ? () => {
@@ -256,6 +268,15 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
           isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
           onSave={handleCreateParcela}
+        />
+      )}
+
+      {parcelaToDelete && (
+        <DeleteParcelModal
+          isOpen={Boolean(parcelaToDelete)}
+          parcela={parcelaToDelete}
+          onConfirm={handleConfirmDeleteParcela}
+          onClose={() => setParcelaToDelete(null)}
         />
       )}
 
