@@ -1,3 +1,28 @@
+# [1.1.0-rc.6](https://github.com/coleta-florestal/Front-End/compare/v1.1.0-rc.5...v1.1.0-rc.6) (2026-11-21)
+
+### Bug Fixes
+
+- adiciona timeout nas chamadas de api ([0d5dc02](https://github.com/coleta-florestal/Front-End/commit/0d5dc0291d6a5f81e9c4dc0d8c1c012c7c1f4481))
+- **api:** ignora fazendas não encontradas ao carregar detalhes ([086f390](https://github.com/coleta-florestal/Front-End/commit/086f390e3e17b49e514d07baee3a3e2471c1c1fd))
+- **arvores:** exibe mensagens de validação no modal de edição (UC24) ([3a6c82a](https://github.com/coleta-florestal/Front-End/commit/3a6c82a1a35e2cb107b804bad09876abc2f8a2e2))
+- **auth:** alinha cadastro, recuperação de senha e perfil ao novo fluxo do back ([ed42e07](https://github.com/coleta-florestal/Front-End/commit/ed42e07204b5fb3bdc5e58a636cd5a90d9249f0d))
+- **fazendas:** exibe alerta e retorna à listagem em erro 404 ([1d57882](https://github.com/coleta-florestal/Front-End/commit/1d5788251300b547a729305c4b54783972a4a139))
+- **fazendas:** recarrega listagem ao mudar de rota ([69c341f](https://github.com/coleta-florestal/Front-End/commit/69c341f4ff9af2c5b50b41ed1a742c0c2a584315))
+- **parcelas:** exibe feedback de validação nos campos do modal de criação ([b5630c1](https://github.com/coleta-florestal/Front-End/commit/b5630c1e3afd16247fb4360717ee9129a84f408f))
+- **processamento:** trata regras de finalização do talhão (UC19) ([ddef04d](https://github.com/coleta-florestal/Front-End/commit/ddef04d6e37f31efecb08073d6eda171b815c7e8))
+
+### Features
+
+- **api:** adiciona função updateSubPlot para atualizar parcela ([edf1c7b](https://github.com/coleta-florestal/Front-End/commit/edf1c7b88ab83cf045dd384b05d0223b1847fc29))
+- **layout:** envolve aplicação com provedor de toast ([89a11ba](https://github.com/coleta-florestal/Front-End/commit/89a11ba99e3e142c79b24ee4ed3f354ae156dfec))
+- **parcelas:** adiciona botão de editar em parcelas abertas ou reabertas ([3a5ff30](https://github.com/coleta-florestal/Front-End/commit/3a5ff3031eb6de74da3fee13cc482db61f8ba9d9))
+- **parcelas:** adiciona botão de excluir parcela para administradores ([58f75d7](https://github.com/coleta-florestal/Front-End/commit/58f75d7ba77b01ac74a509c33d168feda5df7860))
+- **parcelas:** cria modal de confirmação para excluir parcela ([423804b](https://github.com/coleta-florestal/Front-End/commit/423804b36965279a3f5bc5e0609cc08d4c938a9c))
+- **parcelas:** cria modal de edição de parcela com validação de campos ([e0814e0](https://github.com/coleta-florestal/Front-End/commit/e0814e063219d18e23d59c1311e70ea1edd859b3))
+- **parcelas:** integra edição de área e meta de parcelas na tela do talhão ([e066ada](https://github.com/coleta-florestal/Front-End/commit/e066ada0d7ad51a9a1bfd55bc4bc1e9bb3e3cb61))
+- **parcelas:** integra exclusão de parcela e exibe mensagens de bloqueio ([bb5a815](https://github.com/coleta-florestal/Front-End/commit/bb5a8154594e11e1ad617f50e6c736193b89e648))
+- **ui:** adiciona provedor de alertas toast ([5e305f1](https://github.com/coleta-florestal/Front-End/commit/5e305f19c9cedf6c29e66598d9b8e76117c9fd3a))
+
 # [1.1.0-rc.5](https://github.com/coleta-florestal/Front-End/compare/v1.1.0-rc.4...v1.1.0-rc.5) (2026-11-19)
 
 ### Bug Fixes
