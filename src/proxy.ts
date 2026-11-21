@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { decodeJwt, isAdminToken } from './lib/auth';
 
-const PUBLIC_ROUTES = ['/', '/cadastro', '/recuperar-acesso', 'redefinir-senha'];
+const PUBLIC_ROUTES = ['/', '/cadastro', '/recuperar-acesso', '/redefinir-senha'];
 
 const PROCESSING_ROUTE = /^\/platform\/fazendas\/[^/]+\/[^/]+\/processamento\/?$/;
 
