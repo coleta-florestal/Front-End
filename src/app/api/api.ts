@@ -370,9 +370,21 @@ export async function getFarmWithDetails(farmId: string): Promise<PrismaFarmReco
 export async function getFarmsWithDetails(): Promise<PrismaFarmRecord[]> {
   const farms = await getFarms();
 
-  return Promise.all(
-    farms.map(async (farm) => ({ ...farm, plots: await getPlotsWithDetails(farm.id) })),
+  const results = await Promise.all(
+    farms.map(async (farm): Promise<PrismaFarmRecord | null> => {
+      try {
+        return { ...farm, plots: await getPlotsWithDetails(farm.id) };
+      } catch (error) {
+        const message = error instanceof Error ? error.message.toLowerCase() : '';
+        if (message.includes('não encontrada') || message.includes('not found')) {
+          return null;
+        }
+        throw error;
+      }
+    }),
   );
+
+  return results.filter((farm): farm is PrismaFarmRecord => farm !== null);
 }
 
 export function getApprovedUsers(): Promise<User[]> {

@@ -1,5 +1,5 @@
 import Button from '@/components/core/Button';
-import { Edit } from '@/components/core/Icons';
+import { Edit, Trash } from '@/components/core/Icons';
 
 export interface ParcelRowProps {
   numero: string;
@@ -9,6 +9,8 @@ export interface ParcelRowProps {
   arvoresMedidas: number;
   metaReferencia: number;
   onEdit?: () => void;
+  isAdmin?: boolean;
+  onDelete?: () => void;
   onReabrir?: () => void;
   onVerArvores?: () => void;
   primaryLabel?: string;
@@ -27,6 +29,8 @@ export function ParcelRow({
   arvoresMedidas,
   metaReferencia,
   onEdit,
+  isAdmin = false,
+  onDelete,
   onReabrir,
   onVerArvores,
   primaryLabel,
@@ -164,6 +168,17 @@ export function ParcelRow({
               onClick={primaryOnClick}
               className={`w-full sm:w-auto border border-[#BFC9BF] bg-transparent text-verde-mata hover:bg-[#F3EFE9] rounded-xl px-6 py-2.5 font-semibold text-sm ${primaryClassName || ''}`}
             />
+          )}
+
+          {isAdmin && onDelete && (
+            <button
+              type="button"
+              onClick={onDelete}
+              aria-label={`Excluir ${numero}`}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#E5B8AD] bg-transparent transition-colors hover:bg-[#FBECE8] cursor-pointer"
+            >
+              <Trash size={18} color="#A64B35" />
+            </button>
           )}
         </div>
       </div>
