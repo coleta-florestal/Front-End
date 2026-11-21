@@ -1,3 +1,9 @@
+# [1.1.0-rc.7](https://github.com/coleta-florestal/Front-End/compare/v1.1.0-rc.6...v1.1.0-rc.7) (2026-11-21)
+
+### Features
+
+- adiciona exportação pdf no processamento do talhão ([723d23d](https://github.com/coleta-florestal/Front-End/commit/723d23dcaa3a18c9bcbd7c47780e0d968f0b422b))
+
 # [1.1.0-rc.6](https://github.com/coleta-florestal/Front-End/compare/v1.1.0-rc.5...v1.1.0-rc.6) (2026-11-21)
 
 ### Bug Fixes
