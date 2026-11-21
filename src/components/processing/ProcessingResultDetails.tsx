@@ -20,7 +20,7 @@ function DetailSection({ title, children }: { title: string; children: ReactNode
   );
 }
 
-const statRows: { label: string; value: (metric: StatisticalMetricResult) => string }[] = [
+export const statRows: { label: string; value: (metric: StatisticalMetricResult) => string }[] = [
   { label: 'Parcelas (n)', value: (m) => String(m.n) },
   { label: 'Média', value: (m) => formatNumber(m.mean) },
   { label: 'Desvio padrão', value: (m) => formatNumber(m.standardDeviation) },

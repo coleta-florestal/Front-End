@@ -47,7 +47,7 @@ export default function Header({ isAdmin }: { isAdmin: boolean }) {
   const isProfileActive = pathname.startsWith('/platform/perfil');
 
   return (
-    <header className="lg:hidden fixed top-0 left-0 right-0 z-40 h-16 bg-verde-mata border-b border-creme-flor/20">
+    <header className="lg:hidden print:hidden fixed top-0 left-0 right-0 z-40 h-16 bg-verde-mata border-b border-creme-flor/20">
       <div className="flex h-full items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-3">
           <Image

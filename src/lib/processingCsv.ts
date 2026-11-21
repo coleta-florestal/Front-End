@@ -93,7 +93,7 @@ export function buildTreesCsv(
 }
 
 // "Talhão 01 — Norte" -> "talhao-01-norte"
-function slugify(text: string): string {
+export function slugify(text: string): string {
   return text
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
