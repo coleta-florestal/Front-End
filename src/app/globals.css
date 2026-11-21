@@ -35,3 +35,30 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), sans-serif;
 }
+
+@page {
+  size: A4;
+  margin: 14mm 12mm 16mm;
+
+  @bottom-left {
+    content: 'Glupta · Relatório de Inventário Florestal';
+    font-size: 8pt;
+    color: #6d786e;
+  }
+
+  @bottom-right {
+    content: 'Página ' counter(page) ' de ' counter(pages);
+    font-size: 8pt;
+    color: #6d786e;
+  }
+}
+
+@media print {
+  /* Sem isso o navegador descarta fundos coloridos (faixa verde, cards) ao imprimir */
+  html,
+  body {
+    background: #fff;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

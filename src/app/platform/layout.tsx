@@ -12,7 +12,7 @@ export default async function PlatformLayout({ children }: { children: React.Rea
       <Header isAdmin={isAdmin} />
       <div className="flex flex-1 min-h-0 w-full">
         <Sidebar isAdmin={isAdmin} />
-        <main className="flex-1 min-h-0 lg:pt-0 pt-16 pb-16 lg:pb-4 overflow-y-auto bg-creme-flor flex flex-col">
+        <main className="flex-1 min-h-0 lg:pt-0 pt-16 pb-16 lg:pb-4 overflow-y-auto bg-creme-flor flex flex-col print:block print:overflow-visible print:p-0 print:bg-white">
           <div className="w-full flex-1 min-h-full">{children}</div>
         </main>
       </div>

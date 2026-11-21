@@ -15,6 +15,7 @@ import Button from '@/components/core/Button';
 import { Check } from '@/components/core/Icons';
 import { HypsometricStep, HypsometricValues } from '@/components/processing/HypsometricStep';
 import { ProcessingExportActions } from '@/components/processing/ProcessingExportActions';
+import { ProcessingPrintReport } from '@/components/processing/ProcessingPrintReport';
 import { ProcessingResultDetails } from '@/components/processing/ProcessingResultDetails';
 import { ProcessingSummaryCard } from '@/components/processing/ProcessingSummaryCard';
 import {
@@ -208,118 +209,123 @@ export default function ProcessamentoPage({ params }: ProcessamentoPageProps) {
   const handleBack = () => router.push(`/platform/fazendas/${fazenda}/${talhao}`);
 
   return (
-    <div className="min-h-screen bg-[#ECE8DE]">
-      <Topbar
-        title="Processamento"
-        description="Equação, coeficientes e metodologia"
-        onBack={handleBack}
-      />
+    <>
+      <div className="min-h-screen bg-[#ECE8DE] print:hidden">
+        <Topbar
+          title="Processamento"
+          description="Equação, coeficientes e metodologia"
+          onBack={handleBack}
+        />
 
-      <main className="mx-auto flex max-w-4xl flex-col gap-4 px-4 py-6 lg:px-6">
-        {loading && <p className="text-sm text-verde-eucalipto">Carregando dados...</p>}
+        <main className="mx-auto flex max-w-4xl flex-col gap-4 px-4 py-6 lg:px-6">
+          {loading && <p className="text-sm text-verde-eucalipto">Carregando dados...</p>}
 
-        {loadError && (
-          <p role="alert" className="text-sm text-coral-flor">
-            {loadError}
-          </p>
-        )}
+          {loadError && (
+            <p role="alert" className="text-sm text-coral-flor">
+              {loadError}
+            </p>
+          )}
 
-        {!loading && !loadError && farm && plot && (
-          <>
-            {processingBlocker ? (
-              <div
-                id="processamento-bloqueio"
-                role="alert"
-                className="rounded-xl border border-coral-flor/40 bg-coral-flor/10 px-4 py-3 text-sm text-verde-mata"
-              >
-                <p>
-                  <strong>
-                    {farm.name} · {plot.name}
-                  </strong>{' '}
-                  tem {resumo.completedParcels} de {resumo.totalParcels} parcelas concluídas.{' '}
-                  {processingBlocker}
-                </p>
-              </div>
-            ) : (
-              <div
-                id="processamento-aviso"
-                className="flex items-start gap-3 rounded-xl border border-[#B8D8BE] bg-[#E8F0EA] px-4 py-3 text-sm text-verde-mata"
-              >
-                <Check size={18} color="#2C5F2D" className="mt-0.5 shrink-0" />
-                <p>
-                  <strong>
-                    {farm.name} · {plot.name}
-                  </strong>{' '}
-                  concluído com {resumo.completedParcels} de {resumo.totalParcels} parcelas e{' '}
-                  {resumo.measuredTrees} árvores. Defina as equações para processar.
-                </p>
-              </div>
-            )}
+          {!loading && !loadError && farm && plot && (
+            <>
+              {processingBlocker ? (
+                <div
+                  id="processamento-bloqueio"
+                  role="alert"
+                  className="rounded-xl border border-coral-flor/40 bg-coral-flor/10 px-4 py-3 text-sm text-verde-mata"
+                >
+                  <p>
+                    <strong>
+                      {farm.name} · {plot.name}
+                    </strong>{' '}
+                    tem {resumo.completedParcels} de {resumo.totalParcels} parcelas concluídas.{' '}
+                    {processingBlocker}
+                  </p>
+                </div>
+              ) : (
+                <div
+                  id="processamento-aviso"
+                  className="flex items-start gap-3 rounded-xl border border-[#B8D8BE] bg-[#E8F0EA] px-4 py-3 text-sm text-verde-mata"
+                >
+                  <Check size={18} color="#2C5F2D" className="mt-0.5 shrink-0" />
+                  <p>
+                    <strong>
+                      {farm.name} · {plot.name}
+                    </strong>{' '}
+                    concluído com {resumo.completedParcels} de {resumo.totalParcels} parcelas e{' '}
+                    {resumo.measuredTrees} árvores. Defina as equações para processar.
+                  </p>
+                </div>
+              )}
 
-            {isPlotFinished && !processingBlocker && (
-              <div
-                id="processamento-reprocessar"
-                className="rounded-xl border border-[#D7D0C2] bg-white px-4 py-3 text-sm text-verde-mata"
-              >
-                <p>
-                  Este talhão já foi processado. Processar novamente vai gerar um novo resultado com
-                  a equação escolhida.
-                </p>
-              </div>
-            )}
+              {isPlotFinished && !processingBlocker && (
+                <div
+                  id="processamento-reprocessar"
+                  className="rounded-xl border border-[#D7D0C2] bg-white px-4 py-3 text-sm text-verde-mata"
+                >
+                  <p>
+                    Este talhão já foi processado. Processar novamente vai gerar um novo resultado
+                    com a equação escolhida.
+                  </p>
+                </div>
+              )}
 
-            <HypsometricStep
-              values={hypsometric}
-              canEdit={isAdmin}
-              treesWithoutHeight={treesWithoutHeight}
-              totalTrees={allTrees.length}
-              onChange={setHypsometric}
-            />
-
-            <VolumetricStep
-              equations={equations}
-              selectedEquation={selectedEquation}
-              coefficients={coefficients}
-              coefficientErrors={coefficientErrors}
-              canEdit={isAdmin}
-              loadError={equationsError}
-              onSelectEquation={handleSelectEquation}
-              onChangeCoefficient={handleChangeCoefficient}
-            />
-
-            {submitError && (
-              <p role="alert" className="text-sm text-coral-flor">
-                {submitError}
-              </p>
-            )}
-
-            <div
-              id="processamento-acoes"
-              className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"
-            >
-              <Button
-                label="Voltar"
-                onClick={handleBack}
-                className="cursor-pointer rounded-xl border-2 border-[#D7D0C2] bg-white px-6 py-3 text-verde-mata shadow-none hover:bg-[#F5F2EC]"
+              <HypsometricStep
+                values={hypsometric}
+                canEdit={isAdmin}
+                treesWithoutHeight={treesWithoutHeight}
+                totalTrees={allTrees.length}
+                onChange={setHypsometric}
               />
-              <Button
-                label={submitting ? 'Processando...' : 'Processar: altura → volume'}
-                onClick={handleProcess}
-                disabled={submitting || !selectedEquation || Boolean(processingBlocker)}
-                className="cursor-pointer rounded-xl bg-verde-mata px-6 py-3 text-white hover:bg-verde-mata/90"
-              />
-            </div>
 
-            {result && (
-              <>
-                <ProcessingSummaryCard result={result} />
-                <ProcessingExportActions result={result} />
-                <ProcessingResultDetails result={result} />
-              </>
-            )}
-          </>
-        )}
-      </main>
-    </div>
+              <VolumetricStep
+                equations={equations}
+                selectedEquation={selectedEquation}
+                coefficients={coefficients}
+                coefficientErrors={coefficientErrors}
+                canEdit={isAdmin}
+                loadError={equationsError}
+                onSelectEquation={handleSelectEquation}
+                onChangeCoefficient={handleChangeCoefficient}
+              />
+
+              {submitError && (
+                <p role="alert" className="text-sm text-coral-flor">
+                  {submitError}
+                </p>
+              )}
+
+              <div
+                id="processamento-acoes"
+                className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"
+              >
+                <Button
+                  label="Voltar"
+                  onClick={handleBack}
+                  className="cursor-pointer rounded-xl border-2 border-[#D7D0C2] bg-white px-6 py-3 text-verde-mata shadow-none hover:bg-[#F5F2EC]"
+                />
+                <Button
+                  label={submitting ? 'Processando...' : 'Processar: altura → volume'}
+                  onClick={handleProcess}
+                  disabled={submitting || !selectedEquation || Boolean(processingBlocker)}
+                  className="cursor-pointer rounded-xl bg-verde-mata px-6 py-3 text-white hover:bg-verde-mata/90"
+                />
+              </div>
+
+              {result && (
+                <>
+                  <ProcessingSummaryCard result={result} />
+                  <ProcessingExportActions result={result} />
+                  <ProcessingResultDetails result={result} />
+                </>
+              )}
+            </>
+          )}
+        </main>
+      </div>
+
+      {/* Documento só para impressão: a tela acima fica oculta ao exportar o PDF */}
+      {result && farm && <ProcessingPrintReport result={result} farmName={farm.name} />}
+    </>
   );
 }
