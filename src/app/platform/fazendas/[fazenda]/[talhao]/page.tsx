@@ -78,6 +78,8 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
   }, [load]);
 
   const resumo = summarizeSubPlots(subPlots);
+  // Talhão processado não recebe parcelas novas nem conclusões
+  const isPlotFinished = plot?.status === 'FINISHED';
 
   const parcelas = subPlots.map((subPlot) => ({
     id: subPlot.id,
@@ -176,7 +178,7 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
           <>
             <TalhaoCard
               nome={plot.name}
-              status={FARM_STATUS_LABELS[resumo.status]}
+              status={isPlotFinished ? 'FINALIZADO' : FARM_STATUS_LABELS[resumo.status]}
               localizacao={farm.address ?? 'Local não informado'}
               descricao={plot.description ?? '—'}
               responsavel={farm.owner?.name ?? 'Responsável técnico'}
@@ -199,11 +201,13 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
                 />
               </div>
               <div className="flex flex-col gap-3 sm:flex-row">
-                <Button
-                  label="+ Adicionar Parcela"
-                  onClick={() => setIsCreateModalOpen(true)}
-                  className="border-2 border-verde-mata/30 bg-white text-verde-mata hover:bg-verde-mata/5 rounded-xl px-6 h-11.5 font-semibold whitespace-nowrap"
-                />
+                {!isPlotFinished && (
+                  <Button
+                    label="+ Adicionar Parcela"
+                    onClick={() => setIsCreateModalOpen(true)}
+                    className="border-2 border-verde-mata/30 bg-white text-verde-mata hover:bg-verde-mata/5 rounded-xl px-6 h-11.5 font-semibold whitespace-nowrap"
+                  />
+                )}
                 {isAdmin && (
                   <Button
                     label="Processar talhão"
@@ -257,7 +261,7 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
                     }
                     concluirLabel="Concluir parcela"
                     concluirOnClick={
-                      parcela.status === 'EM ANDAMENTO'
+                      parcela.status === 'EM ANDAMENTO' && !isPlotFinished
                         ? () => {
                             setParcelaCompletar(parcela.id);
                             setIsCompleteModalOpen(true);
