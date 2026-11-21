@@ -80,7 +80,7 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
     id: subPlot.id,
     record: subPlot,
     nome: subPlot.name,
-    numero: `Parcela ${subPlot.name}`,
+    numero: `${subPlot.name}`,
     status: getSubPlotStatusLabel(subPlot),
     concluido: subPlot.status === 'COMPLETED',
     area: subPlot.areaM2 != null ? `${formatArea(subPlot.areaM2)} m²` : '—',
