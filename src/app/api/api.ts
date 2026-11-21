@@ -103,13 +103,17 @@ function toAuthToken(response: { access_token: string }): AuthToken {
   return { accessToken: response.access_token };
 }
 
-export async function createUser(dto: CreateUserDto): Promise<AuthToken> {
-  const response = await apiFetch('/auth/signup', {
-    method: 'POST',
-    body: JSON.stringify(dto),
-  });
+// O cadastro cria o usuário como PENDING e não devolve token: o acesso só existe depois da aprovação do admin.
+export async function createUser(dto: CreateUserDto): Promise<void> {
+  await apiFetch('/auth/signup', jsonBody('POST', dto));
+}
 
-  return toAuthToken(response);
+export function forgotPassword(email: string): Promise<{ message: string }> {
+  return apiFetch('/auth/forgot-password', jsonBody('POST', { email }));
+}
+
+export function resetPassword(token: string, password: string): Promise<{ message: string }> {
+  return apiFetch('/auth/reset-password', jsonBody('POST', { token, password }));
 }
 
 export async function login(dto: LoginDto): Promise<AuthToken> {
@@ -119,6 +123,14 @@ export async function login(dto: LoginDto): Promise<AuthToken> {
   });
 
   return toAuthToken(response);
+}
+
+// Falha antes de a resposta chegar (internet caiu, API fora do ar): as telas tratam diferente de um erro do back.
+export class NetworkError extends Error {
+  constructor(message = 'Não foi possível conectar à API.') {
+    super(message);
+    this.name = 'NetworkError';
+  }
 }
 
 export async function apiFetch(
@@ -136,6 +148,9 @@ export async function apiFetch(
   try {
     response = await fetch(fullUrl, {
       ...restOptions,
+      // Sem isso, um back pendurado (ex.: SMTP bloqueado no Render) deixa a tela em loading para sempre.
+      // 60s fica acima do cold start do Render (~50s).
+      signal: restOptions.signal ?? AbortSignal.timeout(60_000),
       cache: 'no-store',
       headers: {
         'Content-Type': 'application/json',
@@ -144,7 +159,7 @@ export async function apiFetch(
       },
     });
   } catch {
-    throw new Error('Não foi possível conectar à API.');
+    throw new NetworkError();
   }
 
   if (response.status === 401 && refreshToken && !_retried) {
@@ -162,7 +177,7 @@ export async function apiFetch(
   return text ? JSON.parse(text) : null;
 }
 
-// O back não tem refresh token e o JWT dura 15 min: ao expirar, o único caminho é um novo login.
+// O back não tem refresh token e o JWT dura 8h: ao expirar, o único caminho é um novo login.
 async function expireSession() {
   clearAuthCookies();
   // Fora de componente não há useRouter; o reload também descarta o estado da sessão expirada.
@@ -264,6 +279,18 @@ export function createSubPlot(
   return authFetch(subPlotsPath(farmId, plotId), jsonBody('POST', dto));
 }
 
+export function updateSubPlot(
+  farmId: string,
+  plotId: string,
+  subPlotId: string,
+  dto: Partial<CreateSubPlotDto>,
+): Promise<PrismaSubPlotRecord> {
+  return authFetch(
+    `${subPlotsPath(farmId, plotId)}/${encodeURIComponent(subPlotId)}`,
+    jsonBody('PATCH', dto),
+  );
+}
+
 export function updateSubPlotStatus(
   farmId: string,
   plotId: string,
@@ -358,9 +385,21 @@ export async function getFarmWithDetails(farmId: string): Promise<PrismaFarmReco
 export async function getFarmsWithDetails(): Promise<PrismaFarmRecord[]> {
   const farms = await getFarms();
 
-  return Promise.all(
-    farms.map(async (farm) => ({ ...farm, plots: await getPlotsWithDetails(farm.id) })),
+  const results = await Promise.all(
+    farms.map(async (farm): Promise<PrismaFarmRecord | null> => {
+      try {
+        return { ...farm, plots: await getPlotsWithDetails(farm.id) };
+      } catch (error) {
+        const message = error instanceof Error ? error.message.toLowerCase() : '';
+        if (message.includes('não encontrada') || message.includes('not found')) {
+          return null;
+        }
+        throw error;
+      }
+    }),
   );
+
+  return results.filter((farm): farm is PrismaFarmRecord => farm !== null);
 }
 
 export function getApprovedUsers(): Promise<User[]> {
@@ -400,7 +439,9 @@ export function deleteUser(id: string): Promise<{ message: string } | null> {
 }
 
 // O back devolve um token novo para o nome/email atualizados já virem no JWT.
-export async function updateMyProfile(dto: ProfileFormValues): Promise<AuthToken> {
+export async function updateMyProfile(
+  dto: Pick<ProfileFormValues, 'name' | 'email'> & { password?: string },
+): Promise<AuthToken> {
   return toAuthToken(await authFetch('/profile/update', jsonBody('PATCH', dto)));
 }
 
@@ -486,7 +527,7 @@ export const FARM_STATUS_LABELS: Record<FarmStatus, string> = {
   SEM_MEDICAO: 'SEM MEDIÇÃO',
 };
 
-// O status de talhão no back nunca muda depois de criado, então fazenda e talhão usam o das parcelas.
+// O back só muda o status do talhão para FINISHED ao processar; antes disso, fazenda e talhão usam o das parcelas.
 export function summarizeSubPlots(subPlots: PrismaSubPlotRecord[]) {
   const totalParcels = subPlots.length;
   const completedParcels = subPlots.filter((subPlot) => subPlot.status === 'COMPLETED').length;

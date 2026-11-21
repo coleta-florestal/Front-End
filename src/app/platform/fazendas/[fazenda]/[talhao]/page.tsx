@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   createSubPlot,
+  deleteSubPlot,
   FARM_STATUS_LABELS,
   formatArea,
   getFarm,
@@ -11,6 +12,7 @@ import {
   getSubPlotStatusLabel,
   getSubPlotsWithTrees,
   summarizeSubPlots,
+  updateSubPlot,
   updateSubPlotStatus,
 } from '@/app/api/api';
 import { isCurrentUserAdmin } from '@/lib/auth';
@@ -18,6 +20,8 @@ import Topbar from '@/components/ui/Topbar';
 import { TalhaoCard } from '@/components/talhoes/TalhaoCard';
 import { ParcelRow } from '@/components/parcels/ParcelRow';
 import { CreateParcelModal } from '@/components/modal/CreateParcelModal';
+import { EditParcelModal } from '@/components/modal/EditParcelModal';
+import { DeleteParcelModal } from '@/components/modal/DeleteParcelModal';
 import { ReopenParcelModal } from '@/components/modal/ReopenParcelModal';
 import { CompleteParcelModal } from '@/components/modal/CompleteParcelModal';
 import Button from '@/components/core/Button';
@@ -40,6 +44,8 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
   const [isAdmin, setIsAdmin] = useState(false);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [parcelaToEdit, setParcelaToEdit] = useState<PrismaSubPlotRecord | null>(null);
+  const [parcelaToDelete, setParcelaToDelete] = useState<PrismaSubPlotRecord | null>(null);
   const [isReopenModalOpen, setIsReopenModalOpen] = useState(false);
   const [parcelaReabrir, setParcelaReabrir] = useState('');
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
@@ -72,11 +78,14 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
   }, [load]);
 
   const resumo = summarizeSubPlots(subPlots);
+  // Talhão processado não recebe parcelas novas nem conclusões
+  const isPlotFinished = plot?.status === 'FINISHED';
 
   const parcelas = subPlots.map((subPlot) => ({
     id: subPlot.id,
+    record: subPlot,
     nome: subPlot.name,
-    numero: `Parcela ${subPlot.name}`,
+    numero: `${subPlot.name}`,
     status: getSubPlotStatusLabel(subPlot),
     concluido: subPlot.status === 'COMPLETED',
     area: subPlot.areaM2 != null ? `${formatArea(subPlot.areaM2)} m²` : '—',
@@ -106,6 +115,24 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
     });
 
     setIsCreateModalOpen(false);
+    await load();
+  };
+
+  const handleUpdateParcela = async (data: { area: string; metaArvores: string }) => {
+    if (!parcelaToEdit) return;
+
+    await updateSubPlot(fazenda, talhao, parcelaToEdit.id, {
+      areaM2: Number(data.area),
+      targetTrees: Number(data.metaArvores),
+    });
+
+    setParcelaToEdit(null);
+    await load();
+  };
+
+  const handleConfirmDeleteParcela = async (subPlotRecord: PrismaSubPlotRecord) => {
+    await deleteSubPlot(fazenda, talhao, subPlotRecord.id);
+    setParcelaToDelete(null);
     await load();
   };
 
@@ -151,7 +178,7 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
           <>
             <TalhaoCard
               nome={plot.name}
-              status={FARM_STATUS_LABELS[resumo.status]}
+              status={isPlotFinished ? 'FINALIZADO' : FARM_STATUS_LABELS[resumo.status]}
               localizacao={farm.address ?? 'Local não informado'}
               descricao={plot.description ?? '—'}
               responsavel={farm.owner?.name ?? 'Responsável técnico'}
@@ -174,11 +201,13 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
                 />
               </div>
               <div className="flex flex-col gap-3 sm:flex-row">
-                <Button
-                  label="+ Adicionar Parcela"
-                  onClick={() => setIsCreateModalOpen(true)}
-                  className="border-2 border-verde-mata/30 bg-white text-verde-mata hover:bg-verde-mata/5 rounded-xl px-6 h-11.5 font-semibold whitespace-nowrap"
-                />
+                {!isPlotFinished && (
+                  <Button
+                    label="+ Adicionar Parcela"
+                    onClick={() => setIsCreateModalOpen(true)}
+                    className="border-2 border-verde-mata/30 bg-white text-verde-mata hover:bg-verde-mata/5 rounded-xl px-6 h-11.5 font-semibold whitespace-nowrap"
+                  />
+                )}
                 {isAdmin && (
                   <Button
                     label="Processar talhão"
@@ -202,6 +231,9 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
                     area={parcela.area}
                     arvoresMedidas={parcela.arvoresMedidas}
                     metaReferencia={parcela.metaReferencia}
+                    onEdit={!parcela.concluido ? () => setParcelaToEdit(parcela.record) : undefined}
+                    isAdmin={isAdmin}
+                    onDelete={() => setParcelaToDelete(parcela.record)}
                     onReabrir={
                       parcela.concluido
                         ? () => {
@@ -229,7 +261,7 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
                     }
                     concluirLabel="Concluir parcela"
                     concluirOnClick={
-                      parcela.status === 'EM ANDAMENTO'
+                      parcela.status === 'EM ANDAMENTO' && !isPlotFinished
                         ? () => {
                             setParcelaCompletar(parcela.id);
                             setIsCompleteModalOpen(true);
@@ -256,6 +288,25 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
           isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
           onSave={handleCreateParcela}
+        />
+      )}
+
+      {parcelaToEdit && (
+        <EditParcelModal
+          key={parcelaToEdit.id}
+          isOpen={Boolean(parcelaToEdit)}
+          parcela={parcelaToEdit}
+          onClose={() => setParcelaToEdit(null)}
+          onSave={handleUpdateParcela}
+        />
+      )}
+
+      {parcelaToDelete && (
+        <DeleteParcelModal
+          isOpen={Boolean(parcelaToDelete)}
+          parcela={parcelaToDelete}
+          onConfirm={handleConfirmDeleteParcela}
+          onClose={() => setParcelaToDelete(null)}
         />
       )}
 

@@ -7,6 +7,7 @@ import {
   getFarm,
   getPlot,
   getSubPlotsWithTrees,
+  NetworkError,
   processPlot,
   summarizeSubPlots,
 } from '@/app/api/api';
@@ -33,6 +34,21 @@ interface ProcessamentoPageProps {
 }
 
 const EMPTY_COEFFICIENTS: Coefficients = { beta0: '', beta1: '', beta2: '' };
+
+// Mesma regra do back: todas as parcelas encerradas e pelo menos 2 concluídas
+const MIN_COMPLETED_PARCELS = 2;
+
+function getProcessingBlocker(subPlots: PrismaSubPlotRecord[]): string | null {
+  const pending = subPlots.filter((subPlot) => subPlot.status !== 'COMPLETED');
+  if (pending.length > 0) {
+    const names = pending.map((subPlot) => subPlot.name).join(', ');
+    return `Encerre todas as parcelas antes de processar. Parcelas pendentes: ${names}.`;
+  }
+  if (subPlots.length < MIN_COMPLETED_PARCELS) {
+    return `São necessárias pelo menos ${MIN_COMPLETED_PARCELS} parcelas concluídas para processar o talhão.`;
+  }
+  return null;
+}
 
 // Aceita "1,85" e "1.85"; campo vazio vira NaN para ser barrado na validação
 function parseDecimal(value: string): number {
@@ -119,6 +135,8 @@ export default function ProcessamentoPage({ params }: ProcessamentoPageProps) {
   const allTrees = subPlots.flatMap((subPlot) => subPlot.trees ?? []);
   const treesWithoutHeight = allTrees.filter((tree) => !tree.height).length;
   const selectedEquation = equations.find((equation) => equation.id === selectedEquationId);
+  const processingBlocker = getProcessingBlocker(subPlots);
+  const isPlotFinished = plot?.status === 'FINISHED';
 
   const handleSelectEquation = (equationId: string) => {
     const equation = equations.find((item) => item.id === equationId);
@@ -164,18 +182,24 @@ export default function ProcessamentoPage({ params }: ProcessamentoPageProps) {
   };
 
   const handleProcess = async () => {
-    if (!selectedEquation) return;
+    if (!selectedEquation || processingBlocker) return;
     const request = buildRequest(selectedEquation);
     if (!request) return;
 
     setSubmitting(true);
     setSubmitError(null);
-    setResult(null);
     try {
       // As árvores vêm no resultado para o CSV por árvore
       setResult(await processPlot(fazenda, talhao, { ...request, includeTreesInResult: true }));
+      // O back finaliza o talhão ao processar
+      setPlot((current) => (current ? { ...current, status: 'FINISHED' } : current));
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : 'Não foi possível processar o talhão');
+      // Sem conexão, nada mudou no back: o resultado anterior continua na tela
+      if (err instanceof NetworkError) {
+        setSubmitError('Conexão perdida. Verifique sua internet e tente novamente.');
+      } else {
+        setSubmitError(err instanceof Error ? err.message : 'Não foi possível processar o talhão');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -202,19 +226,47 @@ export default function ProcessamentoPage({ params }: ProcessamentoPageProps) {
 
         {!loading && !loadError && farm && plot && (
           <>
-            <div
-              id="processamento-aviso"
-              className="flex items-start gap-3 rounded-xl border border-[#B8D8BE] bg-[#E8F0EA] px-4 py-3 text-sm text-verde-mata"
-            >
-              <Check size={18} color="#2C5F2D" className="mt-0.5 shrink-0" />
-              <p>
-                <strong>
-                  {farm.name} · {plot.name}
-                </strong>{' '}
-                concluído com {resumo.completedParcels} de {resumo.totalParcels} parcelas e{' '}
-                {resumo.measuredTrees} árvores. Defina as equações para processar.
-              </p>
-            </div>
+            {processingBlocker ? (
+              <div
+                id="processamento-bloqueio"
+                role="alert"
+                className="rounded-xl border border-coral-flor/40 bg-coral-flor/10 px-4 py-3 text-sm text-verde-mata"
+              >
+                <p>
+                  <strong>
+                    {farm.name} · {plot.name}
+                  </strong>{' '}
+                  tem {resumo.completedParcels} de {resumo.totalParcels} parcelas concluídas.{' '}
+                  {processingBlocker}
+                </p>
+              </div>
+            ) : (
+              <div
+                id="processamento-aviso"
+                className="flex items-start gap-3 rounded-xl border border-[#B8D8BE] bg-[#E8F0EA] px-4 py-3 text-sm text-verde-mata"
+              >
+                <Check size={18} color="#2C5F2D" className="mt-0.5 shrink-0" />
+                <p>
+                  <strong>
+                    {farm.name} · {plot.name}
+                  </strong>{' '}
+                  concluído com {resumo.completedParcels} de {resumo.totalParcels} parcelas e{' '}
+                  {resumo.measuredTrees} árvores. Defina as equações para processar.
+                </p>
+              </div>
+            )}
+
+            {isPlotFinished && !processingBlocker && (
+              <div
+                id="processamento-reprocessar"
+                className="rounded-xl border border-[#D7D0C2] bg-white px-4 py-3 text-sm text-verde-mata"
+              >
+                <p>
+                  Este talhão já foi processado. Processar novamente vai gerar um novo resultado com
+                  a equação escolhida.
+                </p>
+              </div>
+            )}
 
             <HypsometricStep
               values={hypsometric}
@@ -253,7 +305,7 @@ export default function ProcessamentoPage({ params }: ProcessamentoPageProps) {
               <Button
                 label={submitting ? 'Processando...' : 'Processar: altura → volume'}
                 onClick={handleProcess}
-                disabled={submitting || !selectedEquation}
+                disabled={submitting || !selectedEquation || Boolean(processingBlocker)}
                 className="cursor-pointer rounded-xl bg-verde-mata px-6 py-3 text-white hover:bg-verde-mata/90"
               />
             </div>

@@ -14,6 +14,11 @@ const nextConfig: NextConfig = {
   experimental: {
     agentUpgrade: 'security',
   },
+
+  // O e-mail de recuperação do back aponta para /reset-password; o ?token= é repassado no redirect.
+  async redirects() {
+    return [{ source: '/reset-password', destination: '/redefinir-senha', permanent: false }];
+  },
 };
 
 export default nextConfig;
