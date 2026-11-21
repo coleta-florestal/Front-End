@@ -6,12 +6,13 @@ import { Input } from '@/components/core/Input';
 import Image from 'next/image';
 import Link from 'next/link';
 import logo from '../../../public/assets/apenas_circulo.png';
+import { forgotPassword } from '../api/api';
 
 export default function RecuperarAcesso() {
   const [email, setEmail] = useState('');
 
   const [error, setError] = useState<string | null>(null);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const validate = (): boolean => {
@@ -31,21 +32,23 @@ export default function RecuperarAcesso() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setIsSuccess(false);
+    setSuccessMessage(null);
 
     if (!validate()) return;
 
     setLoading(true);
 
     try {
-      // Simulação da chamada da API
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // O back responde a mesma mensagem exista ou não o e-mail, para não revelar quem tem conta.
+      const { message } = await forgotPassword(email.trim());
 
-      setIsSuccess(true);
+      setSuccessMessage(message);
       setEmail('');
       setError(null);
-    } catch {
-      setError('Erro ao enviar as instruções. Tente novamente.');
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Erro ao enviar as instruções. Tente novamente.',
+      );
     } finally {
       setLoading(false);
     }
@@ -95,7 +98,7 @@ export default function RecuperarAcesso() {
             </p>
           )}
 
-          {isSuccess && (
+          {successMessage && (
             <p className="flex items-center gap-1 text-sm text-creme-flor">
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <circle cx="7" cy="7" r="6.5" stroke="currentColor" strokeWidth="1" />
@@ -107,7 +110,7 @@ export default function RecuperarAcesso() {
                   strokeLinejoin="round"
                 />
               </svg>
-              Instruções enviadas! Verifique seu email.
+              {successMessage}
             </p>
           )}
 

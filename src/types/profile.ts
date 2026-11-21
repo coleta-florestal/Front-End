@@ -7,6 +7,9 @@ export interface UserProfile {
 export interface ProfileFormValues {
   name: string;
   email: string;
+  // Vazios significam "manter a senha atual".
+  password: string;
+  confirmPassword: string;
 }
 
 export type ProfileFormErrors = Partial<Record<keyof ProfileFormValues, string>>;

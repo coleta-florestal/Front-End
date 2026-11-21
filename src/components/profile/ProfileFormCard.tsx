@@ -6,6 +6,7 @@ import Button from '@/components/core/Button';
 import { Input } from '@/components/core/Input';
 import { setAuthCookies } from '@/lib/auth';
 import { getInitialsFromName } from '@/lib/profile';
+import { getPasswordError } from '@/lib/utils';
 import { ProfileFormErrors, ProfileFormValues, UserProfile } from '@/types/profile';
 
 interface ProfileFormCardProps {
@@ -25,6 +26,13 @@ function validateProfileForm(values: ProfileFormValues): ProfileFormErrors {
   if (!trimmedEmail) errors.email = 'O email é obrigatório.';
   else if (!EMAIL_REGEX.test(trimmedEmail)) errors.email = 'Informe um endereço de email válido.';
 
+  if (values.password || values.confirmPassword) {
+    const passwordError = getPasswordError(values.password);
+    if (passwordError) errors.password = passwordError;
+    else if (values.confirmPassword !== values.password)
+      errors.confirmPassword = 'As senhas não coincidem';
+  }
+
   return errors;
 }
 
@@ -32,6 +40,8 @@ export default function ProfileFormCard({ initialProfile }: ProfileFormCardProps
   const [values, setValues] = useState<ProfileFormValues>({
     name: initialProfile.name,
     email: initialProfile.email,
+    password: '',
+    confirmPassword: '',
   });
   // O cabeçalho só muda depois de salvar, não a cada tecla digitada no campo de nome.
   const [savedName, setSavedName] = useState(initialProfile.name);
@@ -72,11 +82,17 @@ export default function ProfileFormCard({ initialProfile }: ProfileFormCardProps
     setIsSaving(true);
     setErrors({});
 
-    const payload = { name: values.name.trim(), email: values.email.trim() };
+    const payload = {
+      name: values.name.trim(),
+      email: values.email.trim(),
+      // Sem a chave, o back mantém a senha atual.
+      ...(values.password ? { password: values.password } : {}),
+    };
 
     try {
       setAuthCookies(await updateMyProfile(payload));
       setSavedName(payload.name);
+      setValues((prev) => ({ ...prev, password: '', confirmPassword: '' }));
       window.dispatchEvent(new Event('profile-updated'));
       setSuccessMessage('Alterações salvas com sucesso.');
     } catch (err) {
@@ -124,6 +140,30 @@ export default function ProfileFormCard({ initialProfile }: ProfileFormCardProps
             disabled={isSaving}
             maxLength={120}
             onChange={(e) => handleFieldChange('email', e)}
+          />
+
+          <Input
+            id="profile-password"
+            label="Nova senha"
+            type="password"
+            autoComplete="new-password"
+            value={values.password}
+            placeholder="Deixe em branco para manter a atual"
+            error={errors.password}
+            disabled={isSaving}
+            onChange={(e) => handleFieldChange('password', e)}
+          />
+
+          <Input
+            id="profile-confirm-password"
+            label="Confirmar nova senha"
+            type="password"
+            autoComplete="new-password"
+            value={values.confirmPassword}
+            placeholder="Repita a nova senha"
+            error={errors.confirmPassword}
+            disabled={isSaving}
+            onChange={(e) => handleFieldChange('confirmPassword', e)}
           />
         </div>
 

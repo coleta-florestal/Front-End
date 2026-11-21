@@ -6,12 +6,10 @@ import { Input } from '@/components/core/Input';
 import Image from 'next/image';
 import Link from 'next/link';
 import logo from '../../../public/assets/apenas_circulo.png';
-import { useRouter } from 'next/navigation';
 import { createUser } from '../api/api';
-import { setAuthCookies } from '@/lib/auth';
+import { getPasswordError } from '@/lib/utils';
 
 export default function Cadastro() {
-  const router = useRouter();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -45,28 +43,9 @@ export default function Cadastro() {
       return false;
     }
 
-    if (!password) {
-      setError('Senha é obrigatória');
-      return false;
-    }
-    if (password.length < 8) {
-      setError('Senha deve ter pelo menos 8 caracteres');
-      return false;
-    }
-    if (!/[A-Z]/.test(password)) {
-      setError('Senha deve conter pelo menos uma letra maiúscula');
-      return false;
-    }
-    if (!/[a-z]/.test(password)) {
-      setError('Senha deve conter pelo menos uma letra minúscula');
-      return false;
-    }
-    if (!/[0-9]/.test(password)) {
-      setError('Senha deve conter pelo menos um número');
-      return false;
-    }
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-      setError('Senha deve conter pelo menos um caractere especial (!@#$...)');
+    const passwordError = getPasswordError(password);
+    if (passwordError) {
+      setError(passwordError);
       return false;
     }
 
@@ -92,9 +71,7 @@ export default function Cadastro() {
     setLoading(true);
 
     try {
-      const tokens = await createUser({ userName: fullName, email, password, confirmPassword });
-      setAuthCookies(tokens);
-      router.push('/platform/fazendas');
+      await createUser({ userName: fullName, email, password, confirmPassword });
 
       setIsSuccess(true);
       setFullName('');
@@ -104,6 +81,7 @@ export default function Cadastro() {
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Não foi possível cadastrar');
+    } finally {
       setLoading(false);
     }
   }
@@ -163,7 +141,7 @@ export default function Cadastro() {
                 setPassword(e.target.value);
                 if (error) setError(null);
               }}
-              helperText="Mínimo 8 caracteres, com maiúscula, minúscula e número"
+              helperText="Mínimo 8 caracteres, com maiúscula, minúscula, número e símbolo"
               disabled={loading}
             />
             <Input
@@ -208,7 +186,7 @@ export default function Cadastro() {
                   strokeLinejoin="round"
                 />
               </svg>
-              Solicitação enviada! Aguarde aprovação.
+              Solicitação enviada! Você poderá entrar assim que um administrador aprovar seu acesso.
             </p>
           )}
 
