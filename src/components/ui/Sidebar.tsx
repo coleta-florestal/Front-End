@@ -54,7 +54,7 @@ export default function Sidebar({ isAdmin }: { isAdmin: boolean }) {
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
 
   return (
-    <aside className="hidden lg:flex lg:w-80 min-h-screen bg-verde-mata px-4 py-8 flex-col justify-between">
+    <aside className="hidden print:hidden lg:flex lg:w-80 min-h-screen bg-verde-mata px-4 py-8 flex-col justify-between">
       <div>
         <div className="flex gap-4 items-center mb-6">
           <Image
