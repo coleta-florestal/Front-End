@@ -1,5 +1,5 @@
 import Button from '@/components/core/Button';
-import { Trash } from '@/components/core/Icons';
+import { Edit, Trash } from '@/components/core/Icons';
 
 export interface ParcelRowProps {
   numero: string;
@@ -8,6 +8,7 @@ export interface ParcelRowProps {
   area: string;
   arvoresMedidas: number;
   metaReferencia: number;
+  onEdit?: () => void;
   isAdmin?: boolean;
   onDelete?: () => void;
   onReabrir?: () => void;
@@ -27,6 +28,7 @@ export function ParcelRow({
   area,
   arvoresMedidas,
   metaReferencia,
+  onEdit,
   isAdmin = false,
   onDelete,
   onReabrir,
@@ -118,6 +120,17 @@ export function ParcelRow({
         </div>
 
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto mt-4 md:mt-0">
+          {!isConcluida && onEdit && (
+            <button
+              type="button"
+              onClick={onEdit}
+              aria-label={`Editar ${numero}`}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#B8CDB9] bg-transparent transition-colors hover:bg-[#E4EDE2] cursor-pointer"
+            >
+              <Edit size={18} color="#2C5F2D" />
+            </button>
+          )}
+
           {isConcluida && (
             <>
               <Button
