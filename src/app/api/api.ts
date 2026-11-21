@@ -148,6 +148,9 @@ export async function apiFetch(
   try {
     response = await fetch(fullUrl, {
       ...restOptions,
+      // Sem isso, um back pendurado (ex.: SMTP bloqueado no Render) deixa a tela em loading para sempre.
+      // 60s fica acima do cold start do Render (~50s).
+      signal: restOptions.signal ?? AbortSignal.timeout(60_000),
       cache: 'no-store',
       headers: {
         'Content-Type': 'application/json',
