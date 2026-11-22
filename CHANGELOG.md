@@ -1,3 +1,11 @@
+# [1.1.0-rc.8](https://github.com/coleta-florestal/Front-End/compare/v1.1.0-rc.7...v1.1.0-rc.8) (2026-11-22)
+
+### Bug Fixes
+
+- **ci:** passa variáveis de teste ao Playwright e roda em stage ([dc9b408](https://github.com/coleta-florestal/Front-End/commit/dc9b40895ef03c2abfc9f6544c04712cb5c8cf83))
+- **sidebar:** fixa perfil e botão sair no rodapé da barra lateral ([d1f0475](https://github.com/coleta-florestal/Front-End/commit/d1f04751a3edfca8cd84990730d242faa2839bd6))
+- **usuarios:** confirma desativação e exibe toast de sucesso (UC37) ([3dbfd63](https://github.com/coleta-florestal/Front-End/commit/3dbfd6315f164f225f9c6ae78fd989bf58714c84))
+
 # [1.1.0-rc.7](https://github.com/coleta-florestal/Front-End/compare/v1.1.0-rc.6...v1.1.0-rc.7) (2026-11-21)
 
 ### Features
