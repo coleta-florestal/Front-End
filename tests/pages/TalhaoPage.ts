@@ -12,9 +12,11 @@ export class TalhaoPage {
 
   /**
    * Navega até o talhão alvo do teste.
-   * Você pode passar a URL direta via env (ex: /fazendas/1/talhoes/1) ou navegar pela UI.
+   * A URL vem de TEST_TALHAO_PATH (ex: /platform/fazendas/<id>/<id>).
    */
-  async goto(talhaoPath = process.env.TEST_TALHAO_PATH ?? '/talhoes/1') {
+  async goto(talhaoPath = process.env.TEST_TALHAO_PATH) {
+    // Falha clara em vez de abrir uma rota inexistente e estourar timeout no seletor
+    if (!talhaoPath) throw new Error('Defina TEST_TALHAO_PATH (ex: /platform/fazendas/<id>/<id>)');
     await this.page.goto(talhaoPath);
     await expect(this.searchInput).toBeVisible();
   }

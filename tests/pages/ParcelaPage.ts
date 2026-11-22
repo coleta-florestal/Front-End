@@ -52,7 +52,10 @@ export class ParcelaPage {
   /**
    * Navega até uma parcela em andamento (não concluída).
    */
-  async goto(parcelaPath = process.env.TEST_PARCELA_PATH ?? '/parcelas/1') {
+  async goto(parcelaPath = process.env.TEST_PARCELA_PATH) {
+    // Falha clara em vez de abrir uma rota inexistente e estourar timeout no seletor
+    if (!parcelaPath)
+      throw new Error('Defina TEST_PARCELA_PATH (ex: /platform/fazendas/<id>/<id>/<id>)');
     await this.page.goto(parcelaPath);
     await expect(this.addArvoresButton).toBeVisible();
   }
