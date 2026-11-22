@@ -54,8 +54,9 @@ export default function Sidebar({ isAdmin }: { isAdmin: boolean }) {
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
 
   return (
-    <aside className="hidden print:hidden lg:flex lg:w-80 min-h-screen bg-verde-mata px-4 py-8 flex-col justify-between">
-      <div>
+    // Fica parada na altura da tela: o perfil e o "Sair" não descem junto com páginas longas
+    <aside className="hidden print:hidden lg:flex lg:w-80 lg:shrink-0 lg:sticky lg:top-0 lg:h-screen lg:self-start bg-verde-mata px-4 py-8 flex-col justify-between">
+      <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="flex gap-4 items-center mb-6">
           <Image
             src={logo}
@@ -100,7 +101,10 @@ export default function Sidebar({ isAdmin }: { isAdmin: boolean }) {
         </nav>
       </div>
 
-      <div className="pt-6 border-t border-creme-flor/20 flex items-center justify-between gap-3">
+      <div
+        id="sidebar-footer"
+        className="shrink-0 pt-6 border-t border-creme-flor/20 flex items-center justify-between gap-3"
+      >
         <Link
           href="/platform/perfil"
           aria-label="Acessar meu perfil"
