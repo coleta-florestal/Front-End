@@ -20,6 +20,7 @@ import AdminPendingRequestCard from '@/components/admin/AdminPendingRequestCard'
 import AdminUserRow from '@/components/admin/users/AdminUserRow';
 import RejectRequestModal from '@/components/modal/admin/RejectRequestModal';
 import RemoveUserModal from '@/components/modal/admin/RemoveUserModal';
+import { useToast } from '@/components/ui/ToastProvider';
 import { ADMIN_TAB_PATHS, ADMIN_TABS } from '@/lib/adminTabs';
 import { decodeJwt, getAccessToken, isCurrentUserSuperAdmin } from '@/lib/auth';
 import type { AdminTabKey } from '@/types/admin';
@@ -41,6 +42,7 @@ const getInitials = (name: string) =>
 
 export default function AdminUsersPage() {
   const router = useRouter();
+  const { showToast } = useToast();
 
   const [users, setUsers] = useState<User[]>([]);
   const [pending, setPending] = useState<User[]>([]);
@@ -50,6 +52,7 @@ export default function AdminUsersPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [userToRemove, setUserToRemove] = useState<User | null>(null);
+  const [userToDeactivate, setUserToDeactivate] = useState<User | null>(null);
   const [requestToReject, setRequestToReject] = useState<User | null>(null);
 
   // Quem está logado: o JWT só existe no cookie (navegador), então lê junto do primeiro load
@@ -79,12 +82,17 @@ export default function AdminUsersPage() {
   const handleTabChange = (key: AdminTabKey) => router.push(ADMIN_TAB_PATHS[key]);
 
   // Roda a chamada, recarrega as listas; o erro do back vai para a tela.
-  const runAction = async (action: () => Promise<unknown>, fallback: string) => {
+  const runAction = async (
+    action: () => Promise<unknown>,
+    fallback: string,
+    successMessage?: string,
+  ) => {
     setError(null);
     setIsActionLoading(true);
     try {
       await action();
       await load();
+      if (successMessage) showToast({ variant: 'success', title: successMessage });
     } catch (err) {
       setError(errorMessage(err, fallback));
     } finally {
@@ -169,15 +177,18 @@ export default function AdminUsersPage() {
                     'Não foi possível alterar o papel.',
                   )
                 }
-                onToggleActive={(target: User) =>
+                onToggleActive={(target: User) => {
+                  // Desativar pede confirmação antes de chamar a API
+                  if (target.accountStatus === 'ACTIVE') {
+                    setUserToDeactivate(target);
+                    return;
+                  }
                   runAction(
-                    () =>
-                      target.accountStatus === 'ACTIVE'
-                        ? deactivateUser(target.id)
-                        : activateUser(target.id),
+                    () => activateUser(target.id),
                     'Não foi possível alterar o status da conta.',
-                  )
-                }
+                    'Usuário ativado com sucesso.',
+                  );
+                }}
                 onRemove={setUserToRemove}
               />
             ))
@@ -193,6 +204,22 @@ export default function AdminUsersPage() {
         onConfirm={() => {
           if (userToRemove)
             runAction(() => deleteUser(userToRemove.id), 'Não foi possível remover o usuário.');
+        }}
+      />
+
+      <RemoveUserModal
+        isOpen={!!userToDeactivate}
+        title="Tem certeza que deseja desativar o usuário?"
+        warning={`${userToDeactivate?.name ?? 'O usuário'} perderá o acesso ao Glupta até que a conta seja ativada novamente. Os dados da conta são mantidos.`}
+        confirmLabel="Sim, desativar conta"
+        onClose={() => setUserToDeactivate(null)}
+        onConfirm={() => {
+          if (userToDeactivate)
+            runAction(
+              () => deactivateUser(userToDeactivate.id),
+              'Não foi possível alterar o status da conta.',
+              'Usuário desativado com sucesso.',
+            );
         }}
       />
 
