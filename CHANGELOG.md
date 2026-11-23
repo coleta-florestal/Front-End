@@ -1,3 +1,11 @@
+# [1.1.0-rc.9](https://github.com/coleta-florestal/Front-End/compare/v1.1.0-rc.8...v1.1.0-rc.9) (2026-11-23)
+
+### Bug Fixes
+
+- corrige bugs dos casos de teste do uc30 ([ba1960b](https://github.com/coleta-florestal/Front-End/commit/ba1960bdef1c881a42e21945d1b66c6c0dd0658b))
+- **sidebar:** renderiza modal de sair fora do aside sticky ([87b2de1](https://github.com/coleta-florestal/Front-End/commit/87b2de1a9539f690a01ea1b295916ecead94145a))
+- **usuarios:** confirma troca de papel e valida admin pelo back (UC38) ([ec76c15](https://github.com/coleta-florestal/Front-End/commit/ec76c15ab0b089592f85e495b16566ffe73116d2))
+
 # [1.1.0-rc.8](https://github.com/coleta-florestal/Front-End/compare/v1.1.0-rc.7...v1.1.0-rc.8) (2026-11-22)
 
 ### Bug Fixes
