@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { getFarmsWithDetails, toFarm } from '@/app/api/api';
-import { isCurrentUserAdmin } from '@/lib/auth';
+import { getFarmsWithDetails, isCurrentUserAdmin, toFarm } from '@/app/api/api';
 import type { Farm } from '@/types/farm';
 
 import FarmOverviewSection from '@/components/farm/FarmOverviewSection';
@@ -17,10 +16,10 @@ export default function VisaoGeralPage() {
 
   const fetchFarms = useCallback(
     () =>
-      getFarmsWithDetails()
-        .then((data) => {
+      Promise.all([getFarmsWithDetails(), isCurrentUserAdmin()])
+        .then(([data, admin]) => {
           setFarms(data.map(toFarm));
-          setIsAdmin(isCurrentUserAdmin());
+          setIsAdmin(admin);
         })
         .catch((error) => {
           console.error('Erro ao carregar fazendas:', error);

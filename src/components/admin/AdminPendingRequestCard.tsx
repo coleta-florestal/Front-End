@@ -1,28 +1,24 @@
 'use client';
 
-import { useState, useSyncExternalStore } from 'react';
+import { useState } from 'react';
 import Button from '@/components/core/Button';
-import { isCurrentUserSuperAdmin } from '@/lib/auth';
 import { AdminPendingUserRequest, AdminUserRole } from '@/types/admin';
 
 interface AdminPendingRequestCardProps {
   pendingRequest: AdminPendingUserRequest | null;
   onApprove: (userId: string, role: AdminUserRole) => void;
   onReject: (userId: string) => void;
+  // O back só deixa SUPER_ADMIN atribuir o papel ADMIN
+  canAssignAdmin?: boolean;
 }
 
 export default function AdminPendingRequestCard({
   pendingRequest,
   onApprove,
   onReject,
+  canAssignAdmin = false,
 }: AdminPendingRequestCardProps) {
   const [selectedRole, setSelectedRole] = useState<AdminUserRole>('USER');
-  // O cookie só existe no navegador; no servidor assume false
-  const canAssignAdmin = useSyncExternalStore(
-    () => () => {},
-    isCurrentUserSuperAdmin,
-    () => false,
-  );
 
   return (
     <article className="flex flex-col justify-between rounded-2xl border border-[#E2DDD2] bg-[#FAF8F3] p-6 shadow-sm pb-11">
