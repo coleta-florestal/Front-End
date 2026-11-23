@@ -7,6 +7,7 @@ import {
   getFarm,
   getPlot,
   getSubPlotsWithTrees,
+  isCurrentUserAdmin,
   NetworkError,
   processPlot,
   summarizeSubPlots,
@@ -24,7 +25,6 @@ import {
   VolumetricStep,
 } from '@/components/processing/VolumetricStep';
 import Topbar from '@/components/ui/Topbar';
-import { isCurrentUserAdmin } from '@/lib/auth';
 import { DEFAULT_HYPSOMETRIC, EQUATION_MODELS } from '@/lib/equations';
 import { VolumetricEquation } from '@/types/equation';
 import { PrismaFarmRecord, PrismaPlotRecord, PrismaSubPlotRecord } from '@/types/farm';
@@ -99,7 +99,7 @@ export default function ProcessamentoPage({ params }: ProcessamentoPageProps) {
 
   useEffect(() => {
     async function load() {
-      setIsAdmin(isCurrentUserAdmin());
+      isCurrentUserAdmin().then(setIsAdmin);
 
       try {
         const [farmRecord, plotRecord, subPlotRecords] = await Promise.all([

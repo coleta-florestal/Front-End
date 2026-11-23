@@ -1,5 +1,5 @@
 import type { TreeData } from '@/components/trees/TreeForm';
-import { clearAuthCookies, getAccessToken } from '@/lib/auth';
+import { clearAuthCookies, getAccessToken, isAdminRole } from '@/lib/auth';
 import { AdminProjectRecord, AuditLog, ValidationSettings } from '@/types/admin';
 import type { FarmDashboardSummary } from '@/types/dashboard';
 import { EquationType, VolumetricEquation } from '@/types/equation';
@@ -436,6 +436,24 @@ export function deactivateUser(id: string): Promise<User> {
 
 export function deleteUser(id: string): Promise<{ message: string } | null> {
   return authFetch(adminUserPath(id), { method: 'DELETE' });
+}
+
+// O papel no JWT é o do login; aqui vem o atual do banco (promoção/rebaixamento valem na hora).
+// Recebe o token porque também roda no servidor (proxy e layout), onde não há document.cookie.
+export function getMe(accessToken: string): Promise<User> {
+  return apiFetch('/profile', { accessToken });
+}
+
+export async function getCurrentRole(accessToken?: string): Promise<UserRole | null> {
+  if (!accessToken) return null;
+  return getMe(accessToken)
+    .then((user) => user.role)
+    .catch(() => null);
+}
+
+// Botões e telas de admin usam isto, nunca o papel do cookie (pode estar velho após um rebaixamento).
+export async function isCurrentUserAdmin(): Promise<boolean> {
+  return isAdminRole(await getCurrentRole(getAccessToken() ?? undefined));
 }
 
 // O back devolve um token novo para o nome/email atualizados já virem no JWT.
