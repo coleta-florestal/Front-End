@@ -7,13 +7,13 @@ import {
   FARM_STATUS_LABELS,
   formatArea,
   getFarmWithDetails,
+  isCurrentUserAdmin,
   summarizeSubPlots,
   toFarm,
   deletePlot,
   updatePlot,
 } from '@/app/api/api';
 import { useToast } from '@/components/ui/ToastProvider';
-import { isCurrentUserAdmin } from '@/lib/auth';
 import Topbar from '@/components/ui/Topbar';
 import { FarmCard } from '@/components/farm/FarmCard';
 import { TalhaoSummary } from '@/components/talhoes/TalhaoSummary';
@@ -45,9 +45,12 @@ export default function FazendaTalhoesPage({ params }: FazendaTalhoesPageProps) 
 
   const load = useCallback(async () => {
     try {
-      const record = await getFarmWithDetails(fazenda);
+      const [record, admin] = await Promise.all([
+        getFarmWithDetails(fazenda),
+        isCurrentUserAdmin(),
+      ]);
       setFarmRecord(record);
-      setIsAdmin(isCurrentUserAdmin());
+      setIsAdmin(admin);
       setError(null);
       setLoading(false);
     } catch (err) {
@@ -78,11 +81,14 @@ export default function FazendaTalhoesPage({ params }: FazendaTalhoesPageProps) 
 
     async function fetchFarmDetails() {
       try {
-        const record = await getFarmWithDetails(fazenda);
+        const [record, admin] = await Promise.all([
+          getFarmWithDetails(fazenda),
+          isCurrentUserAdmin(),
+        ]);
         if (!active) return;
 
         setFarmRecord(record);
-        setIsAdmin(isCurrentUserAdmin());
+        setIsAdmin(admin);
         setError(null);
         setLoading(false);
       } catch (err) {

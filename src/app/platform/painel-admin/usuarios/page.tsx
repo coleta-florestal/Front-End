@@ -8,6 +8,7 @@ import {
   deactivateUser,
   deleteUser,
   getApprovedUsers,
+  getMe,
   getPendingUsers,
   rejectUser,
   updateUserRole,
@@ -22,7 +23,7 @@ import RejectRequestModal from '@/components/modal/admin/RejectRequestModal';
 import RemoveUserModal from '@/components/modal/admin/RemoveUserModal';
 import { useToast } from '@/components/ui/ToastProvider';
 import { ADMIN_TAB_PATHS, ADMIN_TABS } from '@/lib/adminTabs';
-import { decodeJwt, getAccessToken, isCurrentUserSuperAdmin } from '@/lib/auth';
+import { getAccessToken } from '@/lib/auth';
 import type { AdminTabKey } from '@/types/admin';
 
 const errorMessage = (err: unknown, fallback: string) =>
@@ -54,19 +55,19 @@ export default function AdminUsersPage() {
   const [userToRemove, setUserToRemove] = useState<User | null>(null);
   const [userToDeactivate, setUserToDeactivate] = useState<User | null>(null);
   const [requestToReject, setRequestToReject] = useState<User | null>(null);
+  const [userToToggleRole, setUserToToggleRole] = useState<User | null>(null);
+  const isPromoting = userToToggleRole?.role !== 'ADMIN';
 
-  // Quem está logado: o JWT só existe no cookie (navegador), então lê junto do primeiro load
+  // Quem está logado vem do back: o papel do JWT pode estar velho depois de uma promoção/rebaixamento
   const [meId, setMeId] = useState<string>();
   const [canPromote, setCanPromote] = useState(false);
 
   const load = useCallback(
     () =>
-      Promise.all([getApprovedUsers(), getPendingUsers()])
-        .then(([approved, pendingUsers]) => {
-          const token = getAccessToken();
-          const payload = token ? decodeJwt(token) : null;
-          setMeId(payload?.sub);
-          setCanPromote(isCurrentUserSuperAdmin());
+      Promise.all([getApprovedUsers(), getPendingUsers(), getMe(getAccessToken() ?? '')])
+        .then(([approved, pendingUsers, me]) => {
+          setMeId(me.id);
+          setCanPromote(me.role === 'SUPER_ADMIN');
           setUsers(approved);
           setPending(pendingUsers);
         })
@@ -140,6 +141,7 @@ export default function AdminUsersPage() {
                   runAction(() => approveUser(id, role), 'Não foi possível aprovar a solicitação.')
                 }
                 onReject={() => setRequestToReject(request)}
+                canAssignAdmin={canPromote}
               />
             ))}
           </div>
@@ -171,12 +173,7 @@ export default function AdminUsersPage() {
                 isProtected={user.role === 'SUPER_ADMIN' || user.id === meId}
                 isBusy={isActionLoading}
                 canPromote={canPromote}
-                onToggleRole={(target: User) =>
-                  runAction(
-                    () => updateUserRole(target.id, target.role === 'ADMIN' ? 'USER' : 'ADMIN'),
-                    'Não foi possível alterar o papel.',
-                  )
-                }
+                onToggleRole={setUserToToggleRole}
                 onToggleActive={(target: User) => {
                   // Desativar pede confirmação antes de chamar a API
                   if (target.accountStatus === 'ACTIVE') {
@@ -219,6 +216,30 @@ export default function AdminUsersPage() {
               () => deactivateUser(userToDeactivate.id),
               'Não foi possível alterar o status da conta.',
               'Usuário desativado com sucesso.',
+            );
+        }}
+      />
+
+      <RemoveUserModal
+        isOpen={!!userToToggleRole}
+        title={
+          isPromoting
+            ? `Tornar ${userToToggleRole?.name} administrador?`
+            : `Remover ${userToToggleRole?.name} da administração?`
+        }
+        warning={
+          isPromoting
+            ? 'O usuário terá acesso ao Painel Admin, à gestão de fazendas e ao processamento de talhões em todo o sistema.'
+            : 'O usuário volta a ser Coletor e perde o acesso às ações administrativas.'
+        }
+        confirmLabel={isPromoting ? 'Sim, tornar administrador' : 'Sim, tornar coletor'}
+        onClose={() => setUserToToggleRole(null)}
+        onConfirm={() => {
+          if (userToToggleRole)
+            runAction(
+              () => updateUserRole(userToToggleRole.id, isPromoting ? 'ADMIN' : 'USER'),
+              'Não foi possível alterar o papel.',
+              'Papel do usuário atualizado com sucesso.',
             );
         }}
       />

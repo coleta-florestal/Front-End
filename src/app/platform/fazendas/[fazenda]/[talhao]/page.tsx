@@ -11,11 +11,11 @@ import {
   getPlot,
   getSubPlotStatusLabel,
   getSubPlotsWithTrees,
+  isCurrentUserAdmin,
   summarizeSubPlots,
   updateSubPlot,
   updateSubPlotStatus,
 } from '@/app/api/api';
-import { isCurrentUserAdmin } from '@/lib/auth';
 import Topbar from '@/components/ui/Topbar';
 import { TalhaoCard } from '@/components/talhoes/TalhaoCard';
 import { ParcelRow } from '@/components/parcels/ParcelRow';
@@ -58,12 +58,13 @@ export default function ParcelasPage({ params }: ParcelasPageProps) {
         getFarm(fazenda),
         getPlot(fazenda, talhao),
         getSubPlotsWithTrees(fazenda, talhao),
+        isCurrentUserAdmin(),
       ])
-        .then(([farmRecord, plotRecord, subPlotRecords]) => {
+        .then(([farmRecord, plotRecord, subPlotRecords, admin]) => {
           setFarm(farmRecord);
           setPlot(plotRecord);
           setSubPlots(subPlotRecords);
-          setIsAdmin(isCurrentUserAdmin());
+          setIsAdmin(admin);
           setError(null);
         })
         .catch((err) => {

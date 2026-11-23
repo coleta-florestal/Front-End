@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { decodeJwt, isAdminToken } from './lib/auth';
+import { getCurrentRole } from './app/api/api';
+import { decodeJwt, isAdminRole } from './lib/auth';
 
 const PUBLIC_ROUTES = ['/', '/cadastro', '/recuperar-acesso', '/redefinir-senha'];
 
 const PROCESSING_ROUTE = /^\/platform\/fazendas\/[^/]+\/[^/]+\/processamento\/?$/;
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get('accessToken')?.value;
   const payload = token ? decodeJwt<{ role?: string; exp?: number }>(token) : null;
@@ -19,16 +20,19 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
-  if (pathname.startsWith('/platform/painel-admin') && !isAdminToken(token)) {
+  const isAdminRoute = pathname.startsWith('/platform/painel-admin');
+  const isProcessingRoute = PROCESSING_ROUTE.test(pathname);
+  // Só as rotas admin pagam a ida ao back: o papel do JWT pode estar velho (UC38-CT05).
+  if (!isAdminRoute && !isProcessingRoute) return NextResponse.next();
+
+  if (isAdminRole(await getCurrentRole(token))) return NextResponse.next();
+
+  if (isAdminRoute) {
     return NextResponse.redirect(new URL('/platform/fazendas', request.url));
   }
 
   // Só administradores processam talhões; os demais voltam para a página do talhão.
-  if (PROCESSING_ROUTE.test(pathname) && !isAdminToken(token)) {
-    return NextResponse.redirect(new URL(pathname.replace(/\/processamento\/?$/, ''), request.url));
-  }
-
-  return NextResponse.next();
+  return NextResponse.redirect(new URL(pathname.replace(/\/processamento\/?$/, ''), request.url));
 }
 
 export const config = {
