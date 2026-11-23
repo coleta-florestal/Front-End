@@ -1,11 +1,13 @@
 import { cookies } from 'next/headers';
-import { isAdminToken } from '@/lib/auth';
+import { getCurrentRole } from '@/app/api/api';
+import { isAdminRole } from '@/lib/auth';
 import Sidebar from '../../components/ui/Sidebar';
 import Header from '../../components/ui/Header';
 
 export default async function PlatformLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies();
-  const isAdmin = isAdminToken(cookieStore.get('accessToken')?.value);
+  // Papel atual do back, não o do JWT: quem foi rebaixado perde o menu Administração sem relogar.
+  const isAdmin = isAdminRole(await getCurrentRole(cookieStore.get('accessToken')?.value));
 
   return (
     <div className="flex flex-col min-h-screen w-full">

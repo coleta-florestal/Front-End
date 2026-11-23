@@ -45,19 +45,8 @@ export function getAccessToken(): string | null {
   return readCookie(ACCESS_TOKEN_COOKIE);
 }
 
-export function isAdminToken(token?: string | null): boolean {
-  const role = token ? decodeJwt(token)?.role : undefined;
+export function isAdminRole(role?: string | null): boolean {
   return role === 'ADMIN' || role === 'SUPER_ADMIN';
-}
-
-export function isCurrentUserAdmin(): boolean {
-  return isAdminToken(getAccessToken());
-}
-
-// O back só deixa SUPER_ADMIN atribuir o papel ADMIN
-export function isCurrentUserSuperAdmin(): boolean {
-  const token = getAccessToken();
-  return (token ? decodeJwt(token)?.role : undefined) === 'SUPER_ADMIN';
 }
 
 export function getRefreshToken(): string | null {

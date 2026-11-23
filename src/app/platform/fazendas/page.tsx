@@ -2,11 +2,10 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { formatArea, getFarmsWithDetails, toFarm } from '@/app/api/api';
+import { formatArea, getFarmsWithDetails, isCurrentUserAdmin, toFarm } from '@/app/api/api';
 import Topbar from '@/components/ui/Topbar';
 import FarmSummaryCard from '@/components/farm/FarmSummaryCard';
 import FarmSearchSection from '@/components/farm/FarmSearchSection';
-import { isCurrentUserAdmin } from '@/lib/auth';
 import { Farm } from '@/types/farm';
 
 export default function FarmsPage() {
@@ -20,10 +19,10 @@ export default function FarmsPage() {
 
   const load = useCallback(
     () =>
-      getFarmsWithDetails()
-        .then((records) => {
+      Promise.all([getFarmsWithDetails(), isCurrentUserAdmin()])
+        .then(([records, admin]) => {
           setFarms(records.map(toFarm));
-          setIsAdmin(isCurrentUserAdmin());
+          setIsAdmin(admin);
           setError(null);
         })
         .catch((err) => {
