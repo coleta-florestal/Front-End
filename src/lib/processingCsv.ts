@@ -1,3 +1,5 @@
+import { statRows } from '@/components/processing/ProcessingResultDetails';
+import { formatNumber } from '@/components/processing/ProcessingSummaryCard';
 import type { InventoryProcessingResult } from '@/types/processing';
 
 type Cell = string | number | boolean | null | undefined;
@@ -20,18 +22,30 @@ function formatCell(value: Cell): string {
   return /[;"\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 
-function toCsv(header: string[], rows: Cell[][]): string {
-  const lines = [header, ...rows].map((row) => row.map(formatCell).join(SEPARATOR));
-  return BOM + lines.join('\r\n');
+interface CsvSection {
+  title: string;
+  header: string[];
+  rows: Cell[][];
+}
+
+const line = (row: Cell[]) => row.map(formatCell).join(SEPARATOR);
+
+// Um arquivo só, com uma tabela por seção separadas por linha em branco: abre direto no Excel.
+function toSectionsCsv(sections: CsvSection[]): string {
+  const blocks = sections.map((section) =>
+    [line([section.title]), line(section.header), ...section.rows.map(line)].join('\r\n'),
+  );
+  return BOM + blocks.join('\r\n\r\n');
 }
 
 export function hasTrees(result: InventoryProcessingResult): boolean {
   return result.subPlots.some((subPlot) => (subPlot.trees?.length ?? 0) > 0);
 }
 
-export function buildParcelsCsv(result: InventoryProcessingResult): string {
-  return toCsv(
-    [
+function parcelsSection(result: InventoryProcessingResult): CsvSection {
+  return {
+    title: 'Parcelas',
+    header: [
       'Parcela',
       'Área (m²)',
       'Árvores',
@@ -44,7 +58,7 @@ export function buildParcelsCsv(result: InventoryProcessingResult): string {
       'DAP médio (cm)',
       'Altura média (m)',
     ],
-    result.subPlots.map((subPlot) => [
+    rows: result.subPlots.map((subPlot) => [
       subPlot.name,
       subPlot.areaM2,
       subPlot.treeCount,
@@ -57,15 +71,16 @@ export function buildParcelsCsv(result: InventoryProcessingResult): string {
       subPlot.meanDapCm,
       subPlot.meanHeightM,
     ]),
-  );
+  };
 }
 
-export function buildTreesCsv(
+function treesSection(
   result: InventoryProcessingResult,
-  qualityLabel: (quality: string) => string = (quality) => quality,
-): string {
-  return toCsv(
-    [
+  qualityLabel: (quality: string) => string,
+): CsvSection {
+  return {
+    title: 'Árvores',
+    header: [
       'Parcela',
       'Árvore',
       'DAP (cm)',
@@ -76,7 +91,7 @@ export function buildTreesCsv(
       'Válida',
       'Avisos',
     ],
-    result.subPlots.flatMap((subPlot) =>
+    rows: result.subPlots.flatMap((subPlot) =>
       (subPlot.trees ?? []).map((tree) => [
         subPlot.name,
         tree.name,
@@ -89,7 +104,89 @@ export function buildTreesCsv(
         (tree.warnings ?? []).join('; '),
       ]),
     ),
-  );
+  };
+}
+
+// Daqui para baixo os valores saem formatados como na tela e no PDF, para conferir lado a lado.
+function resultSections(
+  result: InventoryProcessingResult,
+  qualityLabel: (quality: string) => string,
+): CsvSection[] {
+  const { context, totals, statistics, diameterClasses, qualityDistribution } = result;
+  const optional = (value: number | null | undefined, unit: string) =>
+    value != null ? `${formatNumber(value)} ${unit}` : '—';
+
+  return [
+    {
+      title: 'Identificação',
+      header: ['Campo', 'Valor'],
+      rows: [
+        ['Fazenda', context.farmName ?? '—'],
+        ['Talhão', context.plotName],
+        ['Data do processamento', new Date(context.processedAt).toLocaleString('pt-BR')],
+        ['Equação', context.equationUsed.name],
+        ['Nível de confiança', `${formatNumber(statistics.volumePerHa.confidenceLevel * 100, 0)}%`],
+      ],
+    },
+    {
+      title: 'Resumo dos resultados',
+      header: ['Indicador', 'Valor'],
+      rows: [
+        ['Volume médio', `${formatNumber(totals.meanVolumePerHaM3)} m³/ha`],
+        ['Volume total estimado', optional(totals.estimatedTotalVolumeM3, 'm³')],
+        ['IC do volume total (inferior)', optional(totals.estimatedTotalVolumeLowerM3, 'm³')],
+        ['IC do volume total (superior)', optional(totals.estimatedTotalVolumeUpperM3, 'm³')],
+        ['Parcelas amostradas', totals.totalSubPlotsSampled],
+        ['Árvores medidas', totals.totalTreesMeasured],
+        ['Árvores válidas', totals.totalValidTreesMeasured ?? '—'],
+        ['DAP médio', `${formatNumber(totals.meanDapCm)} cm`],
+        ['DAP quadrático', `${formatNumber(totals.quadraticMeanDapCm)} cm`],
+        ['Altura média', optional(totals.meanHeightM, 'm')],
+        ['Área basal', `${formatNumber(totals.meanBasalAreaPerHaM2)} m²/ha`],
+        ['Densidade', `${formatNumber(totals.meanTreesPerHa, 0)} árv./ha`],
+      ],
+    },
+    {
+      title: 'Estatísticas de amostragem',
+      header: ['Estatística', 'Volume por hectare (m³/ha)', 'Volume por parcela (m³)'],
+      rows: statRows.map((row) => [
+        row.label,
+        row.value(statistics.volumePerHa),
+        row.value(statistics.volumePerSubPlot),
+      ]),
+    },
+    {
+      title: 'Distribuição por classe de DAP',
+      header: ['Classe (cm)', 'Árvores', '%', 'Volume (m³)'],
+      rows: diameterClasses.map((item) => [
+        item.classRange,
+        item.treeCount,
+        `${formatNumber(item.percentage, 1)}%`,
+        formatNumber(item.totalVolumeM3),
+      ]),
+    },
+    {
+      title: 'Qualidade das árvores',
+      header: ['Qualidade', 'Árvores', '%', 'Volume (m³)'],
+      rows: qualityDistribution.map((item) => [
+        qualityLabel(item.quality),
+        item.treeCount,
+        `${formatNumber(item.percentage, 1)}%`,
+        formatNumber(item.totalVolumeM3),
+      ]),
+    },
+  ];
+}
+
+export function buildProcessingCsv(
+  result: InventoryProcessingResult,
+  qualityLabel: (quality: string) => string = (quality) => quality,
+): string {
+  return toSectionsCsv([
+    parcelsSection(result),
+    ...(hasTrees(result) ? [treesSection(result, qualityLabel)] : []),
+    ...resultSections(result, qualityLabel),
+  ]);
 }
 
 // "Talhão 01 — Norte" -> "talhao-01-norte"
@@ -102,9 +199,9 @@ export function slugify(text: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
-export function csvFileName(result: InventoryProcessingResult, kind: 'parcelas' | 'arvores') {
+export function csvFileName(result: InventoryProcessingResult) {
   const day = result.context.processedAt.slice(0, 10);
-  return `processamento-${slugify(result.context.plotName) || 'talhao'}-${day}-${kind}.csv`;
+  return `processamento-${slugify(result.context.plotName) || 'talhao'}-${day}.csv`;
 }
 
 export function downloadCsv(fileName: string, content: string) {

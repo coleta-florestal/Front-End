@@ -54,82 +54,84 @@ export default function Sidebar({ isAdmin }: { isAdmin: boolean }) {
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
 
   return (
-    // Fica parada na altura da tela: o perfil e o "Sair" não descem junto com páginas longas
-    <aside className="hidden print:hidden lg:flex lg:w-80 lg:shrink-0 lg:sticky lg:top-0 lg:h-screen lg:self-start bg-verde-mata px-4 py-8 flex-col justify-between">
-      <div className="min-h-0 flex-1 overflow-y-auto">
-        <div className="flex gap-4 items-center mb-6">
-          <Image
-            src={logo}
-            alt="Glupta-Logo"
-            className="h-12 w-12 select-none object-contain"
-            loading="eager"
-          />
-          <div className="flex flex-col -gap-1 text-creme-flor">
-            <h1 className="text-4xl font-semibold">Glupta</h1>
-            <p className="text-sm font-bold text-verde-eucalipto">COLETA FLORESTAL</p>
+    <>
+      {/* Fica parada na altura da tela: o perfil e o "Sair" não descem junto com páginas longas */}
+      <aside className="hidden print:hidden lg:flex lg:w-80 lg:shrink-0 lg:sticky lg:top-0 lg:h-screen lg:self-start bg-verde-mata px-4 py-8 flex-col justify-between">
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="flex gap-4 items-center mb-6">
+            <Image
+              src={logo}
+              alt="Glupta-Logo"
+              className="h-12 w-12 select-none object-contain"
+              loading="eager"
+            />
+            <div className="flex flex-col -gap-1 text-creme-flor">
+              <h1 className="text-4xl font-semibold">Glupta</h1>
+              <p className="text-sm font-bold text-verde-eucalipto">COLETA FLORESTAL</p>
+            </div>
           </div>
+
+          <NavDivider />
+
+          <nav className="mt-6 space-y-2">
+            {navLinks
+              .filter((link) => isAdmin || !link.adminOnly)
+              .map((link) => {
+                const active = link.exact ? pathname === link.href : pathname.startsWith(link.href);
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm text-creme-flor transition-colors ${
+                      active
+                        ? 'bg-creme-flor/10 border-l-coral-flor border-l-6'
+                        : 'hover:bg-creme-flor/10 hover:border-l-coral-flor hover:border-l-6'
+                    }`}
+                  >
+                    <div className={`${active ? 'text-coral-flor' : 'text-creme-flor'}`}>
+                      {link.icon}
+                    </div>
+                    <span
+                      className={`font-semibold text-lg ${active ? 'text-coral-flor' : 'text-creme-flor'}`}
+                    >
+                      {link.label}
+                    </span>
+                  </Link>
+                );
+              })}
+          </nav>
         </div>
 
-        <NavDivider />
-
-        <nav className="mt-6 space-y-2">
-          {navLinks
-            .filter((link) => isAdmin || !link.adminOnly)
-            .map((link) => {
-              const active = link.exact ? pathname === link.href : pathname.startsWith(link.href);
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm text-creme-flor transition-colors ${
-                    active
-                      ? 'bg-creme-flor/10 border-l-coral-flor border-l-6'
-                      : 'hover:bg-creme-flor/10 hover:border-l-coral-flor hover:border-l-6'
-                  }`}
-                >
-                  <div className={`${active ? 'text-coral-flor' : 'text-creme-flor'}`}>
-                    {link.icon}
-                  </div>
-                  <span
-                    className={`font-semibold text-lg ${active ? 'text-coral-flor' : 'text-creme-flor'}`}
-                  >
-                    {link.label}
-                  </span>
-                </Link>
-              );
-            })}
-        </nav>
-      </div>
-
-      <div
-        id="sidebar-footer"
-        className="shrink-0 pt-6 border-t border-creme-flor/20 flex items-center justify-between gap-3"
-      >
-        <Link
-          href="/platform/perfil"
-          aria-label="Acessar meu perfil"
-          className={`flex items-center gap-3 rounded-xl p-2 transition-colors flex-1 min-w-0 ${
-            isProfileActive ? 'bg-creme-flor/15' : 'hover:bg-creme-flor/10'
-          }`}
+        <div
+          id="sidebar-footer"
+          className="shrink-0 pt-6 border-t border-creme-flor/20 flex items-center justify-between gap-3"
         >
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-creme-flor/20 font-serif text-sm font-bold text-creme-flor">
-            {userInitials}
-          </div>
-          <div className="flex flex-col min-w-0">
-            <span className="text-sm font-bold text-creme-flor truncate">{userName}</span>
-          </div>
-        </Link>
+          <Link
+            href="/platform/perfil"
+            aria-label="Acessar meu perfil"
+            className={`flex items-center gap-3 rounded-xl p-2 transition-colors flex-1 min-w-0 ${
+              isProfileActive ? 'bg-creme-flor/15' : 'hover:bg-creme-flor/10'
+            }`}
+          >
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-creme-flor/20 font-serif text-sm font-bold text-creme-flor">
+              {userInitials}
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="text-sm font-bold text-creme-flor truncate">{userName}</span>
+            </div>
+          </Link>
 
-        <button
-          type="button"
-          onClick={() => setIsLogoutOpen(true)}
-          className="flex items-center gap-1.5 rounded-xl bg-coral-flor px-3.5 py-2 text-xs font-bold text-creme-flor transition-opacity hover:opacity-90 shrink-0"
-        >
-          <Close size={16} color="#FAF8F3" />
-          <span>Sair</span>
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={() => setIsLogoutOpen(true)}
+            className="flex items-center gap-1.5 rounded-xl bg-coral-flor px-3.5 py-2 text-xs font-bold text-creme-flor transition-opacity hover:opacity-90 shrink-0"
+          >
+            <Close size={16} color="#FAF8F3" />
+            <span>Sair</span>
+          </button>
+        </div>
+      </aside>
       <LogoutModal isOpen={isLogoutOpen} onClose={() => setIsLogoutOpen(false)} />
-    </aside>
+    </>
   );
 }
