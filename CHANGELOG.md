@@ -1,3 +1,9 @@
+# [1.1.0-rc.11](https://github.com/coleta-florestal/Front-End/compare/v1.1.0-rc.10...v1.1.0-rc.11) (2026-11-25)
+
+### Bug Fixes
+
+- arruma testes playwright ([fb6c9fe](https://github.com/coleta-florestal/Front-End/commit/fb6c9fefde6656c64eaf00f54880a3ea5bb1cefa))
+
 # [1.1.0-rc.10](https://github.com/coleta-florestal/Front-End/compare/v1.1.0-rc.9...v1.1.0-rc.10) (2026-11-25)
 
 ### Bug Fixes
