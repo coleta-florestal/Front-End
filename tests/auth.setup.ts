@@ -1,32 +1,15 @@
-import { test as setup, expect } from '@playwright/test';
+import { test as setup } from '@playwright/test';
 import path from 'path';
+import { AUTH_TEST_TIMEOUT, signIn } from './fixture/login';
 
 const authFile = path.join(__dirname, '../playwright/.auth/user.json');
 
 const LOGIN_PATH = process.env.LOGIN_PATH ?? '/';
-const USER = {
-  email: process.env.TEST_USER_EMAIL ?? 'userteste@glupta.com',
-  password: process.env.TEST_USER_PASSWORD ?? 'S3nh@Teste',
-};
 
 setup('autenticar usuário de teste', async ({ page }) => {
+  setup.setTimeout(AUTH_TEST_TIMEOUT);
+
   await page.goto(LOGIN_PATH);
-
-  await page
-    .getByLabel(/e-?mail/i)
-    .or(page.getByPlaceholder(/e-?mail/i))
-    .first()
-    .fill(USER.email);
-  await page
-    .getByLabel(/^senha/i)
-    .or(page.getByPlaceholder(/^senha/i))
-    .first()
-    .fill(USER.password);
-  await page.getByRole('button', { name: 'Entrar' }).click();
-
-  // Garante que o login terminou e os tokens/cookies foram gravados antes de salvar o estado
-  await expect(page.getByText('Sair').first()).toBeVisible();
-
-  // Salva cookies e localStorage no arquivo JSON
+  await signIn(page);
   await page.context().storageState({ path: authFile });
 });
