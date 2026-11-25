@@ -1,22 +1,26 @@
 {
   "name": "coleta-front",
-  "version": "1.0.0",
+  "version": "1.1.0-rc.10",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "test": "playwright test --headed --workers=1",
     "prepare": "husky"
   },
   "dependencies": {
-    "next": "^16.3.8",
+    "clsx": "^2.1.1",
+    "next": "16.4.6",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "tailwind-merge": "^3.7.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^21.2.4",
+    "@playwright/test": "^1.65.1",
     "@semantic-release/changelog": "^7.0.0",
     "@semantic-release/git": "^11.0.1",
     "@tailwindcss/postcss": "^4",
@@ -24,6 +28,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
+    "dotenv": "^18.0.10",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.3.8",
     "eslint-config-prettier": "^10.1.8",

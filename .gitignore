@@ -45,3 +45,15 @@ next-env.d.ts
 CLAUDE.md
 .claude
 AGENTS.md
+opencode.json
+
+# documentation
+docs
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
