@@ -1,3 +1,9 @@
+# [1.1.0-rc.10](https://github.com/coleta-florestal/Front-End/compare/v1.1.0-rc.9...v1.1.0-rc.10) (2026-11-25)
+
+### Bug Fixes
+
+- deixa altura opcional no cadastro de árvores ([ce88d0d](https://github.com/coleta-florestal/Front-End/commit/ce88d0dd389ef00d6288a89b08278b4987c2ba21))
+
 # [1.1.0-rc.9](https://github.com/coleta-florestal/Front-End/compare/v1.1.0-rc.8...v1.1.0-rc.9) (2026-11-23)
 
 ### Bug Fixes
