@@ -1,43 +1,28 @@
-// tests/fixtures/auth.fixture.ts
-import { test as base, expect } from '@playwright/test';
-
-const USER = {
-  email: process.env.TEST_USER_EMAIL ?? 'userteste@glupta.com',
-  password: process.env.TEST_USER_PASSWORD ?? 'S3nh@Teste',
-};
+import { test as base } from '@playwright/test';
+import { AUTH_TEST_TIMEOUT, signIn } from './login';
 
 export const test = base.extend({
-  page: async ({ page }, Use) => {
-    // Escuta toda navegação: se cair na tela de login, autentica na hora
+  page: async ({ page }, runWithPage, testInfo) => {
     const originalGoto = page.goto.bind(page);
 
     page.goto = async (url, options) => {
       const response = await originalGoto(url, options);
 
-      const loginButton = page.getByRole('button', { name: 'Entrar' });
-      if (await loginButton.isVisible({ timeout: 2500 }).catch(() => false)) {
-        await page
-          .getByLabel(/e-?mail/i)
-          .or(page.getByPlaceholder(/e-?mail/i))
-          .first()
-          .fill(USER.email);
-        await page
-          .getByLabel(/^senha/i)
-          .or(page.getByPlaceholder(/^senha/i))
-          .first()
-          .fill(USER.password);
-        await loginButton.click();
-
-        await expect(page.getByText('Sair').first()).toBeVisible();
+      const loginButton = page.getByRole('button', { name: 'Entrar', exact: true });
+      if (await loginButton.isVisible()) {
+        if (testInfo.timeout > 0 && testInfo.timeout < AUTH_TEST_TIMEOUT) {
+          testInfo.setTimeout(AUTH_TEST_TIMEOUT);
+        }
+        await signIn(page);
 
         // Após logar, navega novamente para a rota original que o teste pediu
-        return await originalGoto(url, options);
+        return originalGoto(url, options);
       }
 
       return response;
     };
 
-    await Use(page);
+    await runWithPage(page);
   },
 });
 
