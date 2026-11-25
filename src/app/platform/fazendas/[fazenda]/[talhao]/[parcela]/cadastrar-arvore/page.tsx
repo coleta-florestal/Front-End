@@ -193,6 +193,7 @@ export default function CadastrarArvorePage({ params }: CadastrarArvorePageProps
                 numeroArvore={treeToEdit.numero}
                 indiceAtual={trees.findIndex((t) => t.id === treeToEdit.id) + 1}
                 totalArvores={trees.length}
+                allowEmptyHeight
                 onSave={handleSaveEdit}
                 onClose={() => setEditModalOpen(false)}
               />

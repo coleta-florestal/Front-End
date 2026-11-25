@@ -24,6 +24,13 @@ export function TreeList({ trees, onRemoveTree, onEditTree, onViewTree }: TreeLi
     );
   }
 
+  const alturas = trees
+    .filter((tree) => tree.altura.trim())
+    .map((tree) => Number(tree.altura.replace(',', '.')));
+  const mediaAltura = alturas.length
+    ? alturas.reduce((sum, altura) => sum + altura, 0) / alturas.length
+    : null;
+
   return (
     <div className="bg-white rounded-xl border border-verde-mata/10 overflow-hidden">
       <div className="px-6 py-4 border-b border-verde-mata/10 bg-verde-mata/5">
@@ -54,7 +61,9 @@ export function TreeList({ trees, onRemoveTree, onEditTree, onViewTree }: TreeLi
               >
                 <td className="px-4 py-3 font-mono text-verde-mata">{tree.numero}</td>
                 <td className="px-4 py-3 text-verde-mata">{parseFloat(tree.dap).toFixed(1)}</td>
-                <td className="px-4 py-3 text-verde-mata">{parseFloat(tree.altura).toFixed(1)}</td>
+                <td className="px-4 py-3 text-verde-mata">
+                  {tree.altura.trim() ? Number(tree.altura.replace(',', '.')).toFixed(1) : '—'}
+                </td>
                 <td className="px-4 py-3">
                   <span className="inline-flex items-center gap-1 rounded-md bg-verde-eucalipto/20 px-2 py-0.5 text-xs font-medium text-verde-mata">
                     {QUALIDADE_LABELS[tree?.qualidade as TreeQuality] ?? tree?.qualidade}
@@ -114,7 +123,7 @@ export function TreeList({ trees, onRemoveTree, onEditTree, onViewTree }: TreeLi
           <span className="mx-2">|</span>
           <span>Média Altura:</span>
           <span className="font-mono font-semibold">
-            {(trees.reduce((sum, t) => sum + parseFloat(t.altura), 0) / trees.length).toFixed(1)} m
+            {mediaAltura === null ? '—' : `${mediaAltura.toFixed(1)} m`}
           </span>
         </div>
       </div>

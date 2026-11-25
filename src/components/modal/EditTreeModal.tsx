@@ -19,15 +19,16 @@ function validateMeasure(value: string, requiredMessage: string, positiveMessage
   return undefined;
 }
 
-function validateTreeFields(altura: string, dap: string): FieldErrors {
+function validateTreeFields(altura: string, dap: string, alturaObrigatoria: boolean): FieldErrors {
   const errors: FieldErrors = {};
-  const alturaError = validateMeasure(
-    altura,
-    'Altura é obrigatória',
-    'Altura deve ser um número positivo',
-  );
+  const alturaValue = Number(altura.replace(',', '.'));
+  if (!altura.trim()) {
+    if (alturaObrigatoria) errors.altura = 'Altura é obrigatória';
+  } else if (!Number.isFinite(alturaValue) || alturaValue <= 0) {
+    errors.altura = 'Altura deve ser um número positivo';
+  }
+
   const dapError = validateMeasure(dap, 'DAP é obrigatório', 'DAP deve ser um número positivo');
-  if (alturaError) errors.altura = alturaError;
   if (dapError) errors.dap = dapError;
   return errors;
 }
@@ -40,6 +41,7 @@ export interface EditTreeModalProps {
   numeroArvore: string;
   indiceAtual?: number;
   totalArvores?: number;
+  allowEmptyHeight?: boolean;
   onSave: (data: TreeData) => void | Promise<void>;
   onClose: () => void;
 }
@@ -52,6 +54,7 @@ export function EditTreeModal({
   numeroArvore,
   indiceAtual,
   totalArvores,
+  allowEmptyHeight = false,
   onSave,
   onClose,
 }: EditTreeModalProps) {
@@ -89,8 +92,10 @@ export function EditTreeModal({
 
   if (!isOpen) return null;
 
+  const alturaObrigatoria = !allowEmptyHeight && Boolean(tree?.altura.trim());
+
   const validate = (): boolean => {
-    const errors = validateTreeFields(altura, dap);
+    const errors = validateTreeFields(altura, dap, alturaObrigatoria);
     setFieldErrors(errors);
     setError(null);
     return Object.keys(errors).length === 0;
@@ -98,7 +103,7 @@ export function EditTreeModal({
 
   // Ao sair do campo, mostra só o erro dele
   const validateField = (field: TreeField) => {
-    const errors = validateTreeFields(altura, dap);
+    const errors = validateTreeFields(altura, dap, alturaObrigatoria);
     setFieldErrors((current) => ({ ...current, [field]: errors[field] }));
   };
 
@@ -165,7 +170,7 @@ export function EditTreeModal({
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <Input
-              label="Altura (m) *"
+              label={alturaObrigatoria ? 'Altura (m) *' : 'Altura (m)'}
               name="altura"
               type="text"
               value={altura}

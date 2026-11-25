@@ -65,12 +65,8 @@ export function TreeForm({ onAddTree, initialQualidade = 'NORMAL' }: TreeFormPro
       return false;
     }
 
-    if (!altura.trim()) {
-      setError('Altura é obrigatória');
-      return false;
-    }
-    const alturaValue = parseFloat(altura.replace(',', '.'));
-    if (isNaN(alturaValue) || alturaValue <= 0) {
+    const alturaValue = Number(altura.replace(',', '.'));
+    if (altura.trim() && (!Number.isFinite(alturaValue) || alturaValue <= 0)) {
       setError('Altura deve ser um número positivo');
       return false;
     }
@@ -102,7 +98,7 @@ export function TreeForm({ onAddTree, initialQualidade = 'NORMAL' }: TreeFormPro
     }
   }
 
-  const isFormValid = Boolean(numero.trim() && dap.trim() && altura.trim());
+  const isFormValid = Boolean(numero.trim() && dap.trim());
 
   return (
     <form
@@ -149,7 +145,7 @@ export function TreeForm({ onAddTree, initialQualidade = 'NORMAL' }: TreeFormPro
         />
 
         <Input
-          label="Altura (m) *"
+          label="Altura (m)"
           name="altura"
           type="number"
           step="0.1"
