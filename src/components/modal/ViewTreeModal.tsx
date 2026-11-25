@@ -105,7 +105,9 @@ export function ViewTreeModal({
                 Altura
               </p>
               <p className="text-2xl font-bold text-verde-mata mt-1">
-                {parseFloat(tree?.altura ?? '0').toFixed(1)} m
+                {tree?.altura.trim()
+                  ? `${Number(tree.altura.replace(',', '.')).toFixed(1)} m`
+                  : '—'}
               </p>
               <p className="text-xs text-[#5c5c5c] mt-1">Altura total</p>
             </div>

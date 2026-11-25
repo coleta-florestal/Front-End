@@ -236,7 +236,8 @@ export default function ParcelaPage({ params }: ParcelaPageProps) {
               arvoresRegistradas={trees.length}
               metragemTotal={Number(
                 trees
-                  .reduce((acc, t) => acc + parseFloat(t.altura.replace(',', '.')), 0)
+                  .filter((tree) => tree.altura.trim())
+                  .reduce((acc, tree) => acc + Number(tree.altura.replace(',', '.')), 0)
                   .toFixed(1),
               )}
               metaReferencia={meta}

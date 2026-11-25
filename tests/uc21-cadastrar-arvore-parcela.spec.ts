@@ -51,13 +51,54 @@ test.describe('UC21 - Cadastrar Árvore na Parcela', () => {
   test('CT - 21.3 Impede adicionar ao lote se faltar campo obrigatório', async () => {
     await parcelaPage.abrirCadastroArvores();
 
-    // Preenche apenas Nº e DAP, deixando Altura em branco
     await parcelaPage.preencherFormularioArvore({
       numero: '999',
-      dap: '20.0',
+      altura: '12.0',
     });
 
     await expect(parcelaPage.adicionarAoLoteButton).toBeDisabled();
+  });
+
+  test('Cadastra uma árvore sem altura', async ({ page }) => {
+    const numero = `SEM-ALT-${uniqueSuffix()}`;
+
+    await parcelaPage.abrirCadastroArvores();
+    await parcelaPage.preencherFormularioArvore({ numero, dap: '20.0' });
+    await parcelaPage.adicionarAoLoteButton.click();
+
+    const linha = page.getByRole('row').filter({ hasText: numero });
+    await expect(linha.getByRole('cell').nth(2)).toHaveText('—');
+    await parcelaPage.salvarButton.click();
+
+    const arvore = parcelaPage.arvoreNaLista(numero);
+    await expect(arvore).toBeVisible();
+    await arvore.click();
+    await expect(page.getByRole('heading', { name: `Árvore ${numero}` })).toBeVisible();
+    await expect(
+      page.getByText('Altura total').locator('..').getByText('—', { exact: true }),
+    ).toBeVisible();
+  });
+
+  test('Rejeita alturas não positivas e calcula a média apenas com alturas informadas', async ({
+    page,
+  }) => {
+    await parcelaPage.abrirCadastroArvores();
+    await parcelaPage.preencherFormularioArvore({ numero: 'SEM-ALT', dap: '20.0' });
+
+    for (const altura of ['0', '-1']) {
+      await parcelaPage.alturaInput.fill(altura);
+      await parcelaPage.adicionarAoLoteButton.click();
+      await expect(page.getByText('Altura deve ser um número positivo')).toBeVisible();
+    }
+
+    await parcelaPage.alturaInput.clear();
+    await parcelaPage.adicionarAoLoteButton.click();
+    const mediaAltura = page.getByText('Média Altura:', { exact: true }).locator('..');
+    await expect(mediaAltura.getByText('—', { exact: true })).toBeVisible();
+
+    await parcelaPage.preencherFormularioArvore({ numero: 'COM-ALT', dap: '20.0', altura: '12.0' });
+    await parcelaPage.adicionarAoLoteButton.click();
+    await expect(mediaAltura.getByText('12.0 m', { exact: true })).toBeVisible();
   });
 
   //   test('CT - 21.4 Recusa valores acima do limite configurado para o DAP', async ({ page }) => {

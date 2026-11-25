@@ -59,7 +59,9 @@ export function TreeCard({ tree, onRemove, onView }: TreeCardProps) {
 
         <div className="flex justify-between items-center text-[15px]">
           <span className="text-[#71766F] font-medium">Altura</span>
-          <span className="font-bold text-verde-mata">{formatNumber(tree.altura)} m</span>
+          <span className="font-bold text-verde-mata">
+            {tree.altura.trim() ? `${formatNumber(tree.altura)} m` : '—'}
+          </span>
         </div>
 
         <div className="flex justify-between items-start text-[15px] gap-4">

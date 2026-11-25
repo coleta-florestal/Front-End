@@ -84,7 +84,7 @@ export interface UpdateSubPlotStatusResult {
 export interface CreateTreeDto {
   name: string;
   diameterDapCm: number;
-  height: number;
+  height?: number;
   quality?: TreeQuality;
   observations?: string;
 }
@@ -600,7 +600,7 @@ export function toTreeData(record: PrismaTreeRecord): TreeData {
     id: record.id,
     numero: record.name,
     dap: String(record.diameterDapCm),
-    altura: String(record.height ?? 0),
+    altura: String(record.height ?? ''),
     observacoes: record.observations ?? '',
     qualidade: record.quality,
   };
@@ -610,7 +610,7 @@ export function toTreeDto(tree: Omit<TreeData, 'id'>): CreateTreeDto {
   return {
     name: tree.numero.trim(),
     diameterDapCm: parseFloat(tree.dap.replace(',', '.')),
-    height: parseFloat(tree.altura.replace(',', '.')),
+    height: tree.altura.trim() ? Number(tree.altura.replace(',', '.')) : undefined,
     quality: tree.qualidade as TreeQuality,
     observations: tree.observacoes,
   };
