@@ -9,7 +9,7 @@ export const formatNumber = (value: number, digits = 2) =>
   value.toLocaleString('pt-BR', { minimumFractionDigits: digits, maximumFractionDigits: digits });
 
 export function ProcessingSummaryCard({ result }: ProcessingSummaryCardProps) {
-  const { context, totals, statistics } = result;
+  const { context, totals, statistics, heightSummary, hypsometricWarnings = [] } = result;
   const volume = statistics.volumePerHa;
 
   const items = [
@@ -72,6 +72,28 @@ export function ProcessingSummaryCard({ result }: ProcessingSummaryCardProps) {
           </div>
         ))}
       </dl>
+
+      {heightSummary && (
+        <p id="processamento-alturas" className="text-sm text-[#6D786E]">
+          Alturas: {heightSummary.measured} medidas · {heightSummary.estimated} estimadas pela
+          relação hipsométrica · {heightSummary.missing} sem altura
+        </p>
+      )}
+
+      {hypsometricWarnings.length > 0 && (
+        <div
+          id="processamento-hipsometrica-alertas"
+          role="alert"
+          className="rounded-xl border border-coral-flor/40 bg-coral-flor/10 px-4 py-3 text-sm text-verde-mata"
+        >
+          <p className="font-semibold">Atenção ao cálculo hipsométrico</p>
+          <ul className="mt-2 list-disc pl-5">
+            {hypsometricWarnings.map((warning) => (
+              <li key={warning}>{warning}</li>
+            ))}
+          </ul>
+        </div>
+      )}
     </section>
   );
 }

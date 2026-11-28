@@ -41,7 +41,7 @@ Cada fazenda pode conter vários talhões. Cada talhão pode conter várias parc
 - **Processamento e relatórios** — seleção de equação volumétrica para processar um talhão, consulta de resultados e estatísticas, exportação em CSV e impressão em PDF pelo navegador. A tela de relatório da fazenda oferece seleção de seções, prévia e impressão.
 - **Administração** — análise de solicitações de cadastro, gestão de usuários e vínculos com projetos, configuração de equações e limites de validação e consulta de auditoria.
 
-A etapa de relação hipsométrica é uma prévia na interface. O processamento volumétrico usa os dados e parâmetros aceitos pela API.
+A relação hipsométrica (Näslund) é ajustada pela API, por talhão, com as árvores que têm altura medida (mínimo de 10). A interface mostra quantas alturas foram medidas, estimadas ou ficaram faltando e exibe os alertas do ajuste.
 
 ## Arquitetura
 
