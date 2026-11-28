@@ -32,11 +32,20 @@ export interface TreeProcessingResult {
   name?: string;
   diameterDapCm: number;
   heightM: number | null;
+  heightSource?: HeightSource;
   quality: TreeQuality;
   volumeM3: number;
   basalAreaM2: number;
   isValid: boolean;
   warnings?: string[];
+}
+
+export type HeightSource = 'MEASURED' | 'ESTIMATED' | 'MISSING';
+
+export interface HeightSummary {
+  measured: number;
+  estimated: number;
+  missing: number;
 }
 
 export interface SubPlotProcessingResult {
@@ -150,4 +159,7 @@ export interface InventoryProcessingResult {
   diameterClasses: DiameterClassResult[];
   plots?: PlotProcessingResult[];
   subPlots: SubPlotProcessingResult[];
+  // Opcionais até o back publicar o resumo de alturas (PR #65 do Back-End)
+  heightSummary?: HeightSummary;
+  hypsometricWarnings?: string[];
 }

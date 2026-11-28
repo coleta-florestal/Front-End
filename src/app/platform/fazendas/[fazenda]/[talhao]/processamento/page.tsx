@@ -14,7 +14,7 @@ import {
 } from '@/app/api/api';
 import Button from '@/components/core/Button';
 import { Check } from '@/components/core/Icons';
-import { HypsometricStep, HypsometricValues } from '@/components/processing/HypsometricStep';
+import { HypsometricStep } from '@/components/processing/HypsometricStep';
 import { ProcessingExportActions } from '@/components/processing/ProcessingExportActions';
 import { ProcessingPrintReport } from '@/components/processing/ProcessingPrintReport';
 import { ProcessingResultDetails } from '@/components/processing/ProcessingResultDetails';
@@ -25,7 +25,7 @@ import {
   VolumetricStep,
 } from '@/components/processing/VolumetricStep';
 import Topbar from '@/components/ui/Topbar';
-import { DEFAULT_HYPSOMETRIC, EQUATION_MODELS } from '@/lib/equations';
+import { EQUATION_MODELS, isHeightMeasuredForFit } from '@/lib/equations';
 import { VolumetricEquation } from '@/types/equation';
 import { PrismaFarmRecord, PrismaPlotRecord, PrismaSubPlotRecord } from '@/types/farm';
 import { InventoryProcessingResult, ProcessInventoryDto } from '@/types/processing';
@@ -82,11 +82,6 @@ export default function ProcessamentoPage({ params }: ProcessamentoPageProps) {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [equationsError, setEquationsError] = useState<string | null>(null);
 
-  const [hypsometric, setHypsometric] = useState<HypsometricValues>({
-    modelType: DEFAULT_HYPSOMETRIC.modelType,
-    beta0: toInputValue(DEFAULT_HYPSOMETRIC.beta0),
-    beta1: toInputValue(DEFAULT_HYPSOMETRIC.beta1),
-  });
   const [selectedEquationId, setSelectedEquationId] = useState('');
   const [coefficients, setCoefficients] = useState<Coefficients>(EMPTY_COEFFICIENTS);
   const [coefficientErrors, setCoefficientErrors] = useState<
@@ -135,6 +130,9 @@ export default function ProcessamentoPage({ params }: ProcessamentoPageProps) {
   const resumo = summarizeSubPlots(subPlots);
   const allTrees = subPlots.flatMap((subPlot) => subPlot.trees ?? []);
   const treesWithoutHeight = allTrees.filter((tree) => !tree.height).length;
+  const measuredTrees = allTrees.filter((tree) =>
+    isHeightMeasuredForFit(tree.diameterDapCm, tree.height),
+  ).length;
   const selectedEquation = equations.find((equation) => equation.id === selectedEquationId);
   const processingBlocker = getProcessingBlocker(subPlots);
   const isPlotFinished = plot?.status === 'FINISHED';
@@ -152,7 +150,6 @@ export default function ProcessamentoPage({ params }: ProcessamentoPageProps) {
     setCoefficientErrors((current) => ({ ...current, [key]: undefined }));
   };
 
-  // A etapa hipsométrica não é enviada: o back recusa campos que não conhece
   const buildRequest = (equation: VolumetricEquation): ProcessInventoryDto | null => {
     const usesBeta2 = EQUATION_MODELS[equation.modelType].usesBeta2;
     const keys: CoefficientKey[] = usesBeta2 ? ['beta0', 'beta1', 'beta2'] : ['beta0', 'beta1'];
@@ -271,11 +268,10 @@ export default function ProcessamentoPage({ params }: ProcessamentoPageProps) {
               )}
 
               <HypsometricStep
-                values={hypsometric}
-                canEdit={isAdmin}
+                equationModelType={selectedEquation?.modelType}
+                measuredTrees={measuredTrees}
                 treesWithoutHeight={treesWithoutHeight}
                 totalTrees={allTrees.length}
-                onChange={setHypsometric}
               />
 
               <VolumetricStep

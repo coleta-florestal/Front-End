@@ -1,5 +1,6 @@
 import { statRows } from '@/components/processing/ProcessingResultDetails';
 import { formatNumber } from '@/components/processing/ProcessingSummaryCard';
+import { HEIGHT_SOURCE_LABELS } from '@/lib/equations';
 import type { InventoryProcessingResult } from '@/types/processing';
 
 type Cell = string | number | boolean | null | undefined;
@@ -85,6 +86,7 @@ function treesSection(
       'Árvore',
       'DAP (cm)',
       'Altura (m)',
+      'Origem da altura',
       'Qualidade',
       'Volume (m³)',
       'Área basal (m²)',
@@ -97,6 +99,7 @@ function treesSection(
         tree.name,
         tree.diameterDapCm,
         tree.heightM,
+        tree.heightSource ? HEIGHT_SOURCE_LABELS[tree.heightSource] : null,
         qualityLabel(tree.quality),
         tree.volumeM3,
         tree.basalAreaM2,
