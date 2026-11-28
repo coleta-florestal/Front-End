@@ -111,15 +111,25 @@ export function ProcessingPrintReport({ result, farmName }: ProcessingPrintRepor
     { label: 'Densidade', value: `${formatNumber(totals.meanTreesPerHa, 0)} árv./ha` },
   ];
 
-  const warnings = subPlots.flatMap((subPlot) =>
-    (subPlot.trees ?? [])
-      .filter((tree) => !tree.isValid)
-      .map((tree) => ({
-        key: `${subPlot.id ?? subPlot.name}-${tree.id ?? tree.name}`,
-        parcel: subPlot.name,
-        tree: tree.name ?? '—',
-        text: (tree.warnings ?? []).join('; ') || 'Inválida',
-      })),
+  // Avisos do ajuste hipsométrico valem para o talhão todo, não para uma árvore
+  const hypsometricWarnings = (result.hypsometricWarnings ?? []).map((text) => ({
+    key: `hipsometrica-${text}`,
+    parcel: '—',
+    tree: '—',
+    text,
+  }));
+
+  const warnings = hypsometricWarnings.concat(
+    subPlots.flatMap((subPlot) =>
+      (subPlot.trees ?? [])
+        .filter((tree) => !tree.isValid)
+        .map((tree) => ({
+          key: `${subPlot.id ?? subPlot.name}-${tree.id ?? tree.name}`,
+          parcel: subPlot.name,
+          tree: tree.name ?? '—',
+          text: (tree.warnings ?? []).join('; ') || 'Inválida',
+        })),
+    ),
   );
 
   return (

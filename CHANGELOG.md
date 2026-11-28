@@ -1,3 +1,9 @@
+# [1.2.0-rc.1](https://github.com/coleta-florestal/Front-End/compare/v1.1.1...v1.2.0-rc.1) (2026-11-28)
+
+### Features
+
+- **processamento:** integrar cálculo hipsométrico do back ([90221a8](https://github.com/coleta-florestal/Front-End/commit/90221a8c55c2f1aba225419c5d1d6920f46c4fbc))
+
 ## [1.1.1](https://github.com/coleta-florestal/Front-End/compare/v1.1.0...v1.1.1) (2026-11-25)
 
 ### Bug Fixes
